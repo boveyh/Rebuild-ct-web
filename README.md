@@ -1,7 +1,9 @@
 # 《可视化导论》课程网站 · 重构版
 
 中国石油大学（华东）《可视化导论》课程网站的重构。
+
 原站：<https://cinger007.github.io/vis/>
+重构版线上：<https://boveyh.github.io/Rebuild-ct-web/>
 
 **目标**：让内容展现更清晰、更适合学习。
 
@@ -55,7 +57,9 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
 - `calendar*.html` 的站点根绝对路径（子路径部署必 404）→ 修正
 - `regression.html` 算完回归却没画、整页空白 → 重写为真正绘制
 - 第 1 章 5 个可独立运行的实验失去入口 → 重新接线回章节页
-- 自定义 `404.html`，自带站点根探测（域根 / 子路径 / 本地预览三种情况都成立）
+- 自定义 `404.html`：GitHub Pages 会把缺失路径留在地址栏，页面里所有相对地址都会解析错位
+  （上线实测过 —— favicon、CSS、JS 全 404，页面裸奔）。改为在 `<head>` 最前面探测站点根
+  并写成 `<base>`，域根 / 子路径 / 本地预览三种情况都成立
 
 ---
 
@@ -93,10 +97,15 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
 ```bash
 python tools/build.py          # 重建全站（可重复执行，结果确定）
 python tools/audit.py          # 静态审计：断链 / 绝对路径 / 残留 / a11y / 内容完整性
-node  tools/verify_render.mjs  # 真实浏览器跑 35 个页面 + 6 项交互断言
+node  tools/verify_render.mjs  # 本地浏览器跑 35 个页面 + 6 项交互断言
 node  tools/verify_render.mjs --shots   # 同时输出截图到 tools/screenshots/
+node  tools/verify_live.mjs    # 部署后验证线上 404 页（子路径下样式是否正常）
 python tools/package.py        # 打交付压缩包到 deliverables/
 ```
+
+> `verify_render.mjs` 与 `verify_live.mjs` 都依赖 `puppeteer-core` 和本机的 Chrome / Edge。
+> 前者默认连 `http://127.0.0.1:8099`，后者默认连线上地址，可用环境变量覆盖：
+> `BASE=http://127.0.0.1:9000 node tools/verify_render.mjs`、`PROXY=http://127.0.0.1:7890 node tools/verify_live.mjs`。
 
 `verify_render.mjs` 依赖 `puppeteer-core` 和本机的 Chrome / Edge，通过 `NODE_PATH`
 指向工作区的 `node_modules` 即可（不需要在项目里装依赖）。
