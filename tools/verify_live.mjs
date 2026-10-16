@@ -71,7 +71,9 @@ const probe = await page.evaluate(() => {
     jsHrefs: scripts.map((s) => abs(s.getAttribute("src"))),
     favicon: abs(document.querySelector('link[rel="icon"]')?.getAttribute("href") || ""),
     bodyFont: getComputedStyle(document.body).fontFamily,
-    rootLinks: [...document.querySelectorAll("[data-root-link]")].map((el) => el.getAttribute("href")),
+    // 用 .href 这个 property 取解析后的绝对地址；getAttribute 拿到的是原始值，
+    // 站点里写的是 "/Rebuild-ct-web/…" 这种绝对路径，拿它去和完整 URL 比会误报。
+    rootLinks: [...document.querySelectorAll("[data-root-link]")].map((el) => el.href),
     // "#main" 这类片段链接必须留在当前文档，不能被 <base> 带去站点根
     fragLinks: [...document.querySelectorAll('a[href*="#"]')]
       .map((a) => a.getAttribute("href"))
