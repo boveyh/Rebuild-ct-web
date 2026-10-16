@@ -32,7 +32,7 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
 
 原站直接给内容，学生不知道「这一章学什么、要多久、学之前得会什么」。
 
-新增：每章的学习目标卡（共 27 条，用可检验的句式）、前置知识与预计时长、
+新增：每章的学习目标卡（共 26 条，用可检验的句式）、前置知识与预计时长、
 **概念依赖图**（分层有向图，自研约 6 KB 渲染器）、25 条术语表、小节级阅读进度、
 命令面板式全站搜索（`Ctrl/⌘ + K`，86 条索引）。
 
@@ -70,7 +70,7 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
 │   ├── lecture.html            讲义页（可打印）
 │   └── data/                   该章演示数据
 ├── lesson-01/demo/             5 个可独立运行的实验（自包含，可单独拷走）
-├── supplementary/              15 个独立 Demo + 索引页
+├── supplementary/              16 个页面（索引页 + 15 个独立 Demo）
 ├── assets/
 │   ├── css/                    tokens / base / shell / content / portal
 │   ├── js/                     shell / enhance / conceptmap / lesson / portal
@@ -81,6 +81,7 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
     ├── build_supp.py           补充 Demo 修复与统一
     ├── audit.py                全站静态审计
     ├── verify_render.mjs       真实浏览器渲染验证
+    ├── package.py              交付打包：排除 .git / 会话数据 / 可再生成产物
     ├── data/                   教学元数据：章节目标、概念图、导览脚本、术语表
     └── origin/                 原站快照（管道的输入，勿删）
 ```
@@ -94,6 +95,7 @@ python tools/build.py          # 重建全站（可重复执行，结果确定�
 python tools/audit.py          # 静态审计：断链 / 绝对路径 / 残留 / a11y / 内容完整性
 node  tools/verify_render.mjs  # 真实浏览器跑 35 个页面 + 6 项交互断言
 node  tools/verify_render.mjs --shots   # 同时输出截图到 tools/screenshots/
+python tools/package.py        # 打交付压缩包到 deliverables/
 ```
 
 `verify_render.mjs` 依赖 `puppeteer-core` 和本机的 Chrome / Edge，通过 `NODE_PATH`
@@ -108,7 +110,7 @@ node  tools/verify_render.mjs --shots   # 同时输出截图到 tools/screenshot
 纯 HTML + CSS + ES Modules。**零构建、零依赖。**
 D3.js v7 走 CDN（jsDelivr）。`python -m http.server` 即可运行。
 
-设计系统有 127 个 CSS 变量，分三层：原始色阶 → 语义令牌 → 组件。
+设计系统有 128 个 CSS 变量，分三层：原始色阶 → 语义令牌 → 组件。
 换主题只动语义层。
 
 ---

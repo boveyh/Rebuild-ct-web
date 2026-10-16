@@ -486,7 +486,11 @@ def check_content(rep: Report) -> None:
         n_demo = 0
         if demo_module.is_file():
             js = demo_module.read_text(encoding="utf-8", errors="replace")
-            n_demo = len(re.findall(r"DEMOS\[", js))
+            # 只数「行首注册」`DEMOS["d-4-1"] = ...`。
+            # 早先写成 re.findall(r"DEMOS\[", js) 会把调度语句
+            # `if (DEMOS[name]) DEMOS[name](firstMount);` 也算进来 ——
+            # 一行里两个 `DEMOS[`，第 2 章因此被多算成 6 个演示。
+            n_demo = len(re.findall(r"^DEMOS\[", js, re.MULTILINE))
 
         total_sec += len(sec_ids)
         total_demo += n_demo
