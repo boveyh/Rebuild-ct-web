@@ -37,8 +37,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# 审计时跳过的目录：不是站点产物，或体积大且与渲染无关
-SKIP_DIRS = {".git", ".workbuddy", "node_modules", "__pycache__", "tools", "docs"}
+# 审计时跳过的目录：不是站点产物，或体积大且与渲染无关。
+# .tmp 与 deliverables 是本机的工作目录，里面的脚本会写 Node 内置模块名
+# （node:module 之类），混进来会被误判成断链。
+SKIP_DIRS = {
+    ".git", ".tmp", ".workbuddy", "deliverables",
+    "node_modules", "__pycache__", "tools", "docs",
+}
 
 # 这些扩展名会被当作「本地资源」去检查是否存在
 ASSET_EXT = {

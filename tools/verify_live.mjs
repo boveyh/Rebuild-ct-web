@@ -1,0 +1,133 @@
+/**
+ * 线上部署验证：确认 404 页在「子路径 + 深层缺失路径」下仍能正确加载样式与脚本。
+ *
+ * 为什么需要它：本地预览时站点根是 `/`，GitHub Pages 上是 `/<仓库名>/`。
+ * 404 页的「站点根探测」只在真实部署下才可能出错，本地怎么测都测不出来。
+ * 这个脚本就是抓到该问题的那一次 —— 当时回站链接都改对了，但 favicon 与
+ * CSS/JS 全部按缺失路径去请求（页面上写的 assets/css/tokens.css 被解析成
+ * /a/b/c/assets/css/tokens.css），结果是一张没有样式的裸页。
+ *
+ * 用法：
+ *   node tools/verify_live.mjs
+ *   BASE=https://user.github.io/repo/ node tools/verify_live.mjs
+ *   PROXY=http://127.0.0.1:7890 node tools/verify_live.mjs   # 需要走代理时
+ *
+ * 退出码：0 全通过 / 1 有断言失败 / 2 环境不满足
+ */
+
+import fs from "node:fs";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const puppeteer = require("puppeteer-core");
+
+const BASE = (process.env.BASE || "https://boveyh.github.io/Rebuild-ct-web/").replace(/\/+$/, "") + "/";
+const PROXY = process.env.PROXY || "";
+
+const CHROME_CANDIDATES = [
+  process.env.CHROME,
+  "C:/Program Files/Google/Chrome/Application/chrome.exe",
+  "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+  "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+].filter(Boolean);
+
+const chrome = CHROME_CANDIDATES.find((p) => fs.existsSync(p));
+if (!chrome) {
+  console.error("找不到 Chrome / Edge，可用 CHROME=<可执行文件路径> 指定");
+  process.exit(2);
+}
+
+// 故意挑一个「多层深路径」，让相对地址解析错得最明显
+const MISSING = BASE + "does-not-exist/deep/path/";
+
+const args = ["--no-sandbox"];
+if (PROXY) args.push(`--proxy-server=${PROXY}`);
+
+const browser = await puppeteer.launch({ executablePath: chrome, headless: "new", args });
+const page = await browser.newPage();
+
+const uncaught = [];
+page.on("pageerror", (e) => uncaught.push(e.message));
+
+const resp = await page.goto(MISSING, { waitUntil: "networkidle2", timeout: 45000 });
+
+const probe = await page.evaluate(() => {
+  const abs = (u) => {
+    try { return new URL(u, document.baseURI).href; } catch { return null; }
+  };
+  const sheets = [...document.querySelectorAll("link[rel=stylesheet]")];
+  const scripts = [...document.querySelectorAll("script[src]")];
+  return {
+    title: document.title,
+    baseHref: document.baseURI,
+    hasBaseTag: !!document.querySelector("base"),
+    // 样式表是否真的装上了：能读到 cssRules 才算加载成功（跨域会抛，这里同源）
+    cssLoaded: sheets.filter((l) => {
+      try { return [...document.styleSheets].some((s) => s.href === l.href && s.cssRules.length > 0); }
+      catch { return false; }
+    }).length,
+    cssTotal: sheets.length,
+    cssHrefs: sheets.map((l) => abs(l.getAttribute("href"))),
+    jsHrefs: scripts.map((s) => abs(s.getAttribute("src"))),
+    favicon: abs(document.querySelector('link[rel="icon"]')?.getAttribute("href") || ""),
+    bodyFont: getComputedStyle(document.body).fontFamily,
+    rootLinks: [...document.querySelectorAll("[data-root-link]")].map((el) => el.getAttribute("href")),
+    // "#main" 这类片段链接必须留在当前文档，不能被 <base> 带去站点根
+    fragLinks: [...document.querySelectorAll('a[href*="#"]')]
+      .map((a) => a.getAttribute("href"))
+      .filter((h) => h && h.includes("#")),
+  };
+});
+
+await browser.close();
+
+const checks = [];
+const push = (ok, label, detail) => checks.push({ ok, label, detail });
+
+// 1) 缺失路径应当返回 404，且落到我们自己的 404 页
+push(resp.status() === 404, "缺失路径返回 404", "HTTP " + resp.status());
+push(probe.title.includes("页面不存在"), "加载的是自定义 404 页", probe.title);
+
+// 2) 站点根探测是否生效
+push(probe.hasBaseTag, "写入了 <base>", probe.baseHref);
+push(probe.baseHref.startsWith(BASE), "站点根探测正确", `${probe.baseHref}  <- 期望 ${BASE}`);
+
+// 3) 关键：样式与脚本必须都在站点根之下（这正是当初漏掉的一点）
+const under = (u) => typeof u === "string" && u.startsWith(BASE);
+const cssBad = probe.cssHrefs.filter((u) => !under(u));
+const jsBad = probe.jsHrefs.filter((u) => !under(u));
+push(probe.cssTotal > 0 && cssBad.length === 0, "CSS 路径全部落到站点根", cssBad.join(", ") || `${probe.cssTotal} 个`);
+push(jsBad.length === 0, "JS 路径全部落到站点根", jsBad.join(", ") || `${probe.jsHrefs.length} 个`);
+push(under(probe.favicon), "favicon 路径落到站点根", probe.favicon);
+push(probe.cssLoaded === probe.cssTotal && probe.cssTotal > 0,
+     "样式表真的加载成功", `${probe.cssLoaded}/${probe.cssTotal}`);
+
+// 4) 回站链接与片段链接
+const linkBad = probe.rootLinks.filter((u) => !under(u));
+push(probe.rootLinks.length > 0 && linkBad.length === 0, "回站链接全部落到站点根",
+     linkBad.join(", ") || `${probe.rootLinks.length} 个`);
+const fragOk = probe.fragLinks.every((h) => h.startsWith(MISSING.split("#")[0]));
+push(fragOk, "片段链接仍指向当前文档", probe.fragLinks.join(", ") || "（无）");
+
+push(uncaught.length === 0, "无未捕获异常", uncaught.join(" | ") || "0 个");
+
+// 输出
+console.log("=".repeat(70));
+console.log("线上部署验证");
+console.log("=".repeat(70));
+console.log("目标      " + MISSING);
+console.log("浏览器    " + chrome);
+if (PROXY) console.log("代理      " + PROXY);
+console.log();
+
+for (const c of checks) {
+  console.log(`  ${c.ok ? "✅" : "❌"} ${c.label.padEnd(22, "　")} ${c.detail}`);
+}
+
+const failed = checks.filter((c) => !c.ok);
+console.log();
+console.log(failed.length === 0
+  ? `✅ ${checks.length}/${checks.length} 全部通过 —— 子路径部署下 404 页正常`
+  : `❌ ${failed.length}/${checks.length} 项失败`);
+
+process.exit(failed.length === 0 ? 0 : 1);

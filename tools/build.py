@@ -326,8 +326,13 @@ TAB_LABEL_EN = {"explain": "Explain", "code": "Key code", "demo": "Demo"}
 
 # ============================================================ 页面外壳片段
 
-def head(title, desc, depth, extra_css=(), extra_js=(), theme_color="#3d4bc0"):
-    """depth = 相对站点根目录的层级，'../' 或 ''"""
+def head(title, desc, depth, extra_css=(), extra_js=(), theme_color="#3d4bc0", root_probe=False):
+    """depth = 相对站点根目录的层级，'../' 或 ''
+
+    root_probe=True 只有 404 页用：把「站点根探测」脚本插到 head 最前面，
+    这样紧跟其后的 favicon / CSS / JS 这些相对地址才会按正确基准解析。
+    """
+    probe = (ROOT_SCRIPT + "\n") if root_probe else ""
     up = depth
     css = "\n".join(
         f'  <link rel="stylesheet" href="{up}assets/css/{n}.css" />'
@@ -344,7 +349,7 @@ def head(title, desc, depth, extra_css=(), extra_js=(), theme_color="#3d4bc0"):
 <html lang="zh-CN" data-locale="zh" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{probe}  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{title}</title>
   <meta name="description" content="{desc}" />
   <meta name="theme-color" content="{theme_color}" />
@@ -1455,9 +1460,17 @@ def build_supplementary():
 # 单独放字符串常量而不是塞进 f-string，是为了避免 JS 里的大量花括号和 Python 的
 # f-string 占位符打架（要么到处写 {{ }}，要么像现在这样分开放）。
 ROOT_SCRIPT = """  <script>
-    /* 只有这一页需要：把站点根算出来，再给所有 data-root-link 补上 href。
-       从当前路径逐级向上探测，找第一个真的能取到 assets/css/tokens.css 的层级。
-       覆盖三种部署情形：域根、/vis/ 子路径、本地 http.server。 */
+    /* 只有 404 页需要这一段。GitHub Pages 把 404.html 部署在站点根，但浏览器地址栏
+       里保留的仍然是「没找到的那个路径」，于是页面上所有相对地址都会被按缺失路径
+       解析 —— 访问 /a/b/c/ 时，页面里写的 assets/css/tokens.css 会变成
+       /a/b/c/assets/css/tokens.css，favicon、样式、脚本全部 404，页面裸奔。
+
+       做法分三步：
+       1. 从当前路径逐级向上，找第一个真的能取到 assets/css/tokens.css 的层级，
+          那就是站点根。覆盖三种情形：域根、子路径（如 /Rebuild-ct-web/）、本地预览。
+       2. 把它写成 <base>。此后文档里所有相对地址都按它解析，不用逐个去改。
+       3. 补两个 <base> 管不到的：站内链接用的是 data-root-link（没有 href 可解析），
+          以及 "#main" 这类纯片段链接会被 <base> 带偏到站点根（会跳去首页）。 */
     (function () {
       var segs = location.pathname.split("/").filter(Boolean);
       // 直接访问 404.html 时，最后一段是文件名而不是「缺失的目录名」，
@@ -1474,8 +1487,20 @@ ROOT_SCRIPT = """  <script>
           if (x.status === 200) { base = cand; break; }
         } catch (e) {}
       }
-      document.querySelectorAll("[data-root-link]").forEach(function (a) {
-        a.setAttribute("href", base + a.getAttribute("data-root-link"));
+
+      // appendChild 而不是插到最前面：<meta charset> 必须留在文档开头。
+      var b = document.createElement("base");
+      b.href = base;
+      document.head.appendChild(b);
+
+      document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("[data-root-link]").forEach(function (el) {
+          var url = base + el.getAttribute("data-root-link");
+          el.setAttribute(el.tagName === "SCRIPT" ? "src" : "href", url);
+        });
+        document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+          a.setAttribute("href", location.href.split("#")[0] + a.getAttribute("href"));
+        });
       });
     })();
   </script>"""
@@ -1501,7 +1526,8 @@ def build_404():
         for c in CHAPTERS
     )
     html = f"""{head("页面不存在 · 《可视化导论》",
-               "没有找到这个页面。下面是可以去的地方。", "")}
+               "没有找到这个页面。下面是可以去的地方。", "",
+               root_probe=True)}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 {topbar("@", [("课程门户", None)], "")}
@@ -1534,7 +1560,6 @@ def build_404():
     </ul>
   </main>
 {site_footer("")}
-{ROOT_SCRIPT}
 {close_page()}"""
     write(ROOT / "404.html", html)
 
