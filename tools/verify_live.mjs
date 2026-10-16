@@ -81,6 +81,49 @@ const probe = await page.evaluate(() => {
   };
 });
 
+/* --------------------------------- 首页：样式与布局 --------------------------------- */
+/* 加这一段的来由，和上面 404 页是同一类问题：门户页曾漏引 portal.css，首页塌成
+   一列纯文字。它不报 404（页面根本没请求这个文件）、不报错、元素也都在，所以
+   「探测资源能不能取到」查不出它 —— 得直接量「排开了几列」才算数。 */
+const home = await browser.newPage();
+const homeErr = [];
+home.on("pageerror", (e) => homeErr.push(e.message));
+
+// 必须显式设视口：puppeteer 默认 800×600，那个宽度下章节网格本来就只排 2 列
+await home.setViewport({ width: 1440, height: 900 });
+await home.goto(BASE, { waitUntil: "networkidle2", timeout: 45000 });
+await new Promise((r) => setTimeout(r, 600));
+
+const homeProbe = await home.evaluate(() => {
+  const sheets = [...document.querySelectorAll("link[rel=stylesheet]")];
+  // 数一个容器里出现了多少个互不相同的左边界 = 它实际排成了几列
+  const cols = (sel) => {
+    const host = document.querySelector(sel);
+    if (!host) return 0;
+    const xs = [...host.children]
+      .filter((el) => {
+        const s = getComputedStyle(el);
+        return s.display !== "none" && s.position !== "absolute";
+      })
+      .map((el) => Math.round(el.getBoundingClientRect().left));
+    return new Set(xs).size;
+  };
+  return {
+    cssLoaded: sheets.filter((l) => {
+      try {
+        return [...document.styleSheets].some((s) => s.href === l.href && s.cssRules.length > 0);
+      } catch {
+        return false;
+      }
+    }).length,
+    cssTotal: sheets.length,
+    cssNames: sheets.map((l) => (l.getAttribute("href") || "").split("/").pop()).join(","),
+    chapterCols: cols(".chapter-grid"),
+    statsCols: cols(".portal-stats"),
+    motifs: document.querySelectorAll(".chapter-card__motif").length,
+  };
+});
+
 await browser.close();
 
 const checks = [];
@@ -113,11 +156,21 @@ push(fragOk, "片段链接仍指向当前文档", probe.fragLinks.join(", ") || 
 
 push(uncaught.length === 0, "无未捕获异常", uncaught.join(" | ") || "0 个");
 
+// 5) 首页：样式真的装上、栅格真的排开
+push(homeProbe.cssLoaded === homeProbe.cssTotal && homeProbe.cssTotal > 0,
+     "首页样式表全部加载", `${homeProbe.cssLoaded}/${homeProbe.cssTotal}  ${homeProbe.cssNames}`);
+push(homeProbe.cssNames.includes("portal.css"), "portal.css 已被引用", homeProbe.cssNames);
+push(homeProbe.chapterCols >= 3, "首页章节网格排开了", `${homeProbe.chapterCols} 列`);
+push(homeProbe.statsCols >= 5, "首页统计条排开了", `${homeProbe.statsCols} 列`);
+push(homeProbe.motifs === 5, "5 枚章节微缩图都在", `${homeProbe.motifs} 枚`);
+push(homeErr.length === 0, "首页无未捕获异常", homeErr.join(" | ") || "0 个");
+
 // 输出
 console.log("=".repeat(70));
 console.log("线上部署验证");
 console.log("=".repeat(70));
-console.log("目标      " + MISSING);
+console.log("404 探测  " + MISSING);
+console.log("首页探测  " + BASE);
 console.log("浏览器    " + chrome);
 if (PROXY) console.log("代理      " + PROXY);
 console.log();
