@@ -11,3 +11,6 @@ Thumbs.db
 
 # 浏览器验证截图：由 tools/verify_render.mjs 随时可再生成
 tools/screenshots/
+
+# 交付压缩包输出目录：由 tools/package.py 生成
+deliverables/
