@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <meta charset="utf-8" />
+  <title>van Wijk 日历热图 · 2022–2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <style>
+    :root {
+      --bg:#fff; --ink:#1a2230; --muted:#6b7686; --panel:#f7f9fc; --line:#e2e8f0;
+      --line-strong:#c3ccd9; --tip-bg:#141924; --tip-ink:#e8edf5;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:#111621; --ink:#e6ebf3; --muted:#939eae; --panel:#171d29; --line:#262e3d;
+        --line-strong:#3b4559; --tip-bg:#0a0e16; --tip-ink:#e8edf5;
+      }
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; padding:26px 22px 60px; background:var(--bg); color:var(--ink);
+      font:14px/1.7 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    header { max-width:1440px; margin:0 auto 18px; }
+    h1 { font-size:19px; margin:0 0 6px; letter-spacing:.2px; }
+    .lead { color:var(--muted); margin:0; max-width:70ch; }
+    .lead b { color:var(--ink); font-weight:600; }
+    .wrap { max-width:1440px; margin:0 auto; background:var(--panel);
+            border:1px solid var(--line); border-radius:14px; padding:18px 18px 12px; }
+    #chart { overflow-x:auto; }
+    svg { display:block; }
+    .cell { shape-rendering:crispEdges; }
+    .wk { stroke:var(--line-strong); stroke-width:.8; }
+    .mon { stroke:var(--muted); stroke-width:1.1; }
+    .row-label { fill:var(--ink); font-size:12px; font-weight:600; }
+    .mon-label { fill:var(--muted); font-size:10px; }
+    .dow-label { fill:var(--muted); font-size:11px; }
+    .legend { display:flex; align-items:center; gap:10px; margin:14px 2px 2px;
+              color:var(--muted); font-size:12px; flex-wrap:wrap; }
+    .legend .ramp { display:flex; }
+    .legend .ramp i { width:22px; height:11px; display:block; }
+    .tip {
+      position:fixed; pointer-events:none; opacity:0; z-index:50;
+      background:var(--tip-bg); color:var(--tip-ink); border-radius:8px;
+      padding:6px 9px; font-size:12px; line-height:1.5; white-space:nowrap;
+      box-shadow:0 8px 22px rgba(0,0,0,.3); transform:translate(-50%,-140%);
+      transition:opacity .12s;
+    }
+    .note { color:var(--muted); font-size:12.5px; max-width:1440px; margin:16px auto 0; }
+    .note a { color:inherit; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>van Wijk 日历热图 · 2022–2025</h1>
+    <p class="lead">
+      <b>一行一年，一格一天</b>，366 格横向排开。每 7 格画一条<b>周分割线</b>，
+      月份边界用更重的线加月份标签标出 —— 这样「年 / 月 / 周 / 日」四个尺度
+      可以在一张图里同时读出来：纵向比年份，横向看季节，
+      而等距的竖线让「周节律」直接显形。
+      这就是 van Wijk &amp; van Selow (1999) 提出的 Calendar View。
+    </p>
+  </header>
+
+  <div class="wrap">
+    <div id="chart"></div>
+    <div class="legend">
+      <span>低</span><span class="ramp" id="ramp"></span><span>高</span>
+      <span id="range" style="margin-left:8px"></span>
+    </div>
+  </div>
+
+  <p class="note">
+    数据：<code>data/calendar_data_modified.csv</code>，共 4 年 1461 天的日值。
+    与 <a href="calendar.html">calendar.html</a>（螺旋时间轴）对照着看：
+    同一个数据集，换成日历排布之后「周节律」会立刻显形，而螺旋排布更适合看「年周期」。
+  </p>
+
+  <div class="tip" id="tip"></div>
+
+  <script>
+  (function () {
+    const CSV = "data/calendar_data_modified.csv";
+
+    /* 画法说明（van Wijk & van Selow 1999 的 Calendar View）：
+         · 一行 = 一年；
+         · 一年里横向排 366 个格子，一个格子 = 一天，颜色编码当天的值；
+         · 每 7 格画一条竖线，把「周」这一层从颜色里拎出来；
+         · 月份边界用更重的线 + 月份标签标出。
+       所以格子是「窄而高」的：宽 2.4px、高 14px。
+       第一版把格子做成正方形，还让 y 随星期递增，结果每一天都往右下斜一格，
+       整张图看起来是一串斜线 —— 那不是日历，是坐标系没用对。 */
+    const BAR_W = 2.4;          // 每天的横向宽度
+    const BAR_H = 14;           // 每天的高度 = 一年那一行的厚度
+    const COL = 3;              // 每天占的横向步长（含缝）
+    const YEAR_GAP = 9;         // 年与年之间的空隙
+    const PAD_L = 52, PAD_T = 26, PAD_R = 10, PAD_B = 10;
+    const DAYS = 366;           // 闰年上限
+
+    const dark = matchMedia("(prefers-color-scheme: dark)");
+    // 两套色带：浅色底用「浅 -> 深蓝」，深色底用「深 -> 亮青」
+    const RAMP_LIGHT = ["#eef3f9", "#cfe0f5", "#9dc0e6", "#5f95d3", "#2f68ae", "#163f74"];
+    const RAMP_DARK  = ["#1b2233", "#25406b", "#2f66a8", "#3f96d4", "#67c6ee", "#b6ecff"];
+    const ramp = () => d3.interpolateRgbBasis(dark.matches ? RAMP_DARK : RAMP_LIGHT);
+
+    const tip = document.getElementById("tip");
+
+    /* 日期自己解析，不用 new Date(字符串)。
+       数据里写的是 "2022/1/1"，月份和日期没有补零，
+       new Date("2022-1-1") 在 Chrome 里直接得到 Invalid Date ——
+       各浏览器对这种非标准格式的宽容度不同，不该依赖。 */
+    function parseDate(s) {
+      const p = String(s).trim().split(/[\/\-.]/).map(Number);
+      return p.length === 3 ? new Date(p[0], p[1] - 1, p[2]) : new Date(NaN);
+    }
+
+    const dayOfYear = d => Math.round((d - new Date(d.getFullYear(), 0, 1)) / 864e5);
+    const firstDow = y => (new Date(y, 0, 1).getDay() + 6) % 7;   // 周一记 0
+    const DOW = ["一", "二", "三", "四", "五", "六", "日"];
+
+    d3.csv(CSV, d => ({ date: parseDate(d.date), value: +String(d.value).trim() }))
+      .then(function (raw) {
+        const data = raw.filter(d => !isNaN(d.date) && !isNaN(d.value));
+        if (!data.length) throw new Error("没有可用数据");
+
+        const years = d3.range(d3.min(data, d => d.date.getFullYear()),
+                               d3.max(data, d => d.date.getFullYear()) + 1);
+        const [lo, hi] = d3.extent(data, d => d.value);
+        const color = d3.scaleSequential(ramp()).domain([lo, hi]);
+
+        const W = PAD_L + DAYS * COL + PAD_R;
+        const H = PAD_T + years.length * (BAR_H + YEAR_GAP) + PAD_B;
+
+        const svg = d3.select("#chart").append("svg")
+          .attr("viewBox", `0 0 ${W} ${H}`)
+          .attr("width", W).attr("height", H)
+          .attr("role", "img")
+          .attr("aria-label",
+            `日历热图：${years[0]} 至 ${years[years.length - 1]} 年每日数值，` +
+            `每行一年、每格一天，颜色由低到高取 ${lo} 到 ${hi}`);
+
+        const g = svg.append("g").attr("transform", `translate(${PAD_L},${PAD_T})`);
+
+        data.forEach(function (d) {
+          d.day = dayOfYear(d.date);
+        });
+
+        years.forEach(function (year, yi) {
+          const y0 = yi * (BAR_H + YEAR_GAP);
+          const row = g.append("g").attr("transform", `translate(0,${y0})`);
+          const cells = data.filter(d => d.date.getFullYear() === year);
+
+          row.append("text").attr("class", "row-label")
+            .attr("x", -12).attr("text-anchor", "end").attr("y", BAR_H - 3)
+            .text(year);
+
+          // 底板：把整年的范围画出来，空数据的日子也有底
+          row.append("rect")
+            .attr("x", -1).attr("y", -1)
+            .attr("width", DAYS * COL + 2).attr("height", BAR_H + 2)
+            .attr("rx", 2).attr("fill", "none").attr("stroke", "var(--line)");
+
+          row.selectAll("rect.cell").data(cells).join("rect")
+            .attr("class", "cell")
+            .attr("x", d => d.day * COL)
+            .attr("y", 0)
+            .attr("width", BAR_W).attr("height", BAR_H)
+            .attr("fill", d => color(d.value))
+            .on("mouseenter", function (ev, d) {
+              d3.select(this).attr("stroke", "var(--ink)").attr("stroke-width", 1.2);
+              tip.style.opacity = 1;
+              tip.innerHTML = d3.timeFormat("%Y-%m-%d")(d.date) +
+                "（周" + DOW[(d.date.getDay() + 6) % 7] + "）<br>数值 " + d.value;
+              tip.style.left = ev.clientX + "px";
+              tip.style.top = ev.clientY + "px";
+            })
+            .on("mousemove", ev => {
+              tip.style.left = ev.clientX + "px";
+              tip.style.top = ev.clientY + "px";
+            })
+            .on("mouseleave", function () {
+              d3.select(this).attr("stroke", null);
+              tip.style.opacity = 0;
+            });
+
+          // 周分割线：每 7 天一条，让「周节律」从色块里显出来
+          row.append("g").selectAll("line.wk")
+            .data(d3.range(0, DAYS + 1, 7)).join("line")
+            .attr("class", "wk")
+            .attr("x1", d => d * COL - COL / 2).attr("x2", d => d * COL - COL / 2)
+            .attr("y1", -3).attr("y2", BAR_H + 3);
+
+          // 月份边界 + 标签：按该年第 1 天是周几来对齐真实的月首
+          const monthStarts = d3.range(12).map(m => new Date(year, m, 1));
+          row.append("g").selectAll("line.mon").data(monthStarts).join("line")
+            .attr("class", "mon")
+            .attr("x1", d => dayOfYear(d) * COL - COL / 2)
+            .attr("x2", d => dayOfYear(d) * COL - COL / 2)
+            .attr("y1", -8).attr("y2", BAR_H + 3);
+
+          row.append("g").selectAll("text.mon-label").data(monthStarts).join("text")
+            .attr("class", "mon-label")
+            .attr("x", d => dayOfYear(d) * COL + 2)
+            .attr("y", -11)
+            .text(d => (d.getMonth() === 0 || dayOfYear(d) > 14) ? (d.getMonth() + 1) + "月" : "");
+        });
+
+        // 图例色阶
+        const rampEl = document.getElementById("ramp");
+        d3.range(24).forEach(i => {
+          const el = document.createElement("i");
+          el.style.background = color(lo + (hi - lo) * (i / 23));
+          rampEl.appendChild(el);
+        });
+        document.getElementById("range").textContent =
+          `数值范围 ${lo} ~ ${hi}` + (dark.matches ? "（深色模式配色）" : "");
+
+        // 系统主题变了就重画：颜色带是按主题选的，不能只靠 CSS
+        dark.addEventListener("change", function () { location.reload(); });
+      }).catch(function (err) {
+        d3.select("#chart").html(
+          '<p style="color:#d1495b">数据没能加载：' + err.message +
+          '<br>请通过本地静态服务器打开本页（直接双击 file:// 打开会被 CORS 拦住）。</p>');
+      });
+  })();
+  </script>
+
+<!-- wb-demobar: 由 tools/build_supp.py 注入，给独立 demo 一个回站入口 -->
+<style id="wb-demobar-style">
+  .wb-demobar {
+    position: fixed; right: 14px; bottom: 14px; z-index: 2147483000;
+    display: flex; gap: 2px; align-items: center;
+    font: 12px/1.4 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: rgba(20, 24, 33, .86); color: #e8edf5;
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 999px; padding: 5px 6px 5px 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .28);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .wb-demobar span { opacity: .68; margin-right: 4px; }
+  .wb-demobar a {
+    color: #e8edf5; text-decoration: none; padding: 3px 9px; border-radius: 999px;
+    transition: background .15s;
+  }
+  .wb-demobar a:hover, .wb-demobar a:focus-visible { background: rgba(255, 255, 255, .16); }
+  @media print { .wb-demobar { display: none; } }
+</style>
+<div class="wb-demobar" role="navigation" aria-label="返回课程">
+  <span>可视化导论</span>
+  <a href="../">课程门户</a>
+  <a href="../glossary.html">术语表</a>
+</div>
+</body>
+</html>

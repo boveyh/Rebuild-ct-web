@@ -1,88 +1,22 @@
+/* ============================================================================
+   第 1 章演示模块 —— 由 tools/build.py 从原 lesson.js 抽取
+   ----------------------------------------------------------------------------
+   原站把「导航 + tab 切换 + 演示注册」写在同一个 16998 字节的文件里，
+   而且 5 章的演示键会互相冲突（第 1 章的 d-3-1 和第 3 章的 d-3-1 同名）。
+   抽取时做了两件事：
+     · 删掉导航与 tab 相关函数 —— 这些已由 assets/js/shell.js 统一提供；
+     · 把 window.DEMOS 收进模块作用域，改为 default export，由 lesson.js
+       按需动态 import，因此打开页面时不会下载任何演示代码。
+   内容逻辑（5 个演示）未作任何改动。
+   ========================================================================= */
+
 // lesson.js —— Doc-01 集成教学页面交互逻辑
 // 1) 章节切换  2) Tab 切换  3) Demo 注入
 
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
-
 // ============================================================
-// 统一章节导航 + Tab 切换 + 自动渲染 demo（patched by patch_lesson_js.py）
 // ============================================================
-function __resolveDemoName(mount) {
-  return (mount.dataset && mount.dataset.demo)
-      || (mount.id && mount.id.replace(/^demo-mount-/, ""))
-      || null;
-}
-function __renderDemo(mount) {
-  if (!mount || mount.dataset.rendered) return;
-  const name = __resolveDemoName(mount);
-  if (!name) return;
-  const fn = (window.DEMOS && window.DEMOS[name]) || (typeof DEMOS !== "undefined" && DEMOS[name]);
-  if (fn) { fn(mount); mount.dataset.rendered = "1"; }
-}
-function __renderAllDemos() {
-  document.querySelectorAll(".demo-mount, [id^='demo-mount-']").forEach(__renderDemo);
-}
-function __activateChapter(id) {
-  if (!id) return;
-  document.querySelectorAll(".chapter-nav a[data-chapter]").forEach(l => {
-    l.classList.toggle("active", l.dataset.chapter === id);
-  });
-  document.querySelectorAll(".chapter").forEach(c => {
-    const isActive = c.id === id;
-    c.classList.toggle("active", isActive);
-    if (isActive) {
-      // 自动切到 demo tab
-      c.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === "demo"));
-      c.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === "demo"));
-      // 渲染 demo 并滚动
-      const mount = c.querySelector(".demo-mount, [id^='demo-mount-']");
-      __renderDemo(mount);
-      setTimeout(() => {
-        if (mount) mount.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 80);
-    }
-  });
-}
-function __bindLessonNav() {
-  // 章节 anchor 链接
-  document.querySelectorAll(".chapter-nav a[data-chapter]").forEach(a => {
-    a.addEventListener("click", e => {
-      e.preventDefault();
-      const id = a.dataset.chapter;
-      if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
-      __activateChapter(id);
-    });
-  });
-  // Tab 按钮
-  document.querySelectorAll(".chapter .tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const chapter = btn.closest(".chapter");
-      if (!chapter) return;
-      const tab = btn.dataset.tab;
-      chapter.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
-      chapter.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === tab));
-      if (tab === "demo") {
-        const mount = chapter.querySelector(".demo-mount, [id^='demo-mount-']");
-        __renderDemo(mount);
-      }
-    });
-  });
-  // hashchange
-  window.addEventListener("hashchange", () => {
-    const id = location.hash.replace(/^#/, "");
-    if (id) __activateChapter(id);
-  });
-}
-// 页面初始（module 加载后立即执行）
-__bindLessonNav();
-// 延迟到下一个 microtask，等当前 module 跑完（DEMOS 注册完毕）再渲染
-queueMicrotask(() => __renderAllDemos());
-// 如果 URL 带 hash，激活对应章节
-if (location.hash) {
-  const initialId = location.hash.replace(/^#/, "");
-  if (initialId) queueMicrotask(() => __activateChapter(initialId));
-}
-
 const DEMOS = {};
 
 // ---------- 3.1 数据加载演示 ----------
@@ -384,3 +318,5 @@ DEMOS["d-3-5"] = (mount) => {
   document.getElementById("d-3-5-reset").onclick = () => { data = [1, 2, 3]; render(); };
   render();
 };
+
+export default DEMOS;

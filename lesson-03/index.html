@@ -1,657 +1,1032 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-page-node-id="G6xvPtshqrpD31HTJz6PKe">
-<head data-page-node-id="lTc1kNToIfAQiD2n9t9CsM">
-  <meta charset="UTF-8" data-page-node-id="OYA4ALFgqE5CSCMxuoGjLf" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="g3t8NdMQJhfi91HsXh2mjr" />
-  <title>第 3 章 色彩专题 · 集成教学页面</title>
-  <link rel="stylesheet" href="./styles.css" data-page-node-id="31cgjpTINjVn7R57jeEtEy" />
-  <link rel="stylesheet" href="../i18n.css" />
+<html lang="zh-CN" data-locale="zh" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第 3 章 色彩专题 · 《可视化导论》</title>
+  <meta name="description" content="八节把配色一次讲透：颜色空间、colormap 选型、色系规则、科研经典色板、色觉缺陷检测。学完可以直接拿去做论文图。" />
+  <meta name="theme-color" content="#3d4bc0" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <meta property="og:title" content="第 3 章 色彩专题 · 《可视化导论》" />
+  <meta property="og:description" content="八节把配色一次讲透：颜色空间、colormap 选型、色系规则、科研经典色板、色觉缺陷检测。学完可以直接拿去做论文图。" />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/base.css" />
+  <link rel="stylesheet" href="../assets/css/shell.css" />
+  <link rel="stylesheet" href="../assets/css/content.css" />
+  <script>
+    /* 主题要在首次绘制前定好，否则深色模式会闪一下白 */
+    (function () {
+      try {
+        var s = localStorage.getItem("wb.theme");
+        var d = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.setAttribute("data-theme", s || (d ? "dark" : "light"));
+        var l = localStorage.getItem("wb.locale");
+        if (l) document.documentElement.setAttribute("data-locale", l === "en" ? "en" : "zh");
+      } catch (e) {}
+    })();
+  </script>
+  <script type="module" src="../assets/js/shell.js"></script>
+  <script type="module" src="../assets/js/enhance.js"></script>
+  <script type="module" src="../assets/js/conceptmap.js"></script>
+  <script type="module" src="../assets/js/lesson.js"></script>
 </head>
-<body data-page-node-id="BbfgbfsxLDivIiM87IEXsz">
+<body id="top">
+  <a class="skip-link" href="#main">跳到主要内容</a>
 
-  <nav class="course-topbar" data-current="3">
-    <a class="brand" href="../">
-      <span class="back">←</span><span data-i18n="nav.home" data-i18n="common.enter">课程门户</span>
-    </a>
-    <ul class="tabs">
-      <li><a href="../" data-i18n="nav.home" data-i18n="common.enter">课程门户</a></li>
-      <li><a href="../lesson-01/" data-i18n="nav.ch1">第 1 章 · 数据</a></li>
-      <li><a href="../lesson-02/" data-i18n="nav.ch2">第 2 章 · 数据可视化流程</a></li>
-      <li><a href="../lesson-03/" data-i18n="nav.ch3">第 3 章 · 色彩专题</a></li>
-      <li><a href="../lesson-04/" data-i18n="nav.ch4">第 4 章 · 低维可视化</a></li>
-      <li><a href="../lesson-05/" data-i18n="nav.ch5">第 5 章 · 时序可视化</a></li>
-    </ul>
-  </nav>
-  <header class="lesson-header" data-page-node-id="6Lyedfpl0FLGAx16H7pwcU">
-    <div data-page-node-id="swUnXTEW9ALyAKtkCUkRah">
-      <h1 data-page-node-id="adreQVoupBm199xmDS5rHU">第 3 章 色彩专题</h1>
-      <p class="subtitle" data-page-node-id="strxdJZVUgUEgMKa1EW6DB">Doc-03 集成教学页面 · 讲解 ⇄ 代码 ⇄ 演示 三 tab 切换 · 8 个小节</p>
-    </div>
-    <div class="header-tip" data-page-node-id="TpeQ7qDNrOO49icmsfLSuj">
-      <span class="kbd" data-page-node-id="bPwoFIA6SNjPcwEoYcyk8z">Tab</span> 切换章节 · 每个章节内三 tab 自由切换
+  <div class="progress-rail" aria-hidden="true"><div class="progress-rail__bar" id="progress-bar"></div></div>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <button class="icon-btn sidebar-toggle" id="sidebar-toggle" type="button"
+              aria-controls="sidebar" aria-expanded="false">
+        <span class="sr-only">打开目录</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+
+      <a class="topbar__brand" href="../">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text">可视化导论</span>
+      </a>
+
+      <span class="topbar__divider" aria-hidden="true"></span>
+
+      <nav class="breadcrumb" aria-label="面包屑导航">
+        <ol><li><a href="../">课程门户</a></li><li><span aria-current="page">第 3 章 色彩专题</span></li></ol>
+      </nav>
+
+      <div class="topbar__actions">
+        <button class="search-trigger" type="button" data-search-open data-i18n-aria="search.open">
+          <svg class="search-trigger__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>
+          </svg>
+          <span class="search-trigger__label" data-i18n="search.placeholder">搜索</span>
+          <kbd>Ctrl K</kbd>
+        </button>
+
+        <button class="icon-btn" id="theme-toggle" type="button" data-i18n-aria="theme.toggle" aria-pressed="false">
+          <span class="sr-only">切换主题</span>
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" style="display:none">
+            <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/>
+          </svg>
+        </button>
+        
+        <div class="lang-switch" role="group" aria-label="切换语言 / Switch language">
+          <button type="button" data-lang-btn="zh" aria-pressed="true" aria-label="中文">中</button>
+          <button type="button" data-lang-btn="en" aria-pressed="false" aria-label="English">EN</button>
+        </div>
+      </div>
     </div>
   </header>
 
-  <main class="lesson-main" data-page-node-id="1rcuD4pYewUwNM3Egft32l">
-    <aside class="chapter-nav" data-page-node-id="YziojDjs7RvOlpuhUVSnbn">
-      <h3 data-page-node-id="D9lr2knYJYt7bPgEjcG4e5" data-i18n="nav.toc">章节目录</h3>
-      <ul data-page-node-id="WByLA9epMeT3VCCkENe0HZ">
-        <li data-page-node-id="0hVGmebV12EvyDWmQ7dEwI"><a data-i18n="sec-03-1.title" href="#ch-3-1" data-chapter="ch-3-1" class="active" data-page-node-id="xWfb4v2RooS5y407MoROLV">3.1 颜色模型基础</a></li>
-        <li data-page-node-id="AxqXYQxv6Pj4W8hY8xorrL"><a data-i18n="sec-03-2.title" href="#ch-3-2" data-chapter="ch-3-2" data-page-node-id="5K0ESDfCixfnSgbE4oT6ie">3.2 colormap 三类选择</a></li>
-        <li data-page-node-id="E0Co1hEgrZ3tNmEVgcpqKJ"><a data-i18n="sec-03-3.title" href="#ch-3-3" data-chapter="ch-3-3" data-page-node-id="DyALXEZNDqyxvvVSs8HFmC">3.3 CIE Lab 色域图</a></li>
-        <li data-page-node-id="MpcWEF7HfUfhdi1U8UI4Uc"><a data-i18n="sec-03-4.title" href="#ch-3-4" data-chapter="ch-3-4" data-page-node-id="vLKpdRmNqZUkPOeJUwlbZT">3.4 色系搭配规则（5 大类）</a></li>
-        <li data-page-node-id="5IzAG6jEwtjk2EsNYoEBXB"><a data-i18n="sec-03-5.title" href="#ch-3-5" data-chapter="ch-3-5" data-page-node-id="YbUUmLBYYXHzVvd62HE8m1">3.5 科研经典配色</a></li>
-        <li data-page-node-id="Hflw2Bn8Hgl9lL9u1WrVap"><a data-i18n="sec-03-6.title" href="#ch-3-6" data-chapter="ch-3-6" data-page-node-id="LRS9DqqgxXYA4BcgdB6GDf">3.6 对错案例对比</a></li>
-        <li data-page-node-id="nGh8Bwhdo15EcfbvT8GxE8"><a data-i18n="sec-03-7.title" href="#ch-3-7" data-chapter="ch-3-7" data-page-node-id="6I1LnFQD34Xiaw8L693Ri8">3.7 鲜艳 + 低饱和 哲学</a></li>
-        <li data-page-node-id="JnzViYXRjPNt4z3BKYkyFw"><a data-i18n="sec-03-8.title" href="#ch-3-8" data-chapter="ch-3-8" data-page-node-id="GYtpwfUwiYgNjKYsincs5e">3.8 CVD 论文图测</a></li>
-      </ul>
-      <div class="nav-tip" data-page-node-id="Cm5GLvuf8k9RQsFsHBNsSw">        <a href="../supplementary/#第-3-章-色彩专题" target="_blank"><span data-i18n="common.supplementary">↗ 补充 demo 集合</span></a>
-        <br>        <a href="./lecture.md" target="_blank" data-i18n-href="lecture"><span data-i18n="common.full-lecture">↗ 完整讲义 markdown</span></a>
-      
+  <div class="search-layer" id="search-layer" data-open="false" role="dialog"
+       aria-modal="true" aria-label="全站搜索" aria-hidden="true">
+    <div class="search-panel">
+      <div class="search-panel__field">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+        <input class="search-panel__input" id="search-input" type="search" autocomplete="off"
+               spellcheck="false" data-i18n-placeholder="search.placeholder"
+               placeholder="搜索知识点、代码、演示…" aria-label="搜索关键词" />
+        <button class="icon-btn" type="button" data-search-close data-i18n-aria="search.close">
+          <span class="sr-only">关闭</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
       </div>
+      <div class="search-panel__results" id="search-results" role="listbox" aria-label="搜索结果"></div>
+      <div class="search-panel__hint">
+        <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+        <span><kbd>Enter</kbd> 打开</span>
+        <span><kbd>Esc</kbd> 关闭</span>
+        <span style="margin-left:auto"><kbd>/</kbd> 随时唤起</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell">
+    <aside class="sidebar" id="sidebar" data-open="false" aria-label="课程导航">
+    <nav class="sidebar__group" aria-labelledby="sb-toc">
+      <div class="sidebar__title" id="sb-toc" data-i18n="sidebar.toc">本章目录</div>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__link" href="#ch-3-1" data-toc-link="ch-3-1" data-progress-key="c03s1"><span class="sidebar__num">3.1</span><span class="sidebar__text"><span data-lang="zh">颜色模型基础</span><span data-lang="en">颜色模型基础</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
+        <li><a class="sidebar__link" href="#ch-3-2" data-toc-link="ch-3-2" data-progress-key="c03s2"><span class="sidebar__num">3.2</span><span class="sidebar__text"><span data-lang="zh">colormap 三类选择</span><span data-lang="en">colormap 三类选择</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
+        <li><a class="sidebar__link" href="#ch-3-3" data-toc-link="ch-3-3" data-progress-key="c03s3"><span class="sidebar__num">3.3</span><span class="sidebar__text"><span data-lang="zh">CIE Lab 色域图</span><span data-lang="en">CIE Lab 色域图</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
+        <li><a class="sidebar__link" href="#ch-3-4" data-toc-link="ch-3-4" data-progress-key="c03s4"><span class="sidebar__num">3.4</span><span class="sidebar__text"><span data-lang="zh">色系搭配规则（5 大类）</span><span data-lang="en">色系搭配规则（5 大类）</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
+        <li><a class="sidebar__link" href="#ch-3-5" data-toc-link="ch-3-5" data-progress-key="c03s5"><span class="sidebar__num">3.5</span><span class="sidebar__text"><span data-lang="zh">科研经典配色</span><span data-lang="en">科研经典配色</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
+        <li><a class="sidebar__link" href="#ch-3-6" data-toc-link="ch-3-6" data-progress-key="c03s6"><span class="sidebar__num">3.6</span><span class="sidebar__text"><span data-lang="zh">对错案例对比</span><span data-lang="en">对错案例对比</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
+        <li><a class="sidebar__link" href="#ch-3-7" data-toc-link="ch-3-7" data-progress-key="c03s7"><span class="sidebar__num">3.7</span><span class="sidebar__text"><span data-lang="zh">鲜艳 + 低饱和 哲学生成器</span><span data-lang="en">鲜艳 + 低饱和 哲学生成器</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
+        <li><a class="sidebar__link" href="#ch-3-8" data-toc-link="ch-3-8" data-progress-key="c03s8"><span class="sidebar__num">3.8</span><span class="sidebar__text"><span data-lang="zh">CVD 论文图测</span><span data-lang="en">CVD 论文图测</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
+      </ul>
+    </nav>
+    <nav class="sidebar__group" aria-labelledby="sb-all">
+      <div class="sidebar__title" id="sb-all" data-i18n="sidebar.chapters">全部章节</div>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__chapter" href="../lesson-01/" data-progress-scope="c01s" data-progress-total="5"><span data-lang="zh">第 1 章 数据</span><span data-lang="en">Ch. 1 Data</span><span class="sidebar__progress" data-progress-out>0%</span></a></li>
+        <li><a class="sidebar__chapter" href="../lesson-02/" data-progress-scope="c02s" data-progress-total="4"><span data-lang="zh">第 2 章 数据可视化流程</span><span data-lang="en">Ch. 2 Visualization Workflow</span><span class="sidebar__progress" data-progress-out>0%</span></a></li>
+        <li><a class="sidebar__chapter" href="../lesson-03/" aria-current="page" data-progress-scope="c03s" data-progress-total="8"><span data-lang="zh">第 3 章 色彩专题</span><span data-lang="en">Ch. 3 Color</span><span class="sidebar__progress" data-progress-out>0%</span></a></li>
+        <li><a class="sidebar__chapter" href="../lesson-04/" data-progress-scope="c04s" data-progress-total="5"><span data-lang="zh">第 4 章 低维数据可视化</span><span data-lang="en">Ch. 4 Low-Dimensional Data</span><span class="sidebar__progress" data-progress-out>0%</span></a></li>
+        <li><a class="sidebar__chapter" href="../lesson-05/" data-progress-scope="c05s" data-progress-total="5"><span data-lang="zh">第 5 章 时序数据可视化</span><span data-lang="en">Ch. 5 Time-Series Data</span><span class="sidebar__progress" data-progress-out>0%</span></a></li>
+      </ul>
+    </nav>
+
+    <div class="sidebar__foot">
+      <div class="sidebar__title" data-i18n="sidebar.resources">配套资源</div>
+      <ul class="sidebar__list">
+        <li><a class="sidebar__link" href="../supplementary/">
+          <span class="sidebar__text" data-i18n="resource.demos">补充 demo 集合</span></a></li>
+        <li><a class="sidebar__link" href="../glossary.html">
+          <span class="sidebar__text" data-i18n="resource.glossary">术语表</span></a></li>
+        <li><a class="sidebar__link" href="#top" data-top>
+          <span class="sidebar__text" data-i18n="nav.top">回到顶部</span></a></li>
+      </ul>
+    </div>
     </aside>
+    <div class="sidebar-scrim" id="sidebar-scrim" data-open="false" aria-hidden="true"></div>
 
-    <section class="chapter-content" data-page-node-id="IJKaHUWeHBU3oTAcF0ZU6q">
-
-      <!-- ============= 3.1 颜色模型基础 ============= -->
-      <article class="chapter active" id="ch-3-1" data-page-node-id="jJbJFemsdAPd6UeuuYWQ2T">
-        <h2 data-page-node-id="rDuBfOlga3s5ZBmhYvFwen" data-i18n="sec-03-1.title">3.1 颜色模型基础</h2>
-        <p class="chapter-subtitle" data-lang="zh-CN">为什么需要 4 种颜色空间？它们各自擅长什么？色盲眼中看到的世界是怎样的？</p>
-        <p class="chapter-subtitle" data-lang="en-US" hidden>Why do we need 4 color spaces? What is each one good at? What does the world look like through the eyes of someone with color blindness?</p>
-        <div class="tabs" data-page-node-id="cF4ysum7DzJe380YoyQTjs">
-          <button class="tab-btn active" data-tab="explain" data-page-node-id="zsI0MYlABHyay2evoN9WQU" data-i18n="tab.explain">📖 讲解</button>
-          <button class="tab-btn" data-tab="code" data-page-node-id="bDIla711q5ROfw5BEMvqbr" data-i18n="tab.code">⌨️ 关键代码</button>
-          <button class="tab-btn" data-tab="demo" data-page-node-id="ux1moTzERnXFlu4DbV3WvK" data-i18n="tab.demo">▶️ 演示</button>
-        </div>
-        <div class="tab-panels" data-page-node-id="H3OcvJroymuasQ86ZhScrC">
-          <div class="tab-panel active" data-panel="explain" data-page-node-id="GiogR6938Z9BDHANYVpX1K">
-            <h3 data-lang="zh-CN">为什么要学颜色模型？</h3>
-            <h3 data-lang="en-US" hidden>Why learn color models?</h3>
-            <p data-lang="zh-CN">设计 colormap 时，<strong data-page-node-id="IRYQYuAFrG6ZD1J30ptWxw">不能直接用 RGB 插值</strong>——因为 RGB 不是感知均匀的（255,0,0 与 0,255,0 "看上去"亮度差很多）。你需要感知均匀的颜色空间（Lab / HCL）来插值，才能得到平滑的渐变。</p>
-            <p data-lang="en-US" hidden>When designing a colormap, <strong>do not interpolate directly in RGB</strong>—because RGB is not perceptually uniform (255,0,0 and 0,255,0 "look" very different in lightness). You need a perceptually uniform color space (Lab / HCL) to interpolate and get smooth gradients.</p>
-            <h3 data-lang="zh-CN">4 大颜色空间</h3>
-            <h3 data-lang="en-US" hidden>The 4 major color spaces</h3>
-            <ul data-page-node-id="xPLnRrQRWrTjeTUa4B3gnj">
-              <li data-lang="zh-CN"><strong data-page-node-id="u3a4MHka94fOjCsOJ0FENW">RGB</strong>：加色模型，设备相关。屏幕显示的默认。</li>
-              <li data-lang="en-US" hidden><strong>RGB</strong>: additive model, device-dependent. The default for screen display.</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="B7Q1sf51XvtFQqZA6BGiwA">HSL</strong>：艺术家友好（色相/饱和度/亮度独立），但<strong data-page-node-id="uct0aox9z8MKkcO2jDlzrl">仍不感知均匀</strong>。</li>
-              <li data-lang="en-US" hidden><strong>HSL</strong>: artist-friendly (independent hue / saturation / lightness), but <strong>still not perceptually uniform</strong>.</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="AOQx1sF46hpFFDaAUbIJiq">CIE Lab</strong>：感知均匀，<strong data-page-node-id="b2PSWrmbjVB7zAa4FHC7w5">设计 colormap 的黄金标准</strong>。</li>
-              <li data-lang="en-US" hidden><strong>CIE Lab</strong>: perceptually uniform, <strong>the gold standard for designing colormaps</strong>.</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="QDWRVL33DDyH0I5LUhWtMI">CMYK</strong>：减色（印刷），web 可视化用不到。</li>
-              <li data-lang="en-US" hidden><strong>CMYK</strong>: subtractive (print). Not used in web visualizations.</li>
-            </ul>
-            <h3 data-lang="zh-CN">CVD（色觉缺陷）</h3>
-            <h3 data-lang="en-US" hidden>CVD (Color Vision Deficiency)</h3>
-            <p data-lang="zh-CN">约 8% 男性、0.5% 女性是色盲。常见三种：</p>
-            <p data-lang="en-US" hidden>About 8% of men and 0.5% of women are color-blind. Three common types:</p>
-            <ul data-page-node-id="ji1J2pCT5H9ZkYO5BpF34A">
-              <li data-lang="zh-CN"><strong data-page-node-id="U1dpw76ZRqa661rGwOlnDR">红色盲（protanopia）</strong>：约 1% 男性</li>
-              <li data-lang="en-US" hidden><strong>Protanopia (red-blind)</strong>: ~1% of men</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="dicgDKQum8eO7wpKtcsmIm">绿色盲（deuteranopia）</strong>：约 6% 男性（最常见）</li>
-              <li data-lang="en-US" hidden><strong>Deuteranopia (green-blind)</strong>: ~6% of men (most common)</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="QqBFMvRT215Tkzg6nEUjJn">蓝色盲（tritanopia）</strong>：极罕见</li>
-              <li data-lang="en-US" hidden><strong>Tritanopia (blue-blind)</strong>: extremely rare</li>
-            </ul>
-          </div>
-          <div class="tab-panel" data-panel="code" data-page-node-id="xoR0BfFfBqdN0TcCAkB6f8">
-            <h3 data-lang="zh-CN">⭐ 关键代码</h3>
-            <h3 data-lang="en-US" hidden>⭐ Key code</h3>
-            <p data-lang="zh-CN">⭐ <strong data-page-node-id="KSG6LulNxj75goUSOLXonm">关键点 1：RGB → HSL 手写</strong></p>
-            <p data-lang="en-US" hidden>⭐ <strong>Key point 1: Hand-written RGB ↔ HSL</strong></p>
-<pre data-page-node-id="GKxa2bSvUCR4AG5aPq9UfO"><code class="lang-js" data-page-node-id="6saKUPwf0HWLNKSSswDCx5">function rgbToHsl(r, g, b) {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h, s, l = (max + min) / 2;
-  if (max === min) { h = s = 0; }
-  else {
-    const d = max - min;
-    s = l &gt; 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r: h = (g - b) / d + (g &lt; b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
-    }
-    h /= 6;
-  }
-  return [h * 360, s * 100, l * 100];
-}</code></pre>
-            <p class="key-point" data-lang="zh-CN">⭐ 自己写 RGB↔HSL 是为了理解每一步的物理含义——"最大通道决定色相、相减决定饱和度"——比用 d3 库更能理解色相为什么在 0-360° 循环。</p>
-            <p class="key-point" data-lang="en-US" hidden>⭐ Writing RGB↔HSL yourself is to understand the physical meaning of each step—"the largest channel determines hue, the difference determines saturation"—which is more illuminating than using a d3 library for understanding why hue cycles between 0–360°.</p>
-
-            <p data-lang="zh-CN">⭐ <strong data-page-node-id="Wu2lAmFgBRxc9yKvrpnR6n">关键点 2：CVD 模拟矩阵</strong></p>
-            <p data-lang="en-US" hidden>⭐ <strong>Key point 2: CVD simulation matrix</strong></p>
-<pre data-page-node-id="Ov3S72HtL0bEnDLgC3Kpyn"><code class="lang-js" data-page-node-id="jlNNMH75q5s3jMpEnpd9pU">const CVD_MATRICES = {
-  deuteranopia: [
-    [0.625, 0.375, 0.000],
-    [0.700, 0.300, 0.000],
-    [0.000, 0.300, 0.700]
-  ],
-  protanopia:   [[0.567, 0.433, 0.000], [0.558, 0.442, 0.000], [0.000, 0.242, 0.758]],
-  tritanopia:   [[0.950, 0.050, 0.000], [0.000, 0.433, 0.567], [0.000, 0.475, 0.525]]
-};
-
-function simulateCVD([r, g, b], type) {
-  const m = CVD_MATRICES[type];
-  return [
-    r * m[0][0] + g * m[0][1] + b * m[0][2],
-    r * m[1][0] + g * m[1][1] + b * m[1][2],
-    r * m[2][0] + g * m[2][1] + b * m[2][2]
-  ].map(v =&gt; Math.round(Math.max(0, Math.min(255, v))));
-}</code></pre>
-
-            <p data-lang="zh-CN">⭐ <strong data-page-node-id="CqGixInJQkbyj6qUFGb5be">关键点 3：d3 内置多空间</strong></p>
-            <p data-lang="en-US" hidden>⭐ <strong>Key point 3: d3's built-in multi-space support</strong></p>
-<pre data-page-node-id="ubd6iOTEYWehmADUkuQhuE"><code class="lang-js" data-page-node-id="Krl2vZOrYxBh3ooTmWByrf">const c = d3.color('rgb(100, 50, 200)');
-c.rgb();   // {r, g, b}
-c.hsl();   // {h, s, l}
-c.lab();   // {l, a, b}  ← 感知均匀
-c.hcl();   // {h, c, l}  ← Lab 极坐标版</code></pre>
-          </div>
-          <div class="tab-panel" data-panel="demo" data-page-node-id="WsRQLwwd1B0cWWnNaHcXxI">
-            <div id="demo-mount-d-3-1" class="demo-mount" data-page-node-id="e1XMXWF8hNlSWrxlkE44GR" data-i18n="common.loading">加载中…</div>
+    <main class="main" id="main">
+      <div class="content">
+        <div class="page-head">
+          <p class="page-head__eyebrow">Chapter 03 · Color</p>
+          <h1>第 3 章 色彩专题</h1>
+          <p class="page-head__lead">
+            <span data-lang="zh">八节把配色一次讲透：颜色空间、colormap 选型、色系规则、科研经典色板、色觉缺陷检测。学完可以直接拿去做论文图。</span>
+            <span data-lang="en">Eight sections covering color end to end: color spaces, colormap choice, harmony rules, research-grade palettes and colour-vision-deficiency testing.</span>
+          </p>
+          <div class="page-head__meta">
+            <dl><dt>来源</dt><dd>独立专题 · 颜色是可视化的基础</dd></dl>
+            <dl><dt>时长</dt><dd>约 55 分钟</dd></dl>
+            <dl><dt>小节</dt><dd>8</dd></dl>
+            <dl><dt>关键代码</dt><dd>28 处</dd></dl>
           </div>
         </div>
-      </article>
 
-      <!-- ============= 3.2 colormap 三类 ============= -->
-      <article class="chapter" id="ch-3-2" data-page-node-id="reYl4nW7UXQsZuNKDcRZhk">
-        <h2 data-page-node-id="2O0UHUWV2ADAeJhqdgJ49B" data-i18n="sec-03-2.title">3.2 colormap 三类选择</h2>
-        <p class="chapter-subtitle" data-lang="zh-CN">顺序型 / 发散型 / 定性型。选错类型 = 误导读者。</p>
-        <p class="chapter-subtitle" data-lang="en-US" hidden>Sequential / Diverging / Qualitative. Choosing the wrong type = misleading your readers.</p>
-        <div class="tabs" data-page-node-id="eV7jZtiAX4IPKQr8AxjNYO">
-          <button class="tab-btn active" data-tab="explain" data-page-node-id="rqUcibzOqQEOY6o1WAIEpB" data-i18n="tab.explain">📖 讲解</button>
-          <button class="tab-btn" data-tab="code" data-page-node-id="DFrK5RvqBg00l9YcJzHkgO" data-i18n="tab.code">⌨️ 关键代码</button>
-          <button class="tab-btn" data-tab="demo" data-page-node-id="Ct8NqV7J12t4sy21m2rkif" data-i18n="tab.demo">▶️ 演示</button>
-        </div>
-        <div class="tab-panels" data-page-node-id="oRZlBYHnduiA8hklPMHezs">
-          <div class="tab-panel active" data-panel="explain" data-page-node-id="ZnaKzbZ3Cxnj5eoTa0H5ft">
-            <h3 data-lang="zh-CN">三类 colormap 对应不同数据语义</h3>
-            <h3 data-lang="en-US" hidden>Three colormap families match three data semantics</h3>
-            <ul data-page-node-id="lPQB3CjSMtxoPdyEHw30ff">
-              <li data-lang="zh-CN"><strong data-page-node-id="exPKPCsH1w2YFeFJELE0tM">顺序型（Sequential）</strong>：数据有自然顺序（人口、温度）。单调亮度 + 单调色相。例子：<code data-page-node-id="yDBOW7oWbOAETxFBwXuhSm">Viridis / Plasma / Cividis</code></li>
-              <li data-lang="en-US" hidden><strong>Sequential</strong>: data with a natural order (population, temperature). Monotonic lightness + monotonic hue. Examples: <code>Viridis / Plasma / Cividis</code></li>
-              <li data-lang="zh-CN"><strong data-page-node-id="B0w3moY8Si0LN1t4lXQvCS">发散型（Diverging）</strong>：数据有意义的"中点"（如 0、正负偏差、白人中位数）。两端异色，中间白/浅。例子：<code data-page-node-id="Ncb3CDBfsX6YbZI0RjPkhY">RdBu / BrBG / PiYG</code></li>
-              <li data-lang="en-US" hidden><strong>Diverging</strong>: data with a meaningful "midpoint" (e.g., zero, signed deviation, white median). Different hues at the two ends, white/light in the middle. Examples: <code>RdBu / BrBG / PiYG</code></li>
-              <li data-lang="zh-CN"><strong data-page-node-id="KyD4bciLszTrcCUXsbmB5D">定性型（Qualitative）</strong>：数据无序（如产品类别）。色相区分、亮度接近。例子：<code data-page-node-id="XoxHsdlFmUS9VHIjQk53Z4">Tableau10 / Set1 / Set3</code></li>
-              <li data-lang="en-US" hidden><strong>Qualitative</strong>: unordered data (e.g., product categories). Distinct hues, similar lightness. Examples: <code>Tableau10 / Set1 / Set3</code></li>
-            </ul>
-            <h3 data-lang="zh-CN">典型错误</h3>
-            <h3 data-lang="en-US" hidden>Common mistakes</h3>
-            <p data-lang="zh-CN">用发散型 RdBu 画"50 州谋杀率"（有序数据）——中段接近白色，看上去"谋杀率 = 100 附近"的州是"中点"——但 100 没有任何语义，纯属误导。</p>
-            <p data-lang="en-US" hidden>Using the diverging palette RdBu for "murder rates in 50 states" (ordinal data)—the middle band looks near-white, so states with a murder rate "around 100" appear to be the "midpoint"—but 100 has no semantic meaning, so this is purely misleading.</p>
-            <h3 data-lang="zh-CN">CVD 友好检查清单</h3>
-            <h3 data-lang="en-US" hidden>CVD-friendly checklist</h3>
-            <ul data-page-node-id="y0fYsBHCna7osVtBVPXGuM">
-              <li data-lang="zh-CN">Viridis / Cividis：✅ 优（Nature Methods 推荐）</li>
-              <li data-lang="en-US" hidden>Viridis / Cividis: ✅ excellent (recommended by Nature Methods)</li>
-              <li data-lang="zh-CN">RdBu / BrBG：△ 中等（红绿对色盲不友好）</li>
-              <li data-lang="en-US" hidden>RdBu / BrBG: △ moderate (red-green pairs are not CVD-friendly)</li>
-              <li data-lang="zh-CN">Tableau10（定性）：△ 与色相相关</li>
-              <li data-lang="en-US" hidden>Tableau10 (qualitative): △ hue-related issues</li>
-              <li data-lang="zh-CN">Jet（彩虹谱）：⚠ 禁用</li>
-              <li data-lang="en-US" hidden>Jet (rainbow): ⚠ do not use</li>
-            </ul>
-          </div>
-          <div class="tab-panel" data-panel="code" data-page-node-id="EB4W3058hPADGWOEoUmZEB">
-            <h3 data-lang="zh-CN">⭐ 关键代码</h3>
-            <h3 data-lang="en-US" hidden>⭐ Key code</h3>
-            <p data-lang="zh-CN">⭐ <strong data-page-node-id="kgTGsT3QJB1u0rDTo7xvRi">关键点 1：d3 三类 scale 速记</strong></p>
-            <p data-lang="en-US" hidden>⭐ <strong>Key point 1: d3's three scale families at a glance</strong></p>
-<pre data-page-node-id="HnyHsMqmfCpHrNekGAq8pI"><code class="lang-js" data-page-node-id="pk9QitTYJ9VeqUMzFZpGYW">// 顺序型：[0, 1] → 颜色
-d3.scaleSequential(d3.interpolateViridis);
-
-// 发散型：[0, 1] → 颜色（带中点反转）
-d3.interpolateRdBu;          // t=0 蓝，t=1 红，t=0.5 白
-d3.interpolateBrBG;
-
-// 定性型：离散类别 → 颜色
-d3.scaleOrdinal(d3.schemeTableau10);</code></pre>
-            <p class="key-point" data-lang="zh-CN">⭐ 选错类型 = "撒谎"。比如用 Viridis 表示正负偏差，用户会以为"中点 = 白色"——但 Viridis 的中点是深紫色。</p>
-            <p class="key-point" data-lang="en-US" hidden>⭐ Choosing the wrong type = "lying". For example, using Viridis for signed deviations makes users assume "the midpoint is white" — but Viridis's midpoint is dark purple.</p>
-
-            <p data-lang="zh-CN">⭐ <strong data-page-node-id="StQx6I3iilSEsrhcRzMBJR">关键点 2：决策表</strong></p>
-            <p data-lang="en-US" hidden>⭐ <strong>Key point 2: Decision table</strong></p>
-<pre data-page-node-id="qiHHgtxSLL4ou2HWz9IkGH"><code class="lang-js" data-page-node-id="vkek77iKyun70kmM66hS6C">function pickColormap(data) {
-  if (data.hasMeaningfulMidpoint) return 'diverging';
-  if (data.isOrdered)              return 'sequential';
-  return 'categorical';
-}</code></pre>
-          </div>
-          <div class="tab-panel" data-panel="demo" data-page-node-id="VfTaXiBzl4xSqOKL8S4BL6">
-            <div id="demo-mount-d-3-2" class="demo-mount" data-page-node-id="lot43UtEBjIhFxL7d4GHmz" data-i18n="common.loading">加载中…</div>
+      <section class="objectives" aria-labelledby="objectives-title">
+        <div class="objectives__head">
+          <h2 class="objectives__title" id="objectives-title">
+            <span data-lang="zh">学完这一章，你应该能够</span>
+            <span data-lang="en">By the end of this chapter you should be able to</span>
+          </h2>
+          <div class="objectives__meta">
+            <span>6 项目标</span>
+            <span>约 55 分钟</span>
+            <span>8 个小节</span>
+            <span>28 处关键代码</span>
           </div>
         </div>
-      </article>
+        <ul class="objectives__list">
+            <li><span data-lang="zh">说清 RGB / HSL / Lab / HCL 四种颜色空间各自擅长什么，以及为什么 Lab 叫「感知均匀」</span><span data-lang="en">Explain what RGB / HSL / Lab / HCL each excel at, and why Lab is called perceptually uniform</span></li>
+            <li><span data-lang="zh">拿到一份数据就能判断该用顺序型、发散型还是定性型 colormap，并说出选错的后果</span><span data-lang="en">Pick sequential, diverging or qualitative colormaps for a given dataset, and say what a wrong pick costs</span></li>
+            <li><span data-lang="zh">用 5 类色系搭配规则（单色 / 类比 / 互补 / 三等分 / 分裂互补）给一组类别数据配色</span><span data-lang="en">Apply the five colour-harmony rules to a categorical dataset</span></li>
+            <li><span data-lang="zh">直接取用 Wong、Paul Tol、Okabe-Ito 这类色觉缺陷友好色板，而不是自己凑颜色</span><span data-lang="en">Reach for Wong, Paul Tol or Okabe-Ito instead of inventing colours</span></li>
+            <li><span data-lang="zh">按「数量 ≤ 7、鲜艳颜色 + 低饱和度」生成一组既醒目又耐看的配色</span><span data-lang="en">Generate a palette with the 'vivid but low-saturation' rule (≤ 7 colours)</span></li>
+            <li><span data-lang="zh">用色觉缺陷模拟检查自己的图在色盲读者眼里是否还读得懂</span><span data-lang="en">Simulate colour-vision deficiency to check whether your figure still reads</span></li>
+        </ul>
+        <p class="objectives__prereq">
+          <strong><span data-lang="zh">前置知识</span><span data-lang="en">Prerequisites</span>：</strong>
+          <span data-lang="zh">无需前置知识，可以脱离其他章节单独学习。</span>
+          <span data-lang="en">No prerequisites; this topic stands on its own.</span>
+        </p>
+      </section>
 
-      <!-- ============= 3.3 Lab 色域图 ============= -->
-      <article class="chapter" id="ch-3-3" data-page-node-id="JPqahFynNmBsMCmDBVXV6G">
-        <h2 data-page-node-id="T7yESZr5005XrnSDgupdxI" data-i18n="sec-03-3.title">3.3 CIE Lab 色域图</h2>
-        <p class="chapter-subtitle" data-lang="zh-CN">在感知均匀的颜色空间里，色域长什么样？</p>
-        <p class="chapter-subtitle" data-lang="en-US" hidden>What does the gamut look like inside a perceptually uniform color space?</p>
-        <div class="tabs" data-page-node-id="VznyQk5eG8H9cc9dAEJmz8">
-          <button class="tab-btn active" data-tab="explain" data-page-node-id="bPAJRRmtu3oibk9W2bs7Cl" data-i18n="tab.explain">📖 讲解</button>
-          <button class="tab-btn" data-tab="code" data-page-node-id="vrKrtUA0GDAiZDgVXk4yY6" data-i18n="tab.code">⌨️ 关键代码</button>
-          <button class="tab-btn" data-tab="demo" data-page-node-id="PGnlY8vzEwj4okmnxyGY2Q" data-i18n="tab.demo">▶️ 演示</button>
-        </div>
-        <div class="tab-panels" data-page-node-id="dqPmfsdC4PV4GoQiSXDhvs">
-          <div class="tab-panel active" data-panel="explain" data-page-node-id="wUyQiGqz502pXMSBuOoQYZ">
-            <h3 data-lang="zh-CN">为什么需要 Lab 色域图？</h3>
-            <h3 data-lang="en-US" hidden>Why do we need a Lab gamut diagram?</h3>
-            <p data-lang="zh-CN">RGB 空间是立方体，但你不知道"哪些颜色真的存在、哪些会失真"。CIE Lab 是感知均匀空间，<strong data-page-node-id="WAVOBF9MUzudxrt3IbAXvp">距离 ≈ 人眼感知差</strong>，是设计 colormap 和检查色域的标准。</p>
-            <p data-lang="en-US" hidden>RGB space is a cube, but you cannot tell "which colors actually exist and which would be distorted". CIE Lab is a perceptually uniform space, <strong>distance ≈ perceived difference</strong>, and is the standard for designing colormaps and checking gamut.</p>
-            <h3 data-lang="zh-CN">三个色域（嵌套关系）</h3>
-            <h3 data-lang="en-US" hidden>Three gamuts (nested relationship)</h3>
-            <ul data-page-node-id="ylXXPgCy1sxHEa5ZUp9Us8">
-              <li data-lang="zh-CN"><strong data-page-node-id="O3tmMvRxNDIEA2wHt1L5mD">sRGB</strong>：屏幕通用标准（Web/PPT/一般科研图）</li>
-              <li data-lang="en-US" hidden><strong>sRGB</strong>: universal screen standard (Web / PPT / general scientific figures)</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="KybuNV9dDQxa4hJ9Yzr9FG">Adobe RGB</strong>：摄影/印刷，绿域更广</li>
-              <li data-lang="en-US" hidden><strong>Adobe RGB</strong>: photography / print, wider green gamut</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="RN6STk8QIMTLMXp0PW3YxY">Rec.2020</strong>：4K 电视/HDR，色域最大</li>
-              <li data-lang="en-US" hidden><strong>Rec.2020</strong>: 4K TV / HDR, the largest gamut</li>
-            </ul>
-            <p data-lang="zh-CN">超出 sRGB 的颜色（如高饱和度的纯绿）在普通屏幕上<strong data-page-node-id="RExb1etoKFu1cbUpSgqcOp">显示不出来</strong>，会被 clamp。</p>
-            <p data-lang="en-US" hidden>Colors outside sRGB (e.g., highly saturated pure green) <strong>cannot be displayed</strong> on ordinary screens and get clamped.</p>
-            <h3 data-lang="zh-CN">实战用法</h3>
-            <h3 data-lang="en-US" hidden>Practical usage</h3>
-            <ul data-page-node-id="KAc9VGya9HEIbvWZs9UamC">
-              <li data-lang="zh-CN">从 <code data-page-node-id="Q7bAAkGLkKLVCpELO5ttwV">d3.lab(L, a, b).rgb()</code> 转换时，超出 sRGB 的颜色会自动 clamp</li>
-              <li data-lang="en-US" hidden>When converting from <code>d3.lab(L, a, b).rgb()</code>, colors outside sRGB are clamped automatically</li>
-              <li data-lang="zh-CN">设计 colormap 时用 <code data-page-node-id="ua7KE3s3i3oNnln9YuB1ek">d3.interpolateLab</code>（在 Lab 空间插值），比 <code data-page-node-id="8hxT4aSC6UABCoWFNraiyD">d3.interpolateRgb</code> 平滑得多</li>
-              <li data-lang="en-US" hidden>When designing colormaps, use <code>d3.interpolateLab</code> (interpolates in Lab space), which is far smoother than <code>d3.interpolateRgb</code></li>
-              <li data-lang="zh-CN">高饱和度色仅在打印/4K 屏幕上"存在"，Web 上看不一定准确</li>
-              <li data-lang="en-US" hidden>Highly saturated colors only "exist" on print / 4K screens, and may not look accurate on the Web</li>
-            </ul>
-          </div>
-          <div class="tab-panel" data-panel="code" data-page-node-id="kvqCuJ4ExMqsdjiNnMmu9p">
-            <h3 data-lang="zh-CN">⭐ 关键代码</h3>
-            <h3 data-lang="en-US" hidden>⭐ Key code</h3>
-            <p data-lang="zh-CN">⭐ <strong data-page-node-id="qYe9y2EIyBGnUpCn1lAEoD">关键点 1：Lab 颜色对象</strong></p>
-            <p data-lang="en-US" hidden>⭐ <strong>Key point 1: Lab color object</strong></p>
-<pre data-page-node-id="pXJZEN360wU6xB1RXerD6T"><code class="lang-js" data-page-node-id="PhFsZb6vHF583bGa6iGBzz">// 直接构造 Lab 颜色
-const c = d3.lab(50, 30, -20);    // L*=50, a*=30, b*=-20
-console.log(c.rgb());              // → RGB {r, g, b}（clamp 到 sRGB）
-console.log(c.formatHex());       // → "#xxxxxx"
+        <figure class="figure">
+          <div class="figure__frame" id="concept-map" role="img"
+               aria-label="本章概念依赖图"></div>
+          <figcaption>
+            <span data-lang="zh">本章知识点的依赖关系。箭头表示「先理解前者，才容易理解后者」。</span>
+            <span data-lang="en">Dependencies between the concepts in this chapter.</span>
+          </figcaption>
+        </figure>
 
-// 从 RGB 反向构造
-const c2 = d3.color('#ff0080');
-console.log(c2.lab());             // → {l, a, b}</code></pre>
-            <p class="key-point" data-lang="zh-CN">⭐ d3.lab() 返回的是 Lab 颜色对象，但显示时还是转回 RGB。Lab 是"思考空间"，RGB 是"显示空间"。</p>
-            <p class="key-point" data-lang="en-US" hidden>⭐ d3.lab() returns a Lab color object, but when displaying you still convert back to RGB. Lab is the "thinking space", RGB is the "display space".</p>
+      <section class="section" data-section-id="ch-3-1" id="sec-ch-3-1"
+               data-progress-key="c03s1"
+               aria-labelledby="ch-3-1">
+        <div class="section__head">
+          <div class="section__eyebrow">
+            <span class="section__num">3.1</span>
+          </div>
+          <h2 class="section__title" id="ch-3-1"><span data-lang="zh">颜色模型基础</span><span data-lang="en">颜色模型基础</span></h2>
+        </div>
+        <div class="tabs" role="tablist" aria-label="内容视图">
+          <button class="tab-btn" type="button" data-tab="explain" role="tab"
+                  id="t-ch-3-1-explain" aria-controls="p-ch-3-1-explain"
+                  aria-selected="true">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 15.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h4.5A1.5 1.5 0 0 0 20 15.5z"/></svg>
+            <span data-lang="zh">讲解</span>
+            <span data-lang="en">Explain</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="code" role="tab"
+                  id="t-ch-3-1-code" aria-controls="p-ch-3-1-code"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4"/></svg>
+            <span data-lang="zh">关键代码</span>
+            <span data-lang="en">Key code</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="demo" role="tab"
+                  id="t-ch-3-1-demo" aria-controls="p-ch-3-1-demo"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg>
+            <span data-lang="zh">演示</span>
+            <span data-lang="en">Demo</span>
+          </button>
+        </div>
+        <div class="tab-panels">
+        <div class="tab-panel" id="p-ch-3-1-explain" data-panel="explain" role="tabpanel"
+             aria-labelledby="t-ch-3-1-explain" data-active="false">
+          <h3 data-lang="zh">为什么要学颜色模型？</h3>
+                      <h3 data-lang="en">Why learn color models?</h3>
+                      <p data-lang="zh">设计 colormap 时，<strong>不能直接用 RGB 插值</strong>——因为 RGB 不是感知均匀的（255,0,0 与 0,255,0 "看上去"亮度差很多）。你需要感知均匀的颜色空间（Lab / HCL）来插值，才能得到平滑的渐变。</p>
+                      <p data-lang="en">When designing a colormap, <strong>do not interpolate directly in RGB</strong>—because RGB is not perceptually uniform (255,0,0 and 0,255,0 "look" very different in lightness). You need a perceptually uniform color space (Lab / HCL) to interpolate and get smooth gradients.</p>
+                      <h3 data-lang="zh">4 大颜色空间</h3>
+                      <h3 data-lang="en">The 4 major color spaces</h3>
+                      <ul>
+                        <li data-lang="zh"><strong>RGB</strong>：加色模型，设备相关。屏幕显示的默认。</li>
+                        <li data-lang="en"><strong>RGB</strong>: additive model, device-dependent. The default for screen display.</li>
+                        <li data-lang="zh"><strong>HSL</strong>：艺术家友好（色相/饱和度/亮度独立），但<strong>仍不感知均匀</strong>。</li>
+                        <li data-lang="en"><strong>HSL</strong>: artist-friendly (independent hue / saturation / lightness), but <strong>still not perceptually uniform</strong>.</li>
+                        <li data-lang="zh"><strong>CIE Lab</strong>：感知均匀，<strong>设计 colormap 的黄金标准</strong>。</li>
+                        <li data-lang="en"><strong>CIE Lab</strong>: perceptually uniform, <strong>the gold standard for designing colormaps</strong>.</li>
+                        <li data-lang="zh"><strong>CMYK</strong>：减色（印刷），web 可视化用不到。</li>
+                        <li data-lang="en"><strong>CMYK</strong>: subtractive (print). Not used in web visualizations.</li>
+                      </ul>
+                      <h3 data-lang="zh">CVD（色觉缺陷）</h3>
+                      <h3 data-lang="en">CVD (Color Vision Deficiency)</h3>
+                      <p data-lang="zh">约 8% 男性、0.5% 女性是色盲。常见三种：</p>
+                      <p data-lang="en">About 8% of men and 0.5% of women are color-blind. Three common types:</p>
+                      <ul>
+                        <li data-lang="zh"><strong>红色盲（protanopia）</strong>：约 1% 男性</li>
+                        <li data-lang="en"><strong>Protanopia (red-blind)</strong>: ~1% of men</li>
+                        <li data-lang="zh"><strong>绿色盲（deuteranopia）</strong>：约 6% 男性（最常见）</li>
+                        <li data-lang="en"><strong>Deuteranopia (green-blind)</strong>: ~6% of men (most common)</li>
+                        <li data-lang="zh"><strong>蓝色盲（tritanopia）</strong>：极罕见</li>
+                        <li data-lang="en"><strong>Tritanopia (blue-blind)</strong>: extremely rare</li>
+                      </ul>
+        </div>
+        <div class="tab-panel" id="p-ch-3-1-code" data-panel="code" role="tabpanel"
+             aria-labelledby="t-ch-3-1-code" data-active="false">
+          <h3 data-lang="zh">⭐ 关键代码</h3>
+                      <h3 data-lang="en">⭐ Key code</h3>
+                      <p data-lang="zh">⭐ <strong>关键点 1：RGB → HSL 手写</strong></p>
+                      <p data-lang="en">⭐ <strong>Key point 1: Hand-written RGB ↔ HSL</strong></p>
+          <pre><code class="lang-js">function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            if (max === min) { h = s = 0; }
+            else {
+              const d = max - min;
+              s = l &gt; 0.5 ? d / (2 - max - min) : d / (max + min);
+              switch (max) {
+                case r: h = (g - b) / d + (g &lt; b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+              }
+              h /= 6;
+            }
+            return [h * 360, s * 100, l * 100];
+          }</code></pre>
+                      <p class="key-point" data-lang="zh">⭐ 自己写 RGB↔HSL 是为了理解每一步的物理含义——"最大通道决定色相、相减决定饱和度"——比用 d3 库更能理解色相为什么在 0-360° 循环。</p>
+                      <p class="key-point" data-lang="en">⭐ Writing RGB↔HSL yourself is to understand the physical meaning of each step—"the largest channel determines hue, the difference determines saturation"—which is more illuminating than using a d3 library for understanding why hue cycles between 0–360°.</p>
 
-            <p data-lang="zh-CN">⭐ <strong data-page-node-id="WgNY8nwkcU2s3EZrPZU8hV">关键点 2：在 Lab 空间插值</strong></p>
-            <p data-lang="en-US" hidden>⭐ <strong>Key point 2: Interpolate in Lab space</strong></p>
-<pre data-page-node-id="OsI8oN8GBomHChKpOZIEb6"><code class="lang-js" data-page-node-id="3UYmYKYC1WWLsu3ADHFcKs">// 在 Lab 空间插值（感知均匀）
-const interp = d3.interpolateLab('#000000', '#ffffff');
-interp(0.5);   // → 中间灰（Lab 空间线性插值，结果感知均匀）
+                      <p data-lang="zh">⭐ <strong>关键点 2：CVD 模拟矩阵</strong></p>
+                      <p data-lang="en">⭐ <strong>Key point 2: CVD simulation matrix</strong></p>
+          <pre><code class="lang-js">const CVD_MATRICES = {
+            deuteranopia: [
+              [0.625, 0.375, 0.000],
+              [0.700, 0.300, 0.000],
+              [0.000, 0.300, 0.700]
+            ],
+            protanopia:   [[0.567, 0.433, 0.000], [0.558, 0.442, 0.000], [0.000, 0.242, 0.758]],
+            tritanopia:   [[0.950, 0.050, 0.000], [0.000, 0.433, 0.567], [0.000, 0.475, 0.525]]
+          };
 
-// vs 在 RGB 空间插值（不均匀）
-const interpRgb = d3.interpolateRgb('#000000', '#ffffff');
-interpRgb(0.5);  // → 中间灰（RGB 空间插值，但在 Lab 看来"不是中间"）</code></pre>
-          </div>
-          <div class="tab-panel" data-panel="demo" data-page-node-id="IHzgfoa2L4JttOQazFvIwe">
-            <div id="demo-mount-d-3-3" class="demo-mount" data-page-node-id="zhHlkeYTpqDHdGaAWTxTra" data-i18n="common.loading">加载中…</div>
-          </div>
-        </div>
-      </article>
+          function simulateCVD([r, g, b], type) {
+            const m = CVD_MATRICES[type];
+            return [
+              r * m[0][0] + g * m[0][1] + b * m[0][2],
+              r * m[1][0] + g * m[1][1] + b * m[1][2],
+              r * m[2][0] + g * m[2][1] + b * m[2][2]
+            ].map(v =&gt; Math.round(Math.max(0, Math.min(255, v))));
+          }</code></pre>
 
-      <!-- ============= 3.4 色系搭配规则 ============= -->
-      <article class="chapter" id="ch-3-4" data-page-node-id="blF3BhHD0rSPOYdrBNhnc9">
-        <h2 data-page-node-id="VdC9EhvHzxCwjjkwu1hhaV" data-i18n="sec-03-4.title">3.4 色系搭配规则（5 大类）</h2>
-        <p class="chapter-subtitle" data-lang="zh-CN">单色 / 类比 / 互补 / 三等分 / 分裂互补——什么时候用哪个？</p>
-        <p class="chapter-subtitle" data-lang="en-US" hidden>Monochromatic / Analogous / Complementary / Triadic / Split-Complementary—when do you use each?</p>
-        <div class="tabs" data-page-node-id="HaAsNQg0Xs2LVB5GbfxifR">
-          <button class="tab-btn active" data-tab="explain" data-page-node-id="IbyojQ1i5Pk5X2M1Li2qvT" data-i18n="tab.explain">📖 讲解</button>
-          <button class="tab-btn" data-tab="code" data-page-node-id="d5aQlWGIpkO4wH23MlyO1A" data-i18n="tab.code">⌨️ 关键代码</button>
-          <button class="tab-btn" data-tab="demo" data-page-node-id="9Pq3oU8dUdWmnmlucw2fDN" data-i18n="tab.demo">▶️ 演示</button>
+                      <p data-lang="zh">⭐ <strong>关键点 3：d3 内置多空间</strong></p>
+                      <p data-lang="en">⭐ <strong>Key point 3: d3's built-in multi-space support</strong></p>
+          <pre><code class="lang-js">const c = d3.color('rgb(100, 50, 200)');
+          c.rgb();   // {r, g, b}
+          c.hsl();   // {h, s, l}
+          c.lab();   // {l, a, b}  ← 感知均匀
+          c.hcl();   // {h, c, l}  ← Lab 极坐标版</code></pre>
         </div>
-        <div class="tab-panels" data-page-node-id="0JbnH6pfrszQMxXrcspRnG">
-          <div class="tab-panel active" data-panel="explain" data-page-node-id="I0coe4mlivZqDuj569cGTq">
-            <h3 data-lang="zh-CN">5 大色系规则</h3>
-            <h3 data-lang="en-US" hidden>The 5 major color scheme rules</h3>
-            <ul data-page-node-id="kgWka7eHj0GAqCF8DoeI7R">
-              <li data-lang="zh-CN"><strong data-page-node-id="JUHkjQJtNgc1gCJq94Iz9F">单色 Monochromatic</strong>：同一色相不同亮度/饱和。安全、低风险。</li>
-              <li data-lang="en-US" hidden><strong>Monochromatic</strong>: the same hue with varying lightness / saturation. Safe and low risk.</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="plEucUDkzaaoEWCdLIZ3LI">类比 Analogous</strong>：色轮相邻 ±30°。和谐但缺少对比度。</li>
-              <li data-lang="en-US" hidden><strong>Analogous</strong>: adjacent on the color wheel, within ±30°. Harmonious but lacking contrast.</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="ZsbXHfeXFERnuum2LA4ANg">互补 Complementary</strong>：色轮正对面 180°。对比度强但易刺眼。</li>
-              <li data-lang="en-US" hidden><strong>Complementary</strong>: directly opposite on the color wheel at 180°. Strong contrast but can be jarring.</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="J3wCr01rZAy22tfIZh4KUS">三等分 Triadic</strong>：色轮 120° 等分。3 种类别时最常用。</li>
-              <li data-lang="en-US" hidden><strong>Triadic</strong>: evenly spaced at 120° on the color wheel. The most common choice for 3 categories.</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="zRqBmiGPJRjhPM0ZfcSbju">分裂互补 Split</strong>：互补色相邻 150°。温和版互补。</li>
-              <li data-lang="en-US" hidden><strong>Split-Complementary</strong>: adjacent to the complement at 150°. A softer version of complementary.</li>
-            </ul>
-            <h3 data-lang="zh-CN">选择原则</h3>
-            <h3 data-lang="en-US" hidden>Selection principles</h3>
-            <ul data-page-node-id="d712COOHgvE7bRNoDrHY6M">
-              <li data-lang="zh-CN"><strong data-page-node-id="Hq8q7lmkTpUbN8a5GR2aKD">严肃科研</strong>：单色（Nature 黑白经济型配色）</li>
-              <li data-lang="en-US" hidden><strong>Serious scientific work</strong>: monochromatic (Nature-style black-and-white economical palette)</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="nnwmEMkJSiNDoL0r6hkzMq">层级 / 分组</strong>：类比</li>
-              <li data-lang="en-US" hidden><strong>Hierarchy / grouping</strong>: analogous</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="iYBKm9pM8f6nDccxCACrc7">突出重点</strong>：互补（实验组 vs 对照组）</li>
-              <li data-lang="en-US" hidden><strong>Highlight a focal point</strong>: complementary (treatment vs control)</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="Sljx5Zv0OkWv5OHfWF7Av1">3 种类别</strong>：三等分</li>
-              <li data-lang="en-US" hidden><strong>3 categories</strong>: triadic</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="C7kQGVxobQVUNcoHVjU05L">一般情况</strong>：分裂互补（不刺眼又有对比）</li>
-              <li data-lang="en-US" hidden><strong>General cases</strong>: split-complementary (not jarring, but still has contrast)</li>
-            </ul>
+        <div class="tab-panel" id="p-ch-3-1-demo" data-panel="demo" role="tabpanel"
+             aria-labelledby="t-ch-3-1-demo" data-active="false">
+          <div class="demo-mount" data-demo-chapter="3" data-demo="d-3-1"></div>
+          <div id="demo-mount-d-3-1" class="demo-mount">加载中…</div>
+        </div>
+        </div>
+      </section>
+      <section class="section" data-section-id="ch-3-2" id="sec-ch-3-2"
+               data-progress-key="c03s2"
+               aria-labelledby="ch-3-2">
+        <div class="section__head">
+          <div class="section__eyebrow">
+            <span class="section__num">3.2</span>
           </div>
-          <div class="tab-panel" data-panel="code" data-page-node-id="DHgGgoV4D2jolvaYmb1P5Y">
-            <h3 data-lang="zh-CN">⭐ 关键代码</h3>
-            <h3 data-lang="en-US" hidden>⭐ Key code</h3>
-            <p data-lang="zh-CN">⭐ <strong data-page-node-id="YMTVFO8X4W3pBcsoIKSEw1">关键点 1：HSL 色相差</strong></p>
-            <p data-lang="en-US" hidden>⭐ <strong>Key point 1: HSL hue difference</strong></p>
-<pre data-page-node-id="ztzM4Y1M0t8T6sS2PKHL1G"><code class="lang-js" data-page-node-id="MTQ3rzHFxdgWAE4aWgxeXI">// 5 大色系的"色相差"参数
-const HUE_OFFSETS = {
-  monochromatic: 0,     // 同色相
-  analogous:     30,    // ±30°
-  complementary: 180,   // 180° 对面
-  triadic:       120,   // 120° 三等分
-  split:         150    // 150° 邻补
-};
+          <h2 class="section__title" id="ch-3-2"><span data-lang="zh">colormap 三类选择</span><span data-lang="en">colormap 三类选择</span></h2>
+        </div>
+        <div class="tabs" role="tablist" aria-label="内容视图">
+          <button class="tab-btn" type="button" data-tab="explain" role="tab"
+                  id="t-ch-3-2-explain" aria-controls="p-ch-3-2-explain"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 15.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h4.5A1.5 1.5 0 0 0 20 15.5z"/></svg>
+            <span data-lang="zh">讲解</span>
+            <span data-lang="en">Explain</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="code" role="tab"
+                  id="t-ch-3-2-code" aria-controls="p-ch-3-2-code"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4"/></svg>
+            <span data-lang="zh">关键代码</span>
+            <span data-lang="en">Key code</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="demo" role="tab"
+                  id="t-ch-3-2-demo" aria-controls="p-ch-3-2-demo"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg>
+            <span data-lang="zh">演示</span>
+            <span data-lang="en">Demo</span>
+          </button>
+        </div>
+        <div class="tab-panels">
+        <div class="tab-panel" id="p-ch-3-2-explain" data-panel="explain" role="tabpanel"
+             aria-labelledby="t-ch-3-2-explain" data-active="false">
+          <h3 data-lang="zh">三类 colormap 对应不同数据语义</h3>
+                      <h3 data-lang="en">Three colormap families match three data semantics</h3>
+                      <ul>
+                        <li data-lang="zh"><strong>顺序型（Sequential）</strong>：数据有自然顺序（人口、温度）。单调亮度 + 单调色相。例子：<code>Viridis / Plasma / Cividis</code></li>
+                        <li data-lang="en"><strong>Sequential</strong>: data with a natural order (population, temperature). Monotonic lightness + monotonic hue. Examples: <code>Viridis / Plasma / Cividis</code></li>
+                        <li data-lang="zh"><strong>发散型（Diverging）</strong>：数据有意义的"中点"（如 0、正负偏差、白人中位数）。两端异色，中间白/浅。例子：<code>RdBu / BrBG / PiYG</code></li>
+                        <li data-lang="en"><strong>Diverging</strong>: data with a meaningful "midpoint" (e.g., zero, signed deviation, white median). Different hues at the two ends, white/light in the middle. Examples: <code>RdBu / BrBG / PiYG</code></li>
+                        <li data-lang="zh"><strong>定性型（Qualitative）</strong>：数据无序（如产品类别）。色相区分、亮度接近。例子：<code>Tableau10 / Set1 / Set3</code></li>
+                        <li data-lang="en"><strong>Qualitative</strong>: unordered data (e.g., product categories). Distinct hues, similar lightness. Examples: <code>Tableau10 / Set1 / Set3</code></li>
+                      </ul>
+                      <h3 data-lang="zh">典型错误</h3>
+                      <h3 data-lang="en">Common mistakes</h3>
+                      <p data-lang="zh">用发散型 RdBu 画"50 州谋杀率"（有序数据）——中段接近白色，看上去"谋杀率 = 100 附近"的州是"中点"——但 100 没有任何语义，纯属误导。</p>
+                      <p data-lang="en">Using the diverging palette RdBu for "murder rates in 50 states" (ordinal data)—the middle band looks near-white, so states with a murder rate "around 100" appear to be the "midpoint"—but 100 has no semantic meaning, so this is purely misleading.</p>
+                      <h3 data-lang="zh">CVD 友好检查清单</h3>
+                      <h3 data-lang="en">CVD-friendly checklist</h3>
+                      <ul>
+                        <li data-lang="zh">Viridis / Cividis：✅ 优（Nature Methods 推荐）</li>
+                        <li data-lang="en">Viridis / Cividis: ✅ excellent (recommended by Nature Methods)</li>
+                        <li data-lang="zh">RdBu / BrBG：△ 中等（红绿对色盲不友好）</li>
+                        <li data-lang="en">RdBu / BrBG: △ moderate (red-green pairs are not CVD-friendly)</li>
+                        <li data-lang="zh">Tableau10（定性）：△ 与色相相关</li>
+                        <li data-lang="en">Tableau10 (qualitative): △ hue-related issues</li>
+                        <li data-lang="zh">Jet（彩虹谱）：⚠ 禁用</li>
+                        <li data-lang="en">Jet (rainbow): ⚠ do not use</li>
+                      </ul>
+        </div>
+        <div class="tab-panel" id="p-ch-3-2-code" data-panel="code" role="tabpanel"
+             aria-labelledby="t-ch-3-2-code" data-active="false">
+          <h3 data-lang="zh">⭐ 关键代码</h3>
+                      <h3 data-lang="en">⭐ Key code</h3>
+                      <p data-lang="zh">⭐ <strong>关键点 1：d3 三类 scale 速记</strong></p>
+                      <p data-lang="en">⭐ <strong>Key point 1: d3's three scale families at a glance</strong></p>
+          <pre><code class="lang-js">// 顺序型：[0, 1] → 颜色
+          d3.scaleSequential(d3.interpolateViridis);
 
-// 生成 5 色调色板
-function palette(baseH, offset) {
-  return [-2, -1, 0, 1, 2].map(i =&gt; {
-    const h = (baseH + i * offset + 360) % 360;
-    return d3.hsl(h, 0.6, 0.55).formatHex();
-  });
-}</code></pre>
-            <p class="key-point" data-lang="zh-CN">⭐ <code data-page-node-id="BrVeiWgBKtDcI90xqd3tuj">d3.hsl(h, s, l)</code> 直接构造 HSL 颜色对象。HSL 中 H 是 0-360° 循环，相加要 mod 360。</p>
-            <p class="key-point" data-lang="en-US" hidden>⭐ <code>d3.hsl(h, s, l)</code> directly constructs an HSL color object. In HSL, H cycles through 0–360°, so additions must be mod 360.</p>
-          </div>
-          <div class="tab-panel" data-panel="demo" data-page-node-id="G8tZRh0grpig5NNEYwOO6C">
-            <div id="demo-mount-d-3-4" class="demo-mount" data-page-node-id="n3CD1mQWNc3ljxnLHh02YF" data-i18n="common.loading">加载中…</div>
-          </div>
-        </div>
-      </article>
+          // 发散型：[0, 1] → 颜色（带中点反转）
+          d3.interpolateRdBu;          // t=0 蓝，t=1 红，t=0.5 白
+          d3.interpolateBrBG;
 
-      <!-- ============= 3.5 科研经典配色 ============= -->
-      <article class="chapter" id="ch-3-5" data-page-node-id="J0pkPHHk9EFpzo12SdYCUC">
-        <h2 data-page-node-id="wQjpDY7DJp5b6syjpbHpva" data-i18n="sec-03-5.title">3.5 科研经典配色</h2>
-        <p class="chapter-subtitle" data-lang="zh-CN">Wong / Paul Tol / Okabe-Ito / Tableau / Paired / Viridis——顶标都在用什么？</p>
-        <p class="chapter-subtitle" data-lang="en-US" hidden>Wong / Paul Tol / Okabe-Ito / Tableau / Paired / Viridis—what are top journals using?</p>
-        <div class="tabs" data-page-node-id="jQKG88WMygChYYIT3Ea7GO">
-          <button class="tab-btn active" data-tab="explain" data-page-node-id="u7n2jSU3oUqzGNxp14lcKK" data-i18n="tab.explain">📖 讲解</button>
-          <button class="tab-btn" data-tab="code" data-page-node-id="XE0cFUhgqDSJN8spmKFX1K" data-i18n="tab.code">⌨️ 关键代码</button>
-          <button class="tab-btn" data-tab="demo" data-page-node-id="3FpVfzM75CzaAWGOsGpR1x" data-i18n="tab.demo">▶️ 演示</button>
-        </div>
-        <div class="tab-panels" data-page-node-id="zDuORKRRdkHa7QNJESV7Sf">
-          <div class="tab-panel active" data-panel="explain" data-page-node-id="6Blh5uMt9hUX57o7mLUoWv">
-            <h3 data-lang="zh-CN">3 大黄金标准</h3>
-            <h3 data-lang="en-US" hidden>The 3 gold standards</h3>
-            <ul data-page-node-id="nyHV9gkNu2OnpIHIS9euml">
-              <li data-lang="zh-CN"><strong data-page-node-id="rFWU0EvR1CnBQ98BqU5fLJ">Wong 2011</strong>：Nature Methods 8:441 推荐，8 色 CVD 友好，灰度打印友好</li>
-              <li data-lang="en-US" hidden><strong>Wong 2011</strong>: recommended in Nature Methods 8:441, 8-color, CVD-friendly and grayscale-print-friendly</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="l88zu3LWqEKz75p52spzkW">Paul Tol</strong>：SRON Tech Note，bright（白底）/ muted（深底）/ high-contrast（对比</li>
-              <li data-lang="en-US" hidden><strong>Paul Tol</strong>: SRON Tech Note, bright (on white background) / muted (on dark background) / high-contrast</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="RzKDgfaZ3D2fwY29STEw3D">Okabe-Ito 2002</strong>：8 色，CVD 友好，早期 Nature/Science 默认</li>
-              <li data-lang="en-US" hidden><strong>Okabe-Ito 2002</strong>: 8 colors, CVD-friendly, the default in early Nature/Science</li>
-            </ul>
-            <h3 data-lang="zh-CN">商业 / 通用</h3>
-            <h3 data-lang="en-US" hidden>Commercial / general purpose</h3>
-            <ul data-page-node-id="aWcfNZDBMF6NrMEyXkllnw">
-              <li data-lang="zh-CN"><strong data-page-node-id="0Fa058RtlsOP0FF5rN1Hhw">Tableau 10</strong>：商业图表之王，10 色，红绿对色盲不友好</li>
-              <li data-lang="en-US" hidden><strong>Tableau 10</strong>: the king of commercial charts, 10 colors, red-green pairs are not CVD-friendly</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="2AcaxO3WQ6AsyXhmlbUzY1">Paired (12)</strong>：配对设计（处理前/后），12 色过载</li>
-              <li data-lang="en-US" hidden><strong>Paired (12)</strong>: paired designs (pre/post), 12 colors are too many</li>
-            </ul>
-            <h3 data-lang="zh-CN">顺序型 / 发散型</h3>
-            <h3 data-lang="en-US" hidden>Sequential / Diverging</h3>
-            <ul data-page-node-id="JURdxlU8EEaHd67Bs17JiC">
-              <li data-lang="zh-CN"><strong data-page-node-id="HCPQXTFkrqckzPEA6qQLvo">Viridis</strong>：matplotlib/d3 默认，感知均匀 + CVD 友好</li>
-              <li data-lang="en-US" hidden><strong>Viridis</strong>: default in matplotlib / d3, perceptually uniform + CVD-friendly</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="7JT4zZAuv41HroxwUhAhNi">Cividid</strong>：Viridis 的 CVD 强化版（更蓝/黄分明）</li>
-              <li data-lang="en-US" hidden><strong>Cividis</strong>: a CVD-reinforced version of Viridis (more distinct blue/yellow)</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="CkPaORBDMYGPkLivvDbVAe">RdBu</strong>：发散型红蓝</li>
-              <li data-lang="en-US" hidden><strong>RdBu</strong>: diverging red-blue</li>
-            </ul>
-            <h3 data-lang="zh-CN">实战原则</h3>
-            <h3 data-lang="en-US" hidden>Practical principles</h3>
-            <ul data-page-node-id="yXD7VBAPG2j0KfIGGXSbGv">
-              <li data-lang="zh-CN">类别数 ≤ 7，类别多时改用连续 colormap</li>
-              <li data-lang="en-US" hidden>If the number of categories ≤ 7; for more categories, switch to a continuous colormap</li>
-              <li data-lang="zh-CN">必须经过 CVD 模拟测试</li>
-              <li data-lang="en-US" hidden>Must pass CVD simulation testing</li>
-              <li data-lang="zh-CN">优先使用 CVD 友好 + 灰度友好的（顶标都用这套）</li>
-              <li data-lang="en-US" hidden>Prefer CVD-friendly + grayscale-friendly palettes (this is what top journals use)</li>
-            </ul>
-          </div>
-          <div class="tab-panel" data-panel="code" data-page-node-id="JSRnYph51wxk7beFNTLRGq">
-            <h3 data-lang="zh-CN">⭐ 关键代码</h3>
-            <h3 data-lang="en-US" hidden>⭐ Key code</h3>
-            <p data-lang="zh-CN">⭐ <strong data-page-node-id="LtFRuIZhKGjwMbF4Wikfza">关键点 1：经典配色硬编码数组</strong></p>
-            <p data-lang="en-US" hidden>⭐ <strong>Key point 1: Hard-coding classic palettes as arrays</strong></p>
-<pre data-page-node-id="TZjCEVLLDEq7eyBsqVLegT"><code class="lang-js" data-page-node-id="2AwTY8mpgODorUidw9ujrD">const CLASSIC_PALETTES = {
-  'Wong 2011':       ['#000000', '#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7'],
-  'Paul Tol bright': ['#4477AA', '#EE6677', '#228833', '#CCBB44', '#66CCEE', '#AA3377', '#BBBBBB'],
-  'Okabe-Ito':       ['#000000', '#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7'],
-  'Tableau 10':      ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F', '#EDC948', '#B07AA1', '#FF9DA7', '#9C755F', '#BAB0AC'],
-  'Viridis (seq)':   d3.range(0, 1.01, 0.1).map(d3.interpolateViridis),
-  'RdBu (div)':      d3.range(0, 1.01, 0.1).map(t =&gt; d3.interpolateRdBu(1 - t))
-};</code></pre>
-            <p class="key-point" data-lang="zh-CN">⭐ 直接用 hex 数组硬编码比用 d3 内置 scheme 更稳——因为 scheme 名字在不同 d3 版本会变。</p>
-            <p class="key-point" data-lang="en-US" hidden>⭐ Hard-coding as hex arrays is more stable than using d3's built-in schemes—because scheme names change across d3 versions.</p>
-          </div>
-          <div class="tab-panel" data-panel="demo" data-page-node-id="lkilEQPdpb9Wt4z5D359qq">
-            <div id="demo-mount-d-3-5" class="demo-mount" data-page-node-id="MQHCG3n39M2HiVnvMY2eHA" data-i18n="common.loading">加载中…</div>
-          </div>
-        </div>
-      </article>
+          // 定性型：离散类别 → 颜色
+          d3.scaleOrdinal(d3.schemeTableau10);</code></pre>
+                      <p class="key-point" data-lang="zh">⭐ 选错类型 = "撒谎"。比如用 Viridis 表示正负偏差，用户会以为"中点 = 白色"——但 Viridis 的中点是深紫色。</p>
+                      <p class="key-point" data-lang="en">⭐ Choosing the wrong type = "lying". For example, using Viridis for signed deviations makes users assume "the midpoint is white" — but Viridis's midpoint is dark purple.</p>
 
-      <!-- ============= 3.6 对错案例 ============= -->
-      <article class="chapter" id="ch-3-6" data-page-node-id="Jzto6r36QZIpJ4FJkkeWl7">
-        <h2 data-page-node-id="nbjpsSKwjMaObWuW0ppeMs" data-i18n="sec-03-6.title">3.6 对错案例对比</h2>
-        <p class="chapter-subtitle" data-lang="zh-CN">4 张图，3 错 1 对。点击你认为"对"的那张。</p>
-        <p class="chapter-subtitle" data-lang="en-US" hidden>4 figures, 3 wrong and 1 right. Click the one you think is "correct".</p>
-        <div class="tabs" data-page-node-id="egtS1rLTyC4ynUhDsqaqOi">
-          <button class="tab-btn active" data-tab="explain" data-page-node-id="mMDsvPBBWCYd3pdW9OfqwX" data-i18n="tab.explain">📖 讲解</button>
-          <button class="tab-btn" data-tab="code" data-page-node-id="C3c6ro71qztOE4GXRpEJk6" data-i18n="tab.code">⌨️ 关键代码</button>
-          <button class="tab-btn" data-tab="demo" data-page-node-id="WPdo8kthO78WgA8VZFmJxB" data-i18n="tab.demo">▶️ 演示</button>
+                      <p data-lang="zh">⭐ <strong>关键点 2：决策表</strong></p>
+                      <p data-lang="en">⭐ <strong>Key point 2: Decision table</strong></p>
+          <pre><code class="lang-js">function pickColormap(data) {
+            if (data.hasMeaningfulMidpoint) return 'diverging';
+            if (data.isOrdered)              return 'sequential';
+            return 'categorical';
+          }</code></pre>
         </div>
-        <div class="tab-panels" data-page-node-id="0M6tXFuGmzgBYiYtUQN1PC">
-          <div class="tab-panel active" data-panel="explain" data-page-node-id="M2MecRhlMvaCBexvkHN96h">
-            <h3 data-lang="zh-CN">4 个典型错误</h3>
-            <h3 data-lang="en-US" hidden>4 typical mistakes</h3>
-            <ul data-page-node-id="rjV9qA9DH3VkGbGorVk1Vm">
-              <li data-lang="zh-CN"><strong data-page-node-id="Wn3bQ7GFq1x0d7Lag4H0Oj">⚠ 彩虹谱 Jet</strong>：非感知均匀 + CVD 不友好 + 打印不友好。Nature 已禁用。</li>
-              <li data-lang="en-US" hidden><strong>⚠ Rainbow palette Jet</strong>: not perceptually uniform + not CVD-friendly + not print-friendly. Nature has banned it.</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="FQkFSbLnmFO7SkbNhDfA29">⚠ 红绿对比</strong>：红绿色盲眼中几乎变成同色（最严重的可访问性问题）</li>
-              <li data-lang="en-US" hidden><strong>⚠ Red-green contrast</strong>: to a red-green colorblind viewer, they almost become the same color (the most serious accessibility issue)</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="CA8nDBFxHtdF9GsGts1OWZ">⚠ 颜色过多 12 色</strong>：超过 7 种时眼睛无法区分</li>
-              <li data-lang="en-US" hidden><strong>⚠ Too many colors (12)</strong>: the eye cannot distinguish beyond 7</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="yv6bucwe2PjK3Qz9LetlzL">✅ Wong 8 色</strong>：CVD 友好 + 灰度打印友好 + 类别数 ≤ 8</li>
-              <li data-lang="en-US" hidden><strong>✅ Wong 8-color</strong>: CVD-friendly + grayscale-print-friendly + ≤ 8 categories</li>
-            </ul>
-            <h3 data-lang="zh-CN">教学要点</h3>
-            <h3 data-lang="en-US" hidden>Teaching takeaways</h3>
-            <p data-lang="zh-CN">让学生亲手投票，能加深对"为什么是错的"的理解——光看理论不如下场选错一次来得深。</p>
-            <p data-lang="en-US" hidden>Letting students vote by hand deepens their understanding of "why it is wrong"—just reading theory is not as powerful as making the wrong choice in person.</p>
-          </div>
-          <div class="tab-panel" data-panel="code" data-page-node-id="6BUuRQSMd2aTrjQ86C3FST">
-            <h3 data-lang="zh-CN">⭐ 关键代码</h3>
-            <h3 data-lang="en-US" hidden>⭐ Key code</h3>
-            <p data-lang="zh-CN">⭐ <strong data-page-node-id="b09Wv9uB58G6Gw9CZNCMAz">关键点 1：构建可点击的 quiz 卡片</strong></p>
-            <p data-lang="en-US" hidden>⭐ <strong>Key point 1: Build clickable quiz cards</strong></p>
-<pre data-page-node-id="z7xrwtYicWorf1XlUNHKBq"><code class="lang-js" data-page-node-id="5KOnttq347OGlIes9x9jjq">// 4 张 SVG 卡片，点哪张就高亮 + 显示原因
-cases.forEach((c, i) =&gt; {
-  const card = document.createElement('div');
-  card.className = 'quiz-card';
-  card.innerHTML = `${makeSampleBars(c.palette)}&lt;div&gt;${c.name}&lt;/div&gt;`;
-  card.addEventListener('click', () =&gt; {
-    cards.forEach((cc, ii) =&gt; {
-      cc.classList.remove('correct', 'wrong');
-      if (ii === i) cc.classList.add(c.type);  // 'correct' or 'wrong'
-    });
-    showResult(c);
-  });
-  grid.appendChild(card);
-});</code></pre>
-            <p class="key-point" data-lang="zh-CN">⭐ quiz 模式比"展示正确"更适合教学——让学生先犯错再揭示答案。</p>
-            <p class="key-point" data-lang="en-US" hidden>⭐ Quiz mode is more pedagogical than "showing the right answer"—let students make the mistake first, then reveal the answer.</p>
-          </div>
-          <div class="tab-panel" data-panel="demo" data-page-node-id="1EuDcOuAGIsrs9QmiN04wa">
-            <div id="demo-mount-d-3-6" class="demo-mount" data-page-node-id="Q6QwJH5WNu3S8HvfLQNjT7" data-i18n="common.loading">加载中…</div>
-          </div>
+        <div class="tab-panel" id="p-ch-3-2-demo" data-panel="demo" role="tabpanel"
+             aria-labelledby="t-ch-3-2-demo" data-active="false">
+          <div class="demo-mount" data-demo-chapter="3" data-demo="d-3-2"></div>
+          <div id="demo-mount-d-3-2" class="demo-mount">加载中…</div>
         </div>
-      </article>
+        </div>
+      </section>
+      <section class="section" data-section-id="ch-3-3" id="sec-ch-3-3"
+               data-progress-key="c03s3"
+               aria-labelledby="ch-3-3">
+        <div class="section__head">
+          <div class="section__eyebrow">
+            <span class="section__num">3.3</span>
+          </div>
+          <h2 class="section__title" id="ch-3-3"><span data-lang="zh">CIE Lab 色域图</span><span data-lang="en">CIE Lab 色域图</span></h2>
+        </div>
+        <div class="tabs" role="tablist" aria-label="内容视图">
+          <button class="tab-btn" type="button" data-tab="explain" role="tab"
+                  id="t-ch-3-3-explain" aria-controls="p-ch-3-3-explain"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 15.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h4.5A1.5 1.5 0 0 0 20 15.5z"/></svg>
+            <span data-lang="zh">讲解</span>
+            <span data-lang="en">Explain</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="code" role="tab"
+                  id="t-ch-3-3-code" aria-controls="p-ch-3-3-code"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4"/></svg>
+            <span data-lang="zh">关键代码</span>
+            <span data-lang="en">Key code</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="demo" role="tab"
+                  id="t-ch-3-3-demo" aria-controls="p-ch-3-3-demo"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg>
+            <span data-lang="zh">演示</span>
+            <span data-lang="en">Demo</span>
+          </button>
+        </div>
+        <div class="tab-panels">
+        <div class="tab-panel" id="p-ch-3-3-explain" data-panel="explain" role="tabpanel"
+             aria-labelledby="t-ch-3-3-explain" data-active="false">
+          <h3 data-lang="zh">为什么需要 Lab 色域图？</h3>
+                      <h3 data-lang="en">Why do we need a Lab gamut diagram?</h3>
+                      <p data-lang="zh">RGB 空间是立方体，但你不知道"哪些颜色真的存在、哪些会失真"。CIE Lab 是感知均匀空间，<strong>距离 ≈ 人眼感知差</strong>，是设计 colormap 和检查色域的标准。</p>
+                      <p data-lang="en">RGB space is a cube, but you cannot tell "which colors actually exist and which would be distorted". CIE Lab is a perceptually uniform space, <strong>distance ≈ perceived difference</strong>, and is the standard for designing colormaps and checking gamut.</p>
+                      <h3 data-lang="zh">三个色域（嵌套关系）</h3>
+                      <h3 data-lang="en">Three gamuts (nested relationship)</h3>
+                      <ul>
+                        <li data-lang="zh"><strong>sRGB</strong>：屏幕通用标准（Web/PPT/一般科研图）</li>
+                        <li data-lang="en"><strong>sRGB</strong>: universal screen standard (Web / PPT / general scientific figures)</li>
+                        <li data-lang="zh"><strong>Adobe RGB</strong>：摄影/印刷，绿域更广</li>
+                        <li data-lang="en"><strong>Adobe RGB</strong>: photography / print, wider green gamut</li>
+                        <li data-lang="zh"><strong>Rec.2020</strong>：4K 电视/HDR，色域最大</li>
+                        <li data-lang="en"><strong>Rec.2020</strong>: 4K TV / HDR, the largest gamut</li>
+                      </ul>
+                      <p data-lang="zh">超出 sRGB 的颜色（如高饱和度的纯绿）在普通屏幕上<strong>显示不出来</strong>，会被 clamp。</p>
+                      <p data-lang="en">Colors outside sRGB (e.g., highly saturated pure green) <strong>cannot be displayed</strong> on ordinary screens and get clamped.</p>
+                      <h3 data-lang="zh">实战用法</h3>
+                      <h3 data-lang="en">Practical usage</h3>
+                      <ul>
+                        <li data-lang="zh">从 <code>d3.lab(L, a, b).rgb()</code> 转换时，超出 sRGB 的颜色会自动 clamp</li>
+                        <li data-lang="en">When converting from <code>d3.lab(L, a, b).rgb()</code>, colors outside sRGB are clamped automatically</li>
+                        <li data-lang="zh">设计 colormap 时用 <code>d3.interpolateLab</code>（在 Lab 空间插值），比 <code>d3.interpolateRgb</code> 平滑得多</li>
+                        <li data-lang="en">When designing colormaps, use <code>d3.interpolateLab</code> (interpolates in Lab space), which is far smoother than <code>d3.interpolateRgb</code></li>
+                        <li data-lang="zh">高饱和度色仅在打印/4K 屏幕上"存在"，Web 上看不一定准确</li>
+                        <li data-lang="en">Highly saturated colors only "exist" on print / 4K screens, and may not look accurate on the Web</li>
+                      </ul>
+        </div>
+        <div class="tab-panel" id="p-ch-3-3-code" data-panel="code" role="tabpanel"
+             aria-labelledby="t-ch-3-3-code" data-active="false">
+          <h3 data-lang="zh">⭐ 关键代码</h3>
+                      <h3 data-lang="en">⭐ Key code</h3>
+                      <p data-lang="zh">⭐ <strong>关键点 1：Lab 颜色对象</strong></p>
+                      <p data-lang="en">⭐ <strong>Key point 1: Lab color object</strong></p>
+          <pre><code class="lang-js">// 直接构造 Lab 颜色
+          const c = d3.lab(50, 30, -20);    // L*=50, a*=30, b*=-20
+          console.log(c.rgb());              // → RGB {r, g, b}（clamp 到 sRGB）
+          console.log(c.formatHex());       // → "#xxxxxx"
 
-      <!-- ============= 3.7 鲜艳+低饱和哲学 ============= -->
-      <article class="chapter" id="ch-3-7" data-page-node-id="mUalXS5KBh95wtJnHqRa8g">
-        <h2 data-page-node-id="9UfENJbgb4UEvdgYWBCYRZ" data-i18n="sec-03-7.title">3.7 鲜艳 + 低饱和 哲学生成器</h2>
-        <p class="chapter-subtitle" data-lang="zh-CN">颜色数量 ≤ 7、鲜艳颜色 + 低饱和度 = 好看又耐看。算法自动生成 5-7 色搭配。</p>
-        <p class="chapter-subtitle" data-lang="en-US" hidden>Color count ≤ 7, vivid colors + low saturation = beautiful and easy on the eye. The algorithm automatically generates 5–7 color combinations.</p>
-        <div class="tabs" data-page-node-id="7Qs9FzTolgV3755mLa4Qxf">
-          <button class="tab-btn active" data-tab="explain" data-page-node-id="L0WPpx5CDJDzTh2nC3DDV8" data-i18n="tab.explain">📖 讲解</button>
-          <button class="tab-btn" data-tab="code" data-page-node-id="rnNkYl3d3XKNyQ2jTSn4f2" data-i18n="tab.code">⌨️ 关键代码</button>
-          <button class="tab-btn" data-tab="demo" data-page-node-id="MWtKwCMRxh6jBBwyH488db" data-i18n="tab.demo">▶️ 演示</button>
-        </div>
-        <div class="tab-panels" data-page-node-id="AEsi8ARhg23qK3N35JAFYN">
-          <div class="tab-panel active" data-panel="explain" data-page-node-id="HUwxJr3MPVXrPVyW0Ll4pd">
-            <h3 data-lang="zh-CN">你的配色哲学（落地到 3 条规则）</h3>
-            <h3 data-lang="en-US" hidden>Your color philosophy (distilled into 3 rules)</h3>
-            <ol data-page-node-id="L7goxRUyaYGiXCDahaARCq">
-              <li data-lang="zh-CN"><strong data-page-node-id="VqDy5VbqFMa48IyNgkDRLG">颜色数量 ≤ 7</strong>：超过 7 种眼睛就分不清</li>
-              <li data-lang="en-US" hidden><strong>Color count ≤ 7</strong>: beyond 7 the eye cannot tell them apart</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="B3HDK4LebIVyjGpgWu3KiL">鲜艳颜色</strong>（高 H 区分度）：用 H 拉开类间距离（≥30°）</li>
-              <li data-lang="en-US" hidden><strong>Vivid colors</strong> (high H differentiation): use H to separate categories (≥ 30°)</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="wJfcDr4EB0HYuThCnjKGVv">低饱和度</strong>（S 30-50%）：每个色都别太"冲"，耐看</li>
-              <li data-lang="en-US" hidden><strong>Low saturation</strong> (S 30–50%): each color should not be too aggressive—easy on the eyes</li>
-            </ol>
-            <h3 data-lang="zh-CN">经验公式</h3>
-            <h3 data-lang="en-US" hidden>Empirical formulas</h3>
-            <ul data-page-node-id="CbaOlDEhyi3xWjuUUoaJYB">
-              <li data-lang="zh-CN">主色 S = 70-80%（鲜明但不刺眼）</li>
-              <li data-lang="en-US" hidden>Primary color S = 70–80% (vivid but not harsh)</li>
-              <li data-lang="zh-CN">配套色 S = 30-50%（低饱和，耐看）</li>
-              <li data-lang="en-US" hidden>Supporting color S = 30–50% (low saturation, easy on the eyes)</li>
-              <li data-lang="zh-CN">强调色用互补或类比，<strong data-page-node-id="xajGNfjZJcIXPqcwANTHgU">不要全饱和</strong></li>
-              <li data-lang="en-US" hidden>For accent colors, use complementary or analogous, <strong>avoid full saturation</strong></li>
-              <li data-lang="zh-CN">高亮用 L=85-90%（如背景、注释）</li>
-              <li data-lang="en-US" hidden>Highlights use L = 85–90% (e.g., for backgrounds, notes)</li>
-            </ul>
-            <h3 data-lang="zh-CN">7 色生成规则</h3>
-            <h3 data-lang="en-US" hidden>The 7-color generation rule</h3>
-            <p data-lang="zh-CN">主色 + 2 类比（±30°）+ 1 类比低饱和 + 1 互补 + 1 互补低饱和 + 1 高亮 = 7 色，符合"≤ 7"原则。</p>
-            <p data-lang="en-US" hidden>Primary + 2 analogous (±30°) + 1 analogous low-saturation + 1 complementary + 1 complementary low-saturation + 1 highlight = 7 colors, conforming to the "≤ 7" principle.</p>
-          </div>
-          <div class="tab-panel" data-panel="code" data-page-node-id="RhBwMenZxUpSkb3Agt21Gq">
-            <h3 data-lang="zh-CN">⭐ 关键代码</h3>
-            <h3 data-lang="en-US" hidden>⭐ Key code</h3>
-            <p data-lang="zh-CN">⭐ <strong data-page-node-id="kPAooDh4eIaWWkePjtYlnn">关键点 1：7 色生成规则</strong></p>
-            <p data-lang="en-US" hidden>⭐ <strong>Key point 1: 7-color generation rule</strong></p>
-<pre data-page-node-id="d8tFpS5Mj3bhh4jDZ75eCg"><code class="lang-js" data-page-node-id="GwVVylCEw31TBXvTjBhcuL">function genPalette(H, S, L) {
-  return [
-    hslHex((H - 30 + 360) % 360, S * 0.6, L * 1.1),  // 类比 1 低饱和
-    hslHex((H - 30 + 360) % 360, S, L),              // 类比 1
-    hslHex(H, S, L),                                 // 主色
-    hslHex((H + 30) % 360, S, L),                    // 类比 2
-    hslHex((H + 30) % 360, S * 0.6, L * 1.1),        // 类比 2 低饱和
-    hslHex((H + 180) % 360, S * 0.8, L * 0.95),      // 互补
-    hslHex(H, S * 0.2, L * 1.4)                      // 高亮（极低饱和）
-  ];
-}</code></pre>
-            <p class="key-point" data-lang="zh-CN">⭐ <code data-page-node-id="HfXX1WHr1kpEWKESjFDCK3">(H + offset + 360) % 360</code> 是 HSL 色相循环的安全写法——避免负数或 &gt; 360。</p>
-            <p class="key-point" data-lang="en-US" hidden>⭐ <code>(H + offset + 360) % 360</code> is the safe way to cycle HSL hues—avoiding negatives or values &gt; 360.</p>
-          </div>
-          <div class="tab-panel" data-panel="demo" data-page-node-id="jFtEjyAsjGh5b7dCsu2L8u">
-            <div id="demo-mount-d-3-7" class="demo-mount" data-page-node-id="aWlW2OcW1l7k8w6LtNiAWC" data-i18n="common.loading">加载中…</div>
-          </div>
-        </div>
-      </article>
+          // 从 RGB 反向构造
+          const c2 = d3.color('#ff0080');
+          console.log(c2.lab());             // → {l, a, b}</code></pre>
+                      <p class="key-point" data-lang="zh">⭐ d3.lab() 返回的是 Lab 颜色对象，但显示时还是转回 RGB。Lab 是"思考空间"，RGB 是"显示空间"。</p>
+                      <p class="key-point" data-lang="en">⭐ d3.lab() returns a Lab color object, but when displaying you still convert back to RGB. Lab is the "thinking space", RGB is the "display space".</p>
 
-      <!-- ============= 3.8 CVD 论文图测 ============= -->
-      <article class="chapter" id="ch-3-8" data-page-node-id="oeHTSJKP80PWin6R3vwBlJ">
-        <h2 data-page-node-id="AYu3kTTgP34Kud9kmhdpDR" data-i18n="sec-03-8.title">3.8 CVD 论文图测</h2>
-        <p class="chapter-subtitle" data-lang="zh-CN">你的图在色盲眼里还看得懂吗？拿真实顶标图做测试。</p>
-        <p class="chapter-subtitle" data-lang="en-US" hidden>Can your figure still be understood by someone with CVD? Test it with real top-journal figures.</p>
-        <div class="tabs" data-page-node-id="Ids4r7NXuRfVf67fd57FYC">
-          <button class="tab-btn active" data-tab="explain" data-page-node-id="lL7ZfDV3lbVtaxlJtwzYU9" data-i18n="tab.explain">📖 讲解</button>
-          <button class="tab-btn" data-tab="code" data-page-node-id="tALdxfH5EX1C3DIM6sjA7S" data-i18n="tab.code">⌨️ 关键代码</button>
-          <button class="tab-btn" data-tab="demo" data-page-node-id="wS5bP4Cy8zOzToXBzLeyKK" data-i18n="tab.demo">▶️ 演示</button>
-        </div>
-        <div class="tab-panels" data-page-node-id="XKeUioQHjhJK0FihKfdZ43">
-          <div class="tab-panel active" data-panel="explain" data-page-node-id="0pxl8NB5JZT0bFC1f0UXZB">
-            <h3 data-lang="zh-CN">3 个"经典论文图"案例</h3>
-            <h3 data-lang="en-US" hidden>3 "classic paper figure" cases</h3>
-            <ul data-page-node-id="GW7lQM0ezbrtxqAtiMxF2Q">
-              <li data-lang="zh-CN"><strong data-page-node-id="QjnrOrRRmGHsp4aqBd8VdR">图 1：5 类别散点（Wong 配色）</strong>——Nature 风格</li>
-              <li data-lang="en-US" hidden><strong>Figure 1: 5-category scatter (Wong palette)</strong>—Nature style</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="OjG41ZHgdJaKWtYuTDnAh0">图 2：顺序型热图（Viridis）</strong>——最常见的科研图</li>
-              <li data-lang="en-US" hidden><strong>Figure 2: Sequential heatmap (Viridis)</strong>—the most common scientific figure</li>
-              <li data-lang="zh-CN"><strong data-page-node-id="eqn8VAZhSACNfsakv1p5Oh">图 3：红绿对比（错误案例）</strong>——常见但严重</li>
-              <li data-lang="en-US" hidden><strong>Figure 3: Red-green contrast (mistake case)</strong>—common but serious</li>
-            </ul>
-            <h3 data-lang="zh-CN">CVD 测试流程</h3>
-            <h3 data-lang="en-US" hidden>CVD testing workflow</h3>
-            <ol data-page-node-id="nlRVXieiaZ6bSRDlRx0Hv6">
-              <li data-lang="zh-CN">把图导出 PNG</li>
-              <li data-lang="en-US" hidden>Export the figure as PNG</li>
-              <li data-lang="zh-CN">用 <a href="https://www.color-blindness.com/coblis-color-blindness-simulator/" target="_blank" data-page-node-id="o19LTxwdlw6odi4DKLqXkz">Coblis</a> 或 <a href="https://colororacle.org/" target="_blank" data-page-node-id="9iWKySVDWdrOxzHR2HJ7Sl">Color Oracle</a> 模拟</li>
-              <li data-lang="en-US" hidden>Simulate with <a href="https://www.color-blindness.com/coblis-color-blindness-simulator/" target="_blank">Coblis</a> or <a href="https://colororacle.org/" target="_blank">Color Oracle</a></li>
-              <li data-lang="zh-CN">看是否仍能区分（亮度对比 / 形状 / 标签）</li>
-              <li data-lang="en-US" hidden>Check whether elements can still be distinguished (lightness contrast / shape / labels)</li>
-            </ol>
-            <h3 data-lang="zh-CN">实测结论</h3>
-            <h3 data-lang="en-US" hidden>Test results</h3>
-            <ul data-page-node-id="Ixx2inyZSBLWTjmMCip61A">
-              <li data-lang="zh-CN">Wong / Okabe-Ito / Paul Tol：✅ 在 3 种 CVD 下都能区分</li>
-              <li data-lang="en-US" hidden>Wong / Okabe-Ito / Paul Tol: ✅ distinguishable under all 3 types of CVD</li>
-              <li data-lang="zh-CN">红绿对比：⚠ 在绿盲眼中几乎同色（最严重）</li>
-              <li data-lang="en-US" hidden>Red-green contrast: ⚠ almost the same color to green-blind viewers (most severe)</li>
-              <li data-lang="zh-CN">Nature/Science/Cell 已逐步迁移到 CVD 友好配色</li>
-              <li data-lang="en-US" hidden>Nature / Science / Cell have been gradually migrating to CVD-friendly palettes</li>
-            </ul>
-          </div>
-          <div class="tab-panel" data-panel="code" data-page-node-id="QEciYflDHkXoZaH2n0r3pG">
-            <h3 data-lang="zh-CN">⭐ 关键代码</h3>
-            <h3 data-lang="en-US" hidden>⭐ Key code</h3>
-            <p data-lang="zh-CN">⭐ <strong data-page-node-id="Y9m7CjtFKIPB3ehCvGxBnr">关键点 1：把 SVG 中所有 fill 做 CVD 模拟</strong></p>
-            <p data-lang="en-US" hidden>⭐ <strong>Key point 1: Apply CVD simulation to every fill in an SVG</strong></p>
-<pre data-page-node-id="X1F6bi7NQJXdMJCTNQvvUl"><code class="lang-js" data-page-node-id="C2XsGoJmrDveKOEGbDl1EL">function cvdTransformSvg(svgString, type) {
-  const doc = new DOMParser().parseFromString(svgString, 'image/svg+xml');
-  doc.querySelectorAll('[fill]').forEach(el =&gt; {
-    const c = d3.color(el.getAttribute('fill'));
-    if (!c) return;
-    const rgb = [Math.round(c.rgb().r), Math.round(c.rgb().g), Math.round(c.rgb().b)];
-    const sim = simulateCVD(rgb, type);
-    el.setAttribute('fill', `rgb(${sim.join(',')})`);
-  });
-  return new XMLSerializer().serializeToString(doc);
-}</code></pre>
-            <p class="key-point" data-lang="zh-CN">⭐ 用 <code data-page-node-id="ZGHLVLDVtOAIuqHfatExPA">DOMParser</code> 解析 SVG 字符串，遍历所有 <code data-page-node-id="MMFmDsYzp2OtChRuHGIKjp">fill</code> 属性应用 CVD 矩阵。比手写 SVG 字符串拼接安全。</p>
-            <p class="key-point" data-lang="en-US" hidden>⭐ Use <code>DOMParser</code> to parse SVG strings, then walk all <code>fill</code> attributes and apply the CVD matrix. Safer than hand-concatenating SVG strings.</p>
-          </div>
-          <div class="tab-panel" data-panel="demo" data-page-node-id="mzGCBYurPs96umdsgONhR5">
-            <div id="demo-mount-d-3-8" class="demo-mount" data-page-node-id="EPHTKCv3ILwl6zc3Fojc7y" data-i18n="common.loading">加载中…</div>
-          </div>
-        </div>
-      </article>
+                      <p data-lang="zh">⭐ <strong>关键点 2：在 Lab 空间插值</strong></p>
+                      <p data-lang="en">⭐ <strong>Key point 2: Interpolate in Lab space</strong></p>
+          <pre><code class="lang-js">// 在 Lab 空间插值（感知均匀）
+          const interp = d3.interpolateLab('#000000', '#ffffff');
+          interp(0.5);   // → 中间灰（Lab 空间线性插值，结果感知均匀）
 
-    </section>
-  </main>
+          // vs 在 RGB 空间插值（不均匀）
+          const interpRgb = d3.interpolateRgb('#000000', '#ffffff');
+          interpRgb(0.5);  // → 中间灰（RGB 空间插值，但在 Lab 看来"不是中间"）</code></pre>
+        </div>
+        <div class="tab-panel" id="p-ch-3-3-demo" data-panel="demo" role="tabpanel"
+             aria-labelledby="t-ch-3-3-demo" data-active="false">
+          <div class="demo-mount" data-demo-chapter="3" data-demo="d-3-3"></div>
+          <div id="demo-mount-d-3-3" class="demo-mount">加载中…</div>
+        </div>
+        </div>
+      </section>
+      <section class="section" data-section-id="ch-3-4" id="sec-ch-3-4"
+               data-progress-key="c03s4"
+               aria-labelledby="ch-3-4">
+        <div class="section__head">
+          <div class="section__eyebrow">
+            <span class="section__num">3.4</span>
+          </div>
+          <h2 class="section__title" id="ch-3-4"><span data-lang="zh">色系搭配规则（5 大类）</span><span data-lang="en">色系搭配规则（5 大类）</span></h2>
+        </div>
+        <div class="tabs" role="tablist" aria-label="内容视图">
+          <button class="tab-btn" type="button" data-tab="explain" role="tab"
+                  id="t-ch-3-4-explain" aria-controls="p-ch-3-4-explain"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 15.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h4.5A1.5 1.5 0 0 0 20 15.5z"/></svg>
+            <span data-lang="zh">讲解</span>
+            <span data-lang="en">Explain</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="code" role="tab"
+                  id="t-ch-3-4-code" aria-controls="p-ch-3-4-code"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4"/></svg>
+            <span data-lang="zh">关键代码</span>
+            <span data-lang="en">Key code</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="demo" role="tab"
+                  id="t-ch-3-4-demo" aria-controls="p-ch-3-4-demo"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg>
+            <span data-lang="zh">演示</span>
+            <span data-lang="en">Demo</span>
+          </button>
+        </div>
+        <div class="tab-panels">
+        <div class="tab-panel" id="p-ch-3-4-explain" data-panel="explain" role="tabpanel"
+             aria-labelledby="t-ch-3-4-explain" data-active="false">
+          <h3 data-lang="zh">5 大色系规则</h3>
+                      <h3 data-lang="en">The 5 major color scheme rules</h3>
+                      <ul>
+                        <li data-lang="zh"><strong>单色 Monochromatic</strong>：同一色相不同亮度/饱和。安全、低风险。</li>
+                        <li data-lang="en"><strong>Monochromatic</strong>: the same hue with varying lightness / saturation. Safe and low risk.</li>
+                        <li data-lang="zh"><strong>类比 Analogous</strong>：色轮相邻 ±30°。和谐但缺少对比度。</li>
+                        <li data-lang="en"><strong>Analogous</strong>: adjacent on the color wheel, within ±30°. Harmonious but lacking contrast.</li>
+                        <li data-lang="zh"><strong>互补 Complementary</strong>：色轮正对面 180°。对比度强但易刺眼。</li>
+                        <li data-lang="en"><strong>Complementary</strong>: directly opposite on the color wheel at 180°. Strong contrast but can be jarring.</li>
+                        <li data-lang="zh"><strong>三等分 Triadic</strong>：色轮 120° 等分。3 种类别时最常用。</li>
+                        <li data-lang="en"><strong>Triadic</strong>: evenly spaced at 120° on the color wheel. The most common choice for 3 categories.</li>
+                        <li data-lang="zh"><strong>分裂互补 Split</strong>：互补色相邻 150°。温和版互补。</li>
+                        <li data-lang="en"><strong>Split-Complementary</strong>: adjacent to the complement at 150°. A softer version of complementary.</li>
+                      </ul>
+                      <h3 data-lang="zh">选择原则</h3>
+                      <h3 data-lang="en">Selection principles</h3>
+                      <ul>
+                        <li data-lang="zh"><strong>严肃科研</strong>：单色（Nature 黑白经济型配色）</li>
+                        <li data-lang="en"><strong>Serious scientific work</strong>: monochromatic (Nature-style black-and-white economical palette)</li>
+                        <li data-lang="zh"><strong>层级 / 分组</strong>：类比</li>
+                        <li data-lang="en"><strong>Hierarchy / grouping</strong>: analogous</li>
+                        <li data-lang="zh"><strong>突出重点</strong>：互补（实验组 vs 对照组）</li>
+                        <li data-lang="en"><strong>Highlight a focal point</strong>: complementary (treatment vs control)</li>
+                        <li data-lang="zh"><strong>3 种类别</strong>：三等分</li>
+                        <li data-lang="en"><strong>3 categories</strong>: triadic</li>
+                        <li data-lang="zh"><strong>一般情况</strong>：分裂互补（不刺眼又有对比）</li>
+                        <li data-lang="en"><strong>General cases</strong>: split-complementary (not jarring, but still has contrast)</li>
+                      </ul>
+        </div>
+        <div class="tab-panel" id="p-ch-3-4-code" data-panel="code" role="tabpanel"
+             aria-labelledby="t-ch-3-4-code" data-active="false">
+          <h3 data-lang="zh">⭐ 关键代码</h3>
+                      <h3 data-lang="en">⭐ Key code</h3>
+                      <p data-lang="zh">⭐ <strong>关键点 1：HSL 色相差</strong></p>
+                      <p data-lang="en">⭐ <strong>Key point 1: HSL hue difference</strong></p>
+          <pre><code class="lang-js">// 5 大色系的"色相差"参数
+          const HUE_OFFSETS = {
+            monochromatic: 0,     // 同色相
+            analogous:     30,    // ±30°
+            complementary: 180,   // 180° 对面
+            triadic:       120,   // 120° 三等分
+            split:         150    // 150° 邻补
+          };
 
-  <footer class="lesson-footer" data-page-node-id="aD6vv6M9EyCLYLdCEBhh5M">
-    <p data-lang="zh-CN">Doc-03 集成教学页面 · 零依赖 · D3.js v7 + 原生 JS · 可独立运行 · 含 8 章节（色彩专题，独立成章）</p>
-    <p data-lang="en-US" hidden>Doc-03 integrated teaching page · zero dependencies · D3.js v7 + vanilla JS · standalone · 8 chapters (color topic, a standalone chapter)</p>
+          // 生成 5 色调色板
+          function palette(baseH, offset) {
+            return [-2, -1, 0, 1, 2].map(i =&gt; {
+              const h = (baseH + i * offset + 360) % 360;
+              return d3.hsl(h, 0.6, 0.55).formatHex();
+            });
+          }</code></pre>
+                      <p class="key-point" data-lang="zh">⭐ <code>d3.hsl(h, s, l)</code> 直接构造 HSL 颜色对象。HSL 中 H 是 0-360° 循环，相加要 mod 360。</p>
+                      <p class="key-point" data-lang="en">⭐ <code>d3.hsl(h, s, l)</code> directly constructs an HSL color object. In HSL, H cycles through 0–360°, so additions must be mod 360.</p>
+        </div>
+        <div class="tab-panel" id="p-ch-3-4-demo" data-panel="demo" role="tabpanel"
+             aria-labelledby="t-ch-3-4-demo" data-active="false">
+          <div class="demo-mount" data-demo-chapter="3" data-demo="d-3-4"></div>
+          <div id="demo-mount-d-3-4" class="demo-mount">加载中…</div>
+        </div>
+        </div>
+      </section>
+      <section class="section" data-section-id="ch-3-5" id="sec-ch-3-5"
+               data-progress-key="c03s5"
+               aria-labelledby="ch-3-5">
+        <div class="section__head">
+          <div class="section__eyebrow">
+            <span class="section__num">3.5</span>
+          </div>
+          <h2 class="section__title" id="ch-3-5"><span data-lang="zh">科研经典配色</span><span data-lang="en">科研经典配色</span></h2>
+        </div>
+        <div class="tabs" role="tablist" aria-label="内容视图">
+          <button class="tab-btn" type="button" data-tab="explain" role="tab"
+                  id="t-ch-3-5-explain" aria-controls="p-ch-3-5-explain"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 15.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h4.5A1.5 1.5 0 0 0 20 15.5z"/></svg>
+            <span data-lang="zh">讲解</span>
+            <span data-lang="en">Explain</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="code" role="tab"
+                  id="t-ch-3-5-code" aria-controls="p-ch-3-5-code"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4"/></svg>
+            <span data-lang="zh">关键代码</span>
+            <span data-lang="en">Key code</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="demo" role="tab"
+                  id="t-ch-3-5-demo" aria-controls="p-ch-3-5-demo"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg>
+            <span data-lang="zh">演示</span>
+            <span data-lang="en">Demo</span>
+          </button>
+        </div>
+        <div class="tab-panels">
+        <div class="tab-panel" id="p-ch-3-5-explain" data-panel="explain" role="tabpanel"
+             aria-labelledby="t-ch-3-5-explain" data-active="false">
+          <h3 data-lang="zh">3 大黄金标准</h3>
+                      <h3 data-lang="en">The 3 gold standards</h3>
+                      <ul>
+                        <li data-lang="zh"><strong>Wong 2011</strong>：Nature Methods 8:441 推荐，8 色 CVD 友好，灰度打印友好</li>
+                        <li data-lang="en"><strong>Wong 2011</strong>: recommended in Nature Methods 8:441, 8-color, CVD-friendly and grayscale-print-friendly</li>
+                        <li data-lang="zh"><strong>Paul Tol</strong>：SRON Tech Note，bright（白底）/ muted（深底）/ high-contrast（对比</li>
+                        <li data-lang="en"><strong>Paul Tol</strong>: SRON Tech Note, bright (on white background) / muted (on dark background) / high-contrast</li>
+                        <li data-lang="zh"><strong>Okabe-Ito 2002</strong>：8 色，CVD 友好，早期 Nature/Science 默认</li>
+                        <li data-lang="en"><strong>Okabe-Ito 2002</strong>: 8 colors, CVD-friendly, the default in early Nature/Science</li>
+                      </ul>
+                      <h3 data-lang="zh">商业 / 通用</h3>
+                      <h3 data-lang="en">Commercial / general purpose</h3>
+                      <ul>
+                        <li data-lang="zh"><strong>Tableau 10</strong>：商业图表之王，10 色，红绿对色盲不友好</li>
+                        <li data-lang="en"><strong>Tableau 10</strong>: the king of commercial charts, 10 colors, red-green pairs are not CVD-friendly</li>
+                        <li data-lang="zh"><strong>Paired (12)</strong>：配对设计（处理前/后），12 色过载</li>
+                        <li data-lang="en"><strong>Paired (12)</strong>: paired designs (pre/post), 12 colors are too many</li>
+                      </ul>
+                      <h3 data-lang="zh">顺序型 / 发散型</h3>
+                      <h3 data-lang="en">Sequential / Diverging</h3>
+                      <ul>
+                        <li data-lang="zh"><strong>Viridis</strong>：matplotlib/d3 默认，感知均匀 + CVD 友好</li>
+                        <li data-lang="en"><strong>Viridis</strong>: default in matplotlib / d3, perceptually uniform + CVD-friendly</li>
+                        <li data-lang="zh"><strong>Cividid</strong>：Viridis 的 CVD 强化版（更蓝/黄分明）</li>
+                        <li data-lang="en"><strong>Cividis</strong>: a CVD-reinforced version of Viridis (more distinct blue/yellow)</li>
+                        <li data-lang="zh"><strong>RdBu</strong>：发散型红蓝</li>
+                        <li data-lang="en"><strong>RdBu</strong>: diverging red-blue</li>
+                      </ul>
+                      <h3 data-lang="zh">实战原则</h3>
+                      <h3 data-lang="en">Practical principles</h3>
+                      <ul>
+                        <li data-lang="zh">类别数 ≤ 7，类别多时改用连续 colormap</li>
+                        <li data-lang="en">If the number of categories ≤ 7; for more categories, switch to a continuous colormap</li>
+                        <li data-lang="zh">必须经过 CVD 模拟测试</li>
+                        <li data-lang="en">Must pass CVD simulation testing</li>
+                        <li data-lang="zh">优先使用 CVD 友好 + 灰度友好的（顶标都用这套）</li>
+                        <li data-lang="en">Prefer CVD-friendly + grayscale-friendly palettes (this is what top journals use)</li>
+                      </ul>
+        </div>
+        <div class="tab-panel" id="p-ch-3-5-code" data-panel="code" role="tabpanel"
+             aria-labelledby="t-ch-3-5-code" data-active="false">
+          <h3 data-lang="zh">⭐ 关键代码</h3>
+                      <h3 data-lang="en">⭐ Key code</h3>
+                      <p data-lang="zh">⭐ <strong>关键点 1：经典配色硬编码数组</strong></p>
+                      <p data-lang="en">⭐ <strong>Key point 1: Hard-coding classic palettes as arrays</strong></p>
+          <pre><code class="lang-js">const CLASSIC_PALETTES = {
+            'Wong 2011':       ['#000000', '#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7'],
+            'Paul Tol bright': ['#4477AA', '#EE6677', '#228833', '#CCBB44', '#66CCEE', '#AA3377', '#BBBBBB'],
+            'Okabe-Ito':       ['#000000', '#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7'],
+            'Tableau 10':      ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F', '#EDC948', '#B07AA1', '#FF9DA7', '#9C755F', '#BAB0AC'],
+            'Viridis (seq)':   d3.range(0, 1.01, 0.1).map(d3.interpolateViridis),
+            'RdBu (div)':      d3.range(0, 1.01, 0.1).map(t =&gt; d3.interpolateRdBu(1 - t))
+          };</code></pre>
+                      <p class="key-point" data-lang="zh">⭐ 直接用 hex 数组硬编码比用 d3 内置 scheme 更稳——因为 scheme 名字在不同 d3 版本会变。</p>
+                      <p class="key-point" data-lang="en">⭐ Hard-coding as hex arrays is more stable than using d3's built-in schemes—because scheme names change across d3 versions.</p>
+        </div>
+        <div class="tab-panel" id="p-ch-3-5-demo" data-panel="demo" role="tabpanel"
+             aria-labelledby="t-ch-3-5-demo" data-active="false">
+          <div class="demo-mount" data-demo-chapter="3" data-demo="d-3-5"></div>
+          <div id="demo-mount-d-3-5" class="demo-mount">加载中…</div>
+        </div>
+        </div>
+      </section>
+      <section class="section" data-section-id="ch-3-6" id="sec-ch-3-6"
+               data-progress-key="c03s6"
+               aria-labelledby="ch-3-6">
+        <div class="section__head">
+          <div class="section__eyebrow">
+            <span class="section__num">3.6</span>
+          </div>
+          <h2 class="section__title" id="ch-3-6"><span data-lang="zh">对错案例对比</span><span data-lang="en">对错案例对比</span></h2>
+        </div>
+        <div class="tabs" role="tablist" aria-label="内容视图">
+          <button class="tab-btn" type="button" data-tab="explain" role="tab"
+                  id="t-ch-3-6-explain" aria-controls="p-ch-3-6-explain"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 15.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h4.5A1.5 1.5 0 0 0 20 15.5z"/></svg>
+            <span data-lang="zh">讲解</span>
+            <span data-lang="en">Explain</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="code" role="tab"
+                  id="t-ch-3-6-code" aria-controls="p-ch-3-6-code"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4"/></svg>
+            <span data-lang="zh">关键代码</span>
+            <span data-lang="en">Key code</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="demo" role="tab"
+                  id="t-ch-3-6-demo" aria-controls="p-ch-3-6-demo"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg>
+            <span data-lang="zh">演示</span>
+            <span data-lang="en">Demo</span>
+          </button>
+        </div>
+        <div class="tab-panels">
+        <div class="tab-panel" id="p-ch-3-6-explain" data-panel="explain" role="tabpanel"
+             aria-labelledby="t-ch-3-6-explain" data-active="false">
+          <h3 data-lang="zh">4 个典型错误</h3>
+                      <h3 data-lang="en">4 typical mistakes</h3>
+                      <ul>
+                        <li data-lang="zh"><strong>⚠ 彩虹谱 Jet</strong>：非感知均匀 + CVD 不友好 + 打印不友好。Nature 已禁用。</li>
+                        <li data-lang="en"><strong>⚠ Rainbow palette Jet</strong>: not perceptually uniform + not CVD-friendly + not print-friendly. Nature has banned it.</li>
+                        <li data-lang="zh"><strong>⚠ 红绿对比</strong>：红绿色盲眼中几乎变成同色（最严重的可访问性问题）</li>
+                        <li data-lang="en"><strong>⚠ Red-green contrast</strong>: to a red-green colorblind viewer, they almost become the same color (the most serious accessibility issue)</li>
+                        <li data-lang="zh"><strong>⚠ 颜色过多 12 色</strong>：超过 7 种时眼睛无法区分</li>
+                        <li data-lang="en"><strong>⚠ Too many colors (12)</strong>: the eye cannot distinguish beyond 7</li>
+                        <li data-lang="zh"><strong>✅ Wong 8 色</strong>：CVD 友好 + 灰度打印友好 + 类别数 ≤ 8</li>
+                        <li data-lang="en"><strong>✅ Wong 8-color</strong>: CVD-friendly + grayscale-print-friendly + ≤ 8 categories</li>
+                      </ul>
+                      <h3 data-lang="zh">教学要点</h3>
+                      <h3 data-lang="en">Teaching takeaways</h3>
+                      <p data-lang="zh">让学生亲手投票，能加深对"为什么是错的"的理解——光看理论不如下场选错一次来得深。</p>
+                      <p data-lang="en">Letting students vote by hand deepens their understanding of "why it is wrong"—just reading theory is not as powerful as making the wrong choice in person.</p>
+        </div>
+        <div class="tab-panel" id="p-ch-3-6-code" data-panel="code" role="tabpanel"
+             aria-labelledby="t-ch-3-6-code" data-active="false">
+          <h3 data-lang="zh">⭐ 关键代码</h3>
+                      <h3 data-lang="en">⭐ Key code</h3>
+                      <p data-lang="zh">⭐ <strong>关键点 1：构建可点击的 quiz 卡片</strong></p>
+                      <p data-lang="en">⭐ <strong>Key point 1: Build clickable quiz cards</strong></p>
+          <pre><code class="lang-js">// 4 张 SVG 卡片，点哪张就高亮 + 显示原因
+          cases.forEach((c, i) =&gt; {
+            const card = document.createElement('div');
+            card.className = 'quiz-card';
+            card.innerHTML = `${makeSampleBars(c.palette)}&lt;div&gt;${c.name}&lt;/div&gt;`;
+            card.addEventListener('click', () =&gt; {
+              cards.forEach((cc, ii) =&gt; {
+                cc.classList.remove('correct', 'wrong');
+                if (ii === i) cc.classList.add(c.type);  // 'correct' or 'wrong'
+              });
+              showResult(c);
+            });
+            grid.appendChild(card);
+          });</code></pre>
+                      <p class="key-point" data-lang="zh">⭐ quiz 模式比"展示正确"更适合教学——让学生先犯错再揭示答案。</p>
+                      <p class="key-point" data-lang="en">⭐ Quiz mode is more pedagogical than "showing the right answer"—let students make the mistake first, then reveal the answer.</p>
+        </div>
+        <div class="tab-panel" id="p-ch-3-6-demo" data-panel="demo" role="tabpanel"
+             aria-labelledby="t-ch-3-6-demo" data-active="false">
+          <div class="demo-mount" data-demo-chapter="3" data-demo="d-3-6"></div>
+          <div id="demo-mount-d-3-6" class="demo-mount">加载中…</div>
+        </div>
+        </div>
+      </section>
+      <section class="section" data-section-id="ch-3-7" id="sec-ch-3-7"
+               data-progress-key="c03s7"
+               aria-labelledby="ch-3-7">
+        <div class="section__head">
+          <div class="section__eyebrow">
+            <span class="section__num">3.7</span>
+          </div>
+          <h2 class="section__title" id="ch-3-7"><span data-lang="zh">鲜艳 + 低饱和 哲学生成器</span><span data-lang="en">鲜艳 + 低饱和 哲学生成器</span></h2>
+        </div>
+        <div class="tabs" role="tablist" aria-label="内容视图">
+          <button class="tab-btn" type="button" data-tab="explain" role="tab"
+                  id="t-ch-3-7-explain" aria-controls="p-ch-3-7-explain"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 15.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h4.5A1.5 1.5 0 0 0 20 15.5z"/></svg>
+            <span data-lang="zh">讲解</span>
+            <span data-lang="en">Explain</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="code" role="tab"
+                  id="t-ch-3-7-code" aria-controls="p-ch-3-7-code"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4"/></svg>
+            <span data-lang="zh">关键代码</span>
+            <span data-lang="en">Key code</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="demo" role="tab"
+                  id="t-ch-3-7-demo" aria-controls="p-ch-3-7-demo"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg>
+            <span data-lang="zh">演示</span>
+            <span data-lang="en">Demo</span>
+          </button>
+        </div>
+        <div class="tab-panels">
+        <div class="tab-panel" id="p-ch-3-7-explain" data-panel="explain" role="tabpanel"
+             aria-labelledby="t-ch-3-7-explain" data-active="false">
+          <h3 data-lang="zh">你的配色哲学（落地到 3 条规则）</h3>
+                      <h3 data-lang="en">Your color philosophy (distilled into 3 rules)</h3>
+                      <ol>
+                        <li data-lang="zh"><strong>颜色数量 ≤ 7</strong>：超过 7 种眼睛就分不清</li>
+                        <li data-lang="en"><strong>Color count ≤ 7</strong>: beyond 7 the eye cannot tell them apart</li>
+                        <li data-lang="zh"><strong>鲜艳颜色</strong>（高 H 区分度）：用 H 拉开类间距离（≥30°）</li>
+                        <li data-lang="en"><strong>Vivid colors</strong> (high H differentiation): use H to separate categories (≥ 30°)</li>
+                        <li data-lang="zh"><strong>低饱和度</strong>（S 30-50%）：每个色都别太"冲"，耐看</li>
+                        <li data-lang="en"><strong>Low saturation</strong> (S 30–50%): each color should not be too aggressive—easy on the eyes</li>
+                      </ol>
+                      <h3 data-lang="zh">经验公式</h3>
+                      <h3 data-lang="en">Empirical formulas</h3>
+                      <ul>
+                        <li data-lang="zh">主色 S = 70-80%（鲜明但不刺眼）</li>
+                        <li data-lang="en">Primary color S = 70–80% (vivid but not harsh)</li>
+                        <li data-lang="zh">配套色 S = 30-50%（低饱和，耐看）</li>
+                        <li data-lang="en">Supporting color S = 30–50% (low saturation, easy on the eyes)</li>
+                        <li data-lang="zh">强调色用互补或类比，<strong>不要全饱和</strong></li>
+                        <li data-lang="en">For accent colors, use complementary or analogous, <strong>avoid full saturation</strong></li>
+                        <li data-lang="zh">高亮用 L=85-90%（如背景、注释）</li>
+                        <li data-lang="en">Highlights use L = 85–90% (e.g., for backgrounds, notes)</li>
+                      </ul>
+                      <h3 data-lang="zh">7 色生成规则</h3>
+                      <h3 data-lang="en">The 7-color generation rule</h3>
+                      <p data-lang="zh">主色 + 2 类比（±30°）+ 1 类比低饱和 + 1 互补 + 1 互补低饱和 + 1 高亮 = 7 色，符合"≤ 7"原则。</p>
+                      <p data-lang="en">Primary + 2 analogous (±30°) + 1 analogous low-saturation + 1 complementary + 1 complementary low-saturation + 1 highlight = 7 colors, conforming to the "≤ 7" principle.</p>
+        </div>
+        <div class="tab-panel" id="p-ch-3-7-code" data-panel="code" role="tabpanel"
+             aria-labelledby="t-ch-3-7-code" data-active="false">
+          <h3 data-lang="zh">⭐ 关键代码</h3>
+                      <h3 data-lang="en">⭐ Key code</h3>
+                      <p data-lang="zh">⭐ <strong>关键点 1：7 色生成规则</strong></p>
+                      <p data-lang="en">⭐ <strong>Key point 1: 7-color generation rule</strong></p>
+          <pre><code class="lang-js">function genPalette(H, S, L) {
+            return [
+              hslHex((H - 30 + 360) % 360, S * 0.6, L * 1.1),  // 类比 1 低饱和
+              hslHex((H - 30 + 360) % 360, S, L),              // 类比 1
+              hslHex(H, S, L),                                 // 主色
+              hslHex((H + 30) % 360, S, L),                    // 类比 2
+              hslHex((H + 30) % 360, S * 0.6, L * 1.1),        // 类比 2 低饱和
+              hslHex((H + 180) % 360, S * 0.8, L * 0.95),      // 互补
+              hslHex(H, S * 0.2, L * 1.4)                      // 高亮（极低饱和）
+            ];
+          }</code></pre>
+                      <p class="key-point" data-lang="zh">⭐ <code>(H + offset + 360) % 360</code> 是 HSL 色相循环的安全写法——避免负数或 &gt; 360。</p>
+                      <p class="key-point" data-lang="en">⭐ <code>(H + offset + 360) % 360</code> is the safe way to cycle HSL hues—avoiding negatives or values &gt; 360.</p>
+        </div>
+        <div class="tab-panel" id="p-ch-3-7-demo" data-panel="demo" role="tabpanel"
+             aria-labelledby="t-ch-3-7-demo" data-active="false">
+          <div class="demo-mount" data-demo-chapter="3" data-demo="d-3-7"></div>
+          <div id="demo-mount-d-3-7" class="demo-mount">加载中…</div>
+        </div>
+        </div>
+      </section>
+      <section class="section" data-section-id="ch-3-8" id="sec-ch-3-8"
+               data-progress-key="c03s8"
+               aria-labelledby="ch-3-8">
+        <div class="section__head">
+          <div class="section__eyebrow">
+            <span class="section__num">3.8</span>
+          </div>
+          <h2 class="section__title" id="ch-3-8"><span data-lang="zh">CVD 论文图测</span><span data-lang="en">CVD 论文图测</span></h2>
+        </div>
+        <div class="tabs" role="tablist" aria-label="内容视图">
+          <button class="tab-btn" type="button" data-tab="explain" role="tab"
+                  id="t-ch-3-8-explain" aria-controls="p-ch-3-8-explain"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 15.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h4.5A1.5 1.5 0 0 0 20 15.5z"/></svg>
+            <span data-lang="zh">讲解</span>
+            <span data-lang="en">Explain</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="code" role="tab"
+                  id="t-ch-3-8-code" aria-controls="p-ch-3-8-code"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4"/></svg>
+            <span data-lang="zh">关键代码</span>
+            <span data-lang="en">Key code</span>
+          </button>
+          <button class="tab-btn" type="button" data-tab="demo" role="tab"
+                  id="t-ch-3-8-demo" aria-controls="p-ch-3-8-demo"
+                  aria-selected="false">
+            <svg class="tab-btn__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg>
+            <span data-lang="zh">演示</span>
+            <span data-lang="en">Demo</span>
+          </button>
+        </div>
+        <div class="tab-panels">
+        <div class="tab-panel" id="p-ch-3-8-explain" data-panel="explain" role="tabpanel"
+             aria-labelledby="t-ch-3-8-explain" data-active="false">
+          <h3 data-lang="zh">3 个"经典论文图"案例</h3>
+                      <h3 data-lang="en">3 "classic paper figure" cases</h3>
+                      <ul>
+                        <li data-lang="zh"><strong>图 1：5 类别散点（Wong 配色）</strong>——Nature 风格</li>
+                        <li data-lang="en"><strong>Figure 1: 5-category scatter (Wong palette)</strong>—Nature style</li>
+                        <li data-lang="zh"><strong>图 2：顺序型热图（Viridis）</strong>——最常见的科研图</li>
+                        <li data-lang="en"><strong>Figure 2: Sequential heatmap (Viridis)</strong>—the most common scientific figure</li>
+                        <li data-lang="zh"><strong>图 3：红绿对比（错误案例）</strong>——常见但严重</li>
+                        <li data-lang="en"><strong>Figure 3: Red-green contrast (mistake case)</strong>—common but serious</li>
+                      </ul>
+                      <h3 data-lang="zh">CVD 测试流程</h3>
+                      <h3 data-lang="en">CVD testing workflow</h3>
+                      <ol>
+                        <li data-lang="zh">把图导出 PNG</li>
+                        <li data-lang="en">Export the figure as PNG</li>
+                        <li data-lang="zh">用 <a href="https://www.color-blindness.com/coblis-color-blindness-simulator/" target="_blank">Coblis</a> 或 <a href="https://colororacle.org/" target="_blank">Color Oracle</a> 模拟</li>
+                        <li data-lang="en">Simulate with <a href="https://www.color-blindness.com/coblis-color-blindness-simulator/" target="_blank">Coblis</a> or <a href="https://colororacle.org/" target="_blank">Color Oracle</a></li>
+                        <li data-lang="zh">看是否仍能区分（亮度对比 / 形状 / 标签）</li>
+                        <li data-lang="en">Check whether elements can still be distinguished (lightness contrast / shape / labels)</li>
+                      </ol>
+                      <h3 data-lang="zh">实测结论</h3>
+                      <h3 data-lang="en">Test results</h3>
+                      <ul>
+                        <li data-lang="zh">Wong / Okabe-Ito / Paul Tol：✅ 在 3 种 CVD 下都能区分</li>
+                        <li data-lang="en">Wong / Okabe-Ito / Paul Tol: ✅ distinguishable under all 3 types of CVD</li>
+                        <li data-lang="zh">红绿对比：⚠ 在绿盲眼中几乎同色（最严重）</li>
+                        <li data-lang="en">Red-green contrast: ⚠ almost the same color to green-blind viewers (most severe)</li>
+                        <li data-lang="zh">Nature/Science/Cell 已逐步迁移到 CVD 友好配色</li>
+                        <li data-lang="en">Nature / Science / Cell have been gradually migrating to CVD-friendly palettes</li>
+                      </ul>
+        </div>
+        <div class="tab-panel" id="p-ch-3-8-code" data-panel="code" role="tabpanel"
+             aria-labelledby="t-ch-3-8-code" data-active="false">
+          <h3 data-lang="zh">⭐ 关键代码</h3>
+                      <h3 data-lang="en">⭐ Key code</h3>
+                      <p data-lang="zh">⭐ <strong>关键点 1：把 SVG 中所有 fill 做 CVD 模拟</strong></p>
+                      <p data-lang="en">⭐ <strong>Key point 1: Apply CVD simulation to every fill in an SVG</strong></p>
+          <pre><code class="lang-js">function cvdTransformSvg(svgString, type) {
+            const doc = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+            doc.querySelectorAll('[fill]').forEach(el =&gt; {
+              const c = d3.color(el.getAttribute('fill'));
+              if (!c) return;
+              const rgb = [Math.round(c.rgb().r), Math.round(c.rgb().g), Math.round(c.rgb().b)];
+              const sim = simulateCVD(rgb, type);
+              el.setAttribute('fill', `rgb(${sim.join(',')})`);
+            });
+            return new XMLSerializer().serializeToString(doc);
+          }</code></pre>
+                      <p class="key-point" data-lang="zh">⭐ 用 <code>DOMParser</code> 解析 SVG 字符串，遍历所有 <code>fill</code> 属性应用 CVD 矩阵。比手写 SVG 字符串拼接安全。</p>
+                      <p class="key-point" data-lang="en">⭐ Use <code>DOMParser</code> to parse SVG strings, then walk all <code>fill</code> attributes and apply the CVD matrix. Safer than hand-concatenating SVG strings.</p>
+        </div>
+        <div class="tab-panel" id="p-ch-3-8-demo" data-panel="demo" role="tabpanel"
+             aria-labelledby="t-ch-3-8-demo" data-active="false">
+          <div class="demo-mount" data-demo-chapter="3" data-demo="d-3-8"></div>
+          <div id="demo-mount-d-3-8" class="demo-mount">加载中…</div>
+        </div>
+        </div>
+      </section>
+
+
+
+        <nav class="lesson-pager" data-prev="../lesson-02/"
+             data-next="../lesson-04/" aria-label="章节翻页">
+          <a class="lesson-pager__link" href="../lesson-02/"><span class="lesson-pager__label" data-i18n="nav.prev">上一节</span><span class="lesson-pager__title">第 2 章 数据可视化流程</span></a>
+          <a class="lesson-pager__link lesson-pager__link--next" href="../lesson-04/"><span class="lesson-pager__label" data-i18n="nav.next">下一节</span><span class="lesson-pager__title">第 4 章 低维数据可视化</span></a>
+        </nav>
+      </div>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <div>
+        <p>© 2026 《可视化导论》 · 中国石油大学（华东） · 授课教师：
+          <a href="https://cinger007.github.io" target="_blank" rel="noopener">李昕</a></p>
+        <p class="site-footer__note">
+          主要参考教材：陈为《可视化导论》。本站为课程网站重构版本：内容沿用原课程，
+          外壳、导航、检索与无障碍能力为重写。
+        </p>
+      </div>
+      <div class="site-footer__tech">
+        <span class="tech-chip">零依赖</span>
+        <span class="tech-chip">D3.js v7</span>
+        <span class="tech-chip">ES Modules</span>
+        <span class="tech-chip">无构建</span>
+      </div>
+    </div>
   </footer>
 
-  <nav class="chapter-pager" aria-label="章节翻页">
-    <a class="pager-prev" href="../lesson-02/"><span class="pager-dir" data-i18n="common.prev">← 上一章</span><span class="pager-title">第 2 章 数据可视化流程</span></a>
-    <a class="pager-portal" href="../" data-i18n="common.enter">课程门户</a>
-    <a class="pager-next" href="../lesson-04/"><span class="pager-dir" data-i18n="common.next">下一章 →</span><span class="pager-title">第 4 章 低维数据可视化</span></a>
-  </nav>
+  <script type="application/json" id="concept-data">{"nodes":[{"id":"n1","d":0,"zh":"颜色模型基础","en":"Color models"},{"id":"n2","d":1,"zh":"colormap 三类","en":"Three colormap types"},{"id":"n3","d":1,"zh":"色系搭配 5 类","en":"Five harmony rules"},{"id":"n4","d":2,"zh":"科研经典色板","en":"Research palettes"},{"id":"n5","d":2,"zh":"鲜艳 + 低饱和","en":"Vivid + low saturation"},{"id":"n6","d":3,"zh":"CVD 色觉缺陷校验","en":"CVD verification"}],"edges":[["n1","n2"],["n1","n3"],["n2","n4"],["n3","n5"],["n4","n6"],["n5","n6"]]}</script>
+  <script type="application/json" id="tour-data">[{"title":"为什么把颜色单列一章","say":"颜色是唯一一个「用错了没人提醒、但读者会直接读错」的通道。所以这门课把它从低维可视化里拆出来，单独讲八节。","top":true,"hold":6500},{"title":"四种颜色空间","say":"RGB 面向屏幕，HSL 面向人的直觉，Lab 和 HCL 才是感知均匀、适合做数据映射的。这个区别是整章的地基。","section":"ch-3-1","tab":"explain","hold":7500},{"title":"选错 colormap 的代价","say":"顺序型、发散型、定性型。把发散型用在没有中间值的数据上，读者会凭空读出一个「中心」；把彩虹色用在定量数据上，会出现并不存在的边界。","section":"ch-3-2","tab":"demo","hold":8000},{"title":"直接抄顶标的配色","say":"3.5 节给了 Wong、Paul Tol、Okabe-Ito 三套经过色觉缺陷检验的色板。做论文图不需要自己凑颜色，直接用这些。","section":"ch-3-5","tab":"explain","hold":7500},{"title":"对错案例","say":"3.6 节是四张图里挑出唯一一张对的，可以现场让学生投票，这个交互很有效。","section":"ch-3-6","tab":"demo","hold":7500},{"title":"自己生成一套配色","say":"3.7 节把「鲜艳 + 低饱和」这个经验规则做成了生成器：颜色数量控制在七个以内，鲜艳的颜色同时压低饱和度。","section":"ch-3-7","tab":"demo","hold":8000}]</script>
 
-  <script type="module" src="./lesson.js?v=202609080945"></script>
-  <script type="module" src="../i18n.js"></script>
-  <script>
-  (function () {
-    var bar = document.querySelector('.course-topbar');
-    if (!bar) return;
-    var cur = parseInt(bar.getAttribute('data-current'), 10) || 0;
-    var links = bar.querySelectorAll('.tabs a');
-    if (cur >= 0 && cur < links.length) links[cur].classList.add('current');
-  })();
-  </script>
+  <div class="tour-bar" id="tour-bar" data-open="false" role="region" aria-label="自动导览">
+    <button class="tour-bar__trigger" type="button" id="tour-play">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg>
+      <span data-i18n="tour.play">自动导览本章</span>
+      <span class="tour-bar__steps" id="tour-total"></span>
+    </button>
+    <div class="tour-bar__panel">
+      <div class="tour-bar__head">
+        <span class="tour-bar__count" id="tour-count">1 / 1</span>
+        <strong class="tour-bar__title" id="tour-title"></strong>
+      </div>
+      <p class="tour-bar__say" id="tour-say"></p>
+      <div class="tour-bar__actions">
+        <button type="button" id="tour-prev" data-i18n="tour.prev">上一步</button>
+        <button type="button" id="tour-toggle" data-i18n="tour.pause">暂停</button>
+        <button type="button" id="tour-next" data-i18n="tour.next">下一步</button>
+        <button type="button" id="tour-exit" data-i18n="tour.exit">退出导览</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

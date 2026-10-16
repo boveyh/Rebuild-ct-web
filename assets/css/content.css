@@ -885,3 +885,82 @@ h3:hover > .heading-anchor,
   .objectives { padding: var(--sp-4); }
   .objectives__meta { margin-left: 0; }
 }
+
+
+/* ============================================================ 延伸实验入口
+   第 1 章带的 5 个独立实验页面，原本在旧导航里没有稳定入口。
+   这里做成一条横向的行动号召块：左边说清是什么，右边一个明确的去处。
+   用小节级别的视觉重量（不是卡片），避免和正文抢注意力。 */
+
+.lab-callout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+  margin: var(--sp-10) 0 var(--sp-8);
+  padding: var(--sp-5) var(--sp-6);
+  background: linear-gradient(135deg, var(--brand-bg) 0%, var(--bg-surface) 72%);
+  border: 1px solid var(--border-2);
+  border-left: 3px solid var(--brand);
+  border-radius: var(--radius-md);
+}
+
+.lab-callout__eyebrow {
+  margin: 0 0 var(--sp-1);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.08em;
+  color: var(--brand);
+  text-transform: uppercase;
+}
+
+.lab-callout__title {
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  color: var(--text-1);
+}
+
+.lab-callout__desc {
+  margin: 0;
+  max-width: 62ch;
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+  color: var(--text-2);
+}
+
+.lab-callout__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex: none;
+  padding: var(--sp-2) var(--sp-5);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-inverse);
+  background: var(--brand);
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.lab-callout__cta:hover { background: var(--brand-solid); filter: brightness(0.92); }
+
+.lab-callout__cta svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.lab-callout__cta:hover svg { transform: translateX(3px); }
+
+@media (max-width: 640px) {
+  .lab-callout { flex-direction: column; align-items: flex-start; }
+  .lab-callout__cta { width: 100%; justify-content: center; }
+}

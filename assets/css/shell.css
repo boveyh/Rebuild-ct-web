@@ -51,17 +51,65 @@ html[data-theme="dark"] .toast { background: var(--n-100); color: var(--n-950); 
   left: 50%;
   bottom: var(--sp-6);
   z-index: 450;
-  display: none;
   width: min(760px, calc(100vw - var(--sp-8)));
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  /* 容器本身不接收点击，否则折叠态那条看不见的宽盒子会挡住正文 */
+  pointer-events: none;
+}
+
+/* 折叠态：一个「自动导览本章」的胶囊按钮。章节页默认停在这里。 */
+.tour-bar__trigger {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-5);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-1);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-pop);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out);
+}
+
+.tour-bar__trigger:hover {
+  border-color: var(--border-3);
+  transform: translateY(-1px);
+}
+
+.tour-bar__trigger svg {
+  width: 13px;
+  height: 13px;
+  fill: var(--brand);
+}
+
+.tour-bar__steps {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.tour-bar__panel {
+  pointer-events: auto;
+  display: none;
+  width: 100%;
   padding: var(--sp-4) var(--sp-5);
   background: var(--bg-raised);
   border: 1px solid var(--border-2);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-pop);
-  transform: translateX(-50%);
 }
 
-.tour-bar[data-open="true"] {
+.tour-bar[data-open="true"] .tour-bar__trigger { display: none; }
+
+.tour-bar[data-open="true"] .tour-bar__panel {
   display: block;
   animation: tour-in var(--dur-slow) var(--ease-out);
 }
@@ -439,6 +487,12 @@ body.tour-on .site-footer { opacity: 0.35; transition: opacity var(--dur-slow) v
 
 .sidebar__group + .sidebar__group { margin-top: var(--sp-4); }
 
+/* 遮罩只在窄屏的抽屉模式下有意义。宽屏下必须彻底脱离文档流：
+   它是 .shell 网格的第二个子项，一旦参与布局，.main 就会被挤到
+   第二行第一列，正文宽度塌成侧栏宽度 —— 页面「没报错、没溢出」，
+   但内容全挤在左边一条里。这类 bug 只有真的量一下元素位置才看得出来。 */
+.sidebar-scrim { display: none; }
+
 .sidebar__title {
   display: flex;
   align-items: center;
@@ -567,7 +621,21 @@ body.tour-on .site-footer { opacity: 0.35; transition: opacity var(--dur-slow) v
 .main { min-width: 0; }
 
 .content {
-  max-width: var(--content-max);
+  /* 这里故意不再整体收窄。
+     正文需要窄栏（一行太长会「丢行」），但依赖图、代码块、宽表格、演示区
+     恰恰需要宽度 —— 用同一条 max-width 卡住两者，结果是图被压得变形、右边
+     还空出三百多像素。所以拆开：需要「读」的收在 --text-max，需要「看」的
+     跟随主栏宽度，并各自留一个上限。 */
+  max-width: none;
+}
+
+.content :is(p, ul, ol, dl, blockquote, h1, h2, h3, h4, h5, h6) {
+  max-width: var(--text-max);
+}
+
+.content :is(figure, .code-block, .demo-grid, .tab-panel, .theory-table,
+             .objectives, .lab-callout, .term-list) {
+  max-width: min(100%, var(--media-max));
 }
 
 /* 页面级标题区 */
@@ -879,6 +947,12 @@ body.tour-on .site-footer { opacity: 0.35; transition: opacity var(--dur-slow) v
 
   .sidebar-toggle { display: inline-flex; }
 
+  /* 触屏上把点击目标放大到 40px —— 32px 的图标按钮在手机上容易点偏，
+     而顶栏这三个按钮（目录 / 主题 / 语言）恰恰是窄屏下最需要准确点中的。 */
+  .icon-btn { width: 40px; height: 40px; }
+  .icon-btn svg { width: 19px; height: 19px; }
+  .search-trigger { min-height: 40px; }
+
   .sidebar {
     position: fixed;
     top: var(--topbar-h);
@@ -899,6 +973,7 @@ body.tour-on .site-footer { opacity: 0.35; transition: opacity var(--dur-slow) v
   .sidebar[data-open="true"] { transform: none; }
 
   .sidebar-scrim {
+    display: block;
     position: fixed;
     inset: var(--topbar-h) 0 0 0;
     z-index: 255;

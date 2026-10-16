@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-locale="zh" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>术语表 · 《可视化导论》</title>
+  <meta name="description" content="《可视化导论》全课程术语表：每个名词给出定义，并说明它为什么重要、容易在哪儿搞错。" />
+  <meta name="theme-color" content="#3d4bc0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <meta property="og:title" content="术语表 · 《可视化导论》" />
+  <meta property="og:description" content="《可视化导论》全课程术语表：每个名词给出定义，并说明它为什么重要、容易在哪儿搞错。" />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/shell.css" />
+  <link rel="stylesheet" href="assets/css/content.css" />
+  <link rel="stylesheet" href="assets/css/portal.css" />
+  <script>
+    /* 主题要在首次绘制前定好，否则深色模式会闪一下白 */
+    (function () {
+      try {
+        var s = localStorage.getItem("wb.theme");
+        var d = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.setAttribute("data-theme", s || (d ? "dark" : "light"));
+        var l = localStorage.getItem("wb.locale");
+        if (l) document.documentElement.setAttribute("data-locale", l === "en" ? "en" : "zh");
+      } catch (e) {}
+    })();
+  </script>
+  <script type="module" src="assets/js/shell.js"></script>
+  <script type="module" src="assets/js/enhance.js"></script>
+</head>
+<body id="top">
+  <a class="skip-link" href="#main">跳到主要内容</a>
+
+  <div class="progress-rail" aria-hidden="true"><div class="progress-rail__bar" id="progress-bar"></div></div>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <button class="icon-btn sidebar-toggle" id="sidebar-toggle" type="button"
+              aria-controls="sidebar" aria-expanded="false">
+        <span class="sr-only">打开目录</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+
+      <a class="topbar__brand" href="">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text">可视化导论</span>
+      </a>
+
+      <span class="topbar__divider" aria-hidden="true"></span>
+
+      <nav class="breadcrumb" aria-label="面包屑导航">
+        <ol><li><a href="./">课程门户</a></li><li><span aria-current="page">术语表</span></li></ol>
+      </nav>
+
+      <div class="topbar__actions">
+        <button class="search-trigger" type="button" data-search-open data-i18n-aria="search.open">
+          <svg class="search-trigger__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>
+          </svg>
+          <span class="search-trigger__label" data-i18n="search.placeholder">搜索</span>
+          <kbd>Ctrl K</kbd>
+        </button>
+
+        <button class="icon-btn" id="theme-toggle" type="button" data-i18n-aria="theme.toggle" aria-pressed="false">
+          <span class="sr-only">切换主题</span>
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" style="display:none">
+            <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/>
+          </svg>
+        </button>
+        
+        <div class="lang-switch" role="group" aria-label="切换语言 / Switch language">
+          <button type="button" data-lang-btn="zh" aria-pressed="true" aria-label="中文">中</button>
+          <button type="button" data-lang-btn="en" aria-pressed="false" aria-label="English">EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="search-layer" id="search-layer" data-open="false" role="dialog"
+       aria-modal="true" aria-label="全站搜索" aria-hidden="true">
+    <div class="search-panel">
+      <div class="search-panel__field">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+        <input class="search-panel__input" id="search-input" type="search" autocomplete="off"
+               spellcheck="false" data-i18n-placeholder="search.placeholder"
+               placeholder="搜索知识点、代码、演示…" aria-label="搜索关键词" />
+        <button class="icon-btn" type="button" data-search-close data-i18n-aria="search.close">
+          <span class="sr-only">关闭</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="search-panel__results" id="search-results" role="listbox" aria-label="搜索结果"></div>
+      <div class="search-panel__hint">
+        <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+        <span><kbd>Enter</kbd> 打开</span>
+        <span><kbd>Esc</kbd> 关闭</span>
+        <span style="margin-left:auto"><kbd>/</kbd> 随时唤起</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell shell--wide">
+    <main class="main" id="main">
+      <div class="page-head">
+        <p class="page-head__eyebrow">Glossary</p>
+        <h1>术语表</h1>
+        <p class="page-head__lead">
+          按章节顺序排列。每个词条除了「是什么」，还写了「为什么重要」——
+          名词表最容易变成一份背了也没用的清单，加上后半句才有意义。
+        </p>
+      </div>
+
+      <div class="term-filter" role="group" aria-label="按章节筛选">
+        <button type="button" data-term-filter="all" aria-pressed="true">全部 25</button>
+        <button type="button" data-term-filter="01" aria-pressed="false">第 1 章</button><button type="button" data-term-filter="02" aria-pressed="false">第 2 章</button><button type="button" data-term-filter="03" aria-pressed="false">第 3 章</button><button type="button" data-term-filter="04" aria-pressed="false">第 4 章</button><button type="button" data-term-filter="05" aria-pressed="false">第 5 章</button>
+      </div>
+
+      <ul class="term-list">
+        <li class="term-card" data-term-ch="01">
+          <div class="term-card__head">
+            <h3>DIKW 金字塔<span class="term-card__en">DIKW pyramid</span></h3>
+            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">把「数据 → 信息 → 知识 → 智慧」四级串起来的层次模型。数据是原始观察，信息是组织过的数据，知识是从信息里提炼出的规律，智慧是据知识做判断。</span>
+            <span data-lang="en">A four-level model: data → information → knowledge → wisdom.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">可视化的能力边界就在这里：它主要把数据升到信息，少数场景能到知识，跨不到智慧。分不清这一层，就很容易承诺可视化做不到的事。</span>
+            <span data-lang="en">It marks the boundary of visualization, which mostly lifts data to information.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="01">
+          <div class="term-card__head">
+            <h3>名义尺度<span class="term-card__en">Nominal scale</span></h3>
+            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">Stevens 四种测量尺度里最弱的一种：只允许判断相等或不等，没有任何顺序。姓名、性别都属于这一类。</span>
+            <span data-lang="en">The weakest of Stevens' four scales: only equality can be tested.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">名义数据只能用色相、形状这类定性通道编码 —— 给性别做平均值是没有意义的。</span>
+            <span data-lang="en">Nominal data belongs on qualitative channels such as hue and shape.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="01">
+          <div class="term-card__head">
+            <h3>序数尺度<span class="term-card__en">Ordinal scale</span></h3>
+            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">值之间有顺序，但相邻两级的差不一定相等。学历（本科 / 硕士 / 博士）是典型例子。</span>
+            <span data-lang="en">Values are ordered but the gaps between them need not be equal.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">差不一定相等，所以序数数据很适合用亮度、饱和度这类顺序通道，而不适合用位置。</span>
+            <span data-lang="en">Ordered channels such as brightness suit ordinal data better than position.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="01">
+          <div class="term-card__head">
+            <h3>区间尺度与比率尺度<span class="term-card__en">Interval vs. ratio scale</span></h3>
+            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">区间尺度支持加减（摄氏温度），比率尺度还支持乘除（年龄、价格）。唯一的区别是有没有「真零点」。</span>
+            <span data-lang="en">Interval supports addition; ratio additionally supports multiplication. The difference is the true zero.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">0°C 不等于没有温度，所以不能说 20°C 是 10°C 的两倍；0 元才等于没有钱。这条决定了什么时候可以算比值。</span>
+            <span data-lang="en">0°C is not 'no temperature', so ratios of Celsius values are meaningless.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="01">
+          <div class="term-card__head">
+            <h3>视觉通道<span class="term-card__en">Visual channel</span></h3>
+            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">承载数据变化的视觉属性，位置、长度、角度、面积、亮度、饱和度、色相、形状、纹理等。</span>
+            <span data-lang="en">A visual property that can carry data variation: position, length, angle, area, brightness, hue, shape.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">Mackinlay 把通道按表达能力排了序：位置最能表达定量，色相最能表达定性。属性与通道配错，信息就会丢。</span>
+            <span data-lang="en">Channels differ in how much information they carry; mismatch loses information.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="01">
+          <div class="term-card__head">
+            <h3>Data-Join 三态<span class="term-card__en">Data-join, three states</span></h3>
+            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">把数据数组绑定到 DOM 元素时出现的三种情况：元素不够是 enter，正好是 update，多了是 exit。</span>
+            <span data-lang="en">When binding data to elements: extra data enters, matching data updates, surplus elements exit.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">这是 D3 的核心心智模型。理解了它，D3 就从「一堆 API」变成「一条数据到画面的映射」。</span>
+            <span data-lang="en">It is the core mental model that turns D3 from an API list into a mapping.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="01">
+          <div class="term-card__head">
+            <h3>key 函数<span class="term-card__en">Key function</span></h3>
+            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">在绑定数据时告诉 D3「哪个数据对应哪个元素」的函数，通常写成 d => d.id。</span>
+            <span data-lang="en">A function that tells D3 which data item belongs to which element.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">没有 key，D3 按数组下标认身份：数据一重排，所有元素都算「变过」，过渡动画就乱了。有 key，元素才知道自己是谁。</span>
+            <span data-lang="en">Without it D3 matches by index, so any reordering breaks transition animations.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="02">
+          <div class="term-card__head">
+            <h3>Card 数据流模型<span class="term-card__en">Card's pipeline model</span></h3>
+            <a class="term-card__src" href="lesson-02/">第 2 章 数据可视化流程</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">把可视化拆成四步：原数据 → 数据表 → 视觉结构 → 视图。1999 年由 Stuart Card 提出。</span>
+            <span data-lang="en">Card's four-stage model: raw data → data tables → visual structures → views.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">它是整门课的骨架。有了这套坐标系，遇到任何一张陌生的图，你都能问「它在哪一步做了什么处理」。</span>
+            <span data-lang="en">It gives you a frame for asking what any unfamiliar chart does at each stage.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="02">
+          <div class="term-card__head">
+            <h3>d3.rollup<span class="term-card__en">d3.rollup</span></h3>
+            <a class="term-card__src" href="lesson-02/">第 2 章 数据可视化流程</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">按给定键分组，并对每组算出一个聚合值，返回 Map。和 d3.group 的区别是它只留聚合结果。</span>
+            <span data-lang="en">Groups by key and reduces each group to a single value.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">把平表变成层次结构最实用的一步。树形图、分组柱状图的上游数据几乎都是它生成的。</span>
+            <span data-lang="en">It is the usual first step from a flat table to hierarchical data.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="02">
+          <div class="term-card__head">
+            <h3>Reingold-Tilford 布局<span class="term-card__en">Reingold–Tilford layout</span></h3>
+            <a class="term-card__src" href="lesson-02/">第 2 章 数据可视化流程</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">一种经典树状图布局算法，让同层节点均匀铺开，同时父节点尽量居中于其子节点之上。</span>
+            <span data-lang="en">A classic tree layout that spreads siblings evenly and centres parents over children.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">手写树布局很容易左右不平衡、线条交叉。这个算法把「看起来舒服」这件事变成了可计算的规则。</span>
+            <span data-lang="en">It turns 'looks tidy' into a computable rule, avoiding crossings and imbalance.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="02">
+          <div class="term-card__head">
+            <h3>事件委托<span class="term-card__en">Event delegation</span></h3>
+            <a class="term-card__src" href="lesson-02/">第 2 章 数据可视化流程</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">把监听器绑在父元素上，靠事件冒泡统一处理所有子元素的事件。</span>
+            <span data-lang="en">Attaching one listener to a parent and letting events bubble up from children.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">元素数量成千上万时，给每个元素单独绑监听器的开销会线性上涨。委托只有一个监听器，而且动态增删的子元素也能自动接管。</span>
+            <span data-lang="en">One listener scales where per-element listeners grow linearly.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="03">
+          <div class="term-card__head">
+            <h3>颜色空间<span class="term-card__en">Color space</span></h3>
+            <a class="term-card__src" href="lesson-03/">第 3 章 色彩专题</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">描述颜色的坐标系。RGB 面向屏幕，HSL 面向直觉，Lab / HCL 面向感知。</span>
+            <span data-lang="en">A coordinate system for colour: RGB for screens, HSL for intuition, Lab/HCL for perception.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">做数据映射必须用感知均匀的空间：在 RGB 里等距离的两个颜色，人眼看着并不等距，映射出来的图会骗人。</span>
+            <span data-lang="en">Only perceptually uniform spaces give honest distances when mapping data to colour.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="03">
+          <div class="term-card__head">
+            <h3>colormap 三类<span class="term-card__en">Three colormap types</span></h3>
+            <a class="term-card__src" href="lesson-03/">第 3 章 色彩专题</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">顺序型（数值单调变化）、发散型（有一个有意义的中间值）、定性型（类别之间无顺序）。</span>
+            <span data-lang="en">Sequential, diverging and qualitative colormaps.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">选错类型的代价很大：给没有中心的数据用发散型，读者会读出一个不存在的中心；给类别数据用顺序型，读者会以为类别能比大小。</span>
+            <span data-lang="en">A wrong type misleads: diverging on data without a midpoint invents a centre.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="03">
+          <div class="term-card__head">
+            <h3>色觉缺陷（CVD）<span class="term-card__en">Colour-vision deficiency</span></h3>
+            <a class="term-card__src" href="lesson-03/">第 3 章 色彩专题</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">红绿色盲、蓝黄色盲等色觉差异。男性中红绿色盲比例约为 8%。</span>
+            <span data-lang="en">Colour-vision deficiencies such as deuteranopia and protanopia.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">只靠色相区分数据，意味着约每十二个男性读者里就有一个读不了你的图。这是把「可读性」变成硬指标的少数几处之一。</span>
+            <span data-lang="en">Hue-only encoding excludes roughly one in twelve male readers.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="03">
+          <div class="term-card__head">
+            <h3>Wong 色板<span class="term-card__en">Wong palette</span></h3>
+            <a class="term-card__src" href="lesson-03/">第 3 章 色彩专题</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">发表在 Nature Methods (2011) 的一组定性色板，经过色觉缺陷友好性与等亮度检验。</span>
+            <span data-lang="en">A qualitative palette published in Nature Methods (2011), tested for CVD safety.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">本网站自身的配色也取自这套色板 —— 课程讲的配色原则，在课程网站自己身上先用一遍。</span>
+            <span data-lang="en">This very website uses it, so the course practices what it teaches.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="03">
+          <div class="term-card__head">
+            <h3>鲜艳 + 低饱和<span class="term-card__en">Vivid but low saturation</span></h3>
+            <a class="term-card__src" href="lesson-03/">第 3 章 色彩专题</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">一类配色策略：保色相上的区分度（鲜艳），同时压低饱和度（不刺眼），并把颜色数量控制在 7 个以内。</span>
+            <span data-lang="en">A strategy that keeps hue separation while lowering saturation, capped around seven colours.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">高饱和多色最大的问题不是丑，是「吵」—— 每一块颜色都在抢注意力，读者反而找不到重点。</span>
+            <span data-lang="en">Highly saturated multi-colour palettes are not ugly so much as noisy — everything competes.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="04">
+          <div class="term-card__head">
+            <h3>三层坐标变换<span class="term-card__en">Three-layer coordinate transform</span></h3>
+            <a class="term-card__src" href="lesson-04/">第 4 章 低维数据可视化</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">数据空间（语义）→ 坐标系空间（几何）→ 屏幕空间（像素）。每一层只负责一件事。</span>
+            <span data-lang="en">Data space (meaning) → coordinate space (geometry) → screen space (pixels).</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">初学者常把这三种变换揉在一起写，于是改一处就崩一片。分层之后，比例尺该做什么、什么不该做，就清楚了。</span>
+            <span data-lang="en">Keeping the three layers separate stops a change in one from breaking the others.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="04">
+          <div class="term-card__head">
+            <h3>Cleveland 45° 黄金角<span class="term-card__en">Cleveland's 45° sweet spot</span></h3>
+            <a class="term-card__src" href="lesson-04/">第 4 章 低维数据可视化</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">人眼对斜率的估计在 45° 附近最准确（也称 banking to 45°）。</span>
+            <span data-lang="en">Human slope estimation is most accurate around 45°.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">它把「图表该多宽多高」从审美问题变成了感知问题：想让人准确比较趋势，就把主要趋势线摆到 45° 附近。</span>
+            <span data-lang="en">It turns aspect ratio from a matter of taste into a matter of perception.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="04">
+          <div class="term-card__head">
+            <h3>Marching Squares<span class="term-card__en">Marching Squares</span></h3>
+            <a class="term-card__src" href="lesson-04/">第 4 章 低维数据可视化</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">在规则网格上逐格判断四角与阈值的关系，生成等值线段，再拼接成完整等值线的算法。</span>
+            <span data-lang="en">A grid algorithm that tests each cell's four corners against a threshold and stitches contour segments.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">它是等值线图和热力图平滑化的底层。难点不在循环，而在「四角两两高于阈值」时的歧义格子 —— 连线方式不同，结果形状会不一样。</span>
+            <span data-lang="en">Ambiguous cells (two high, two low corners) are the hard part, not the loop itself.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="05">
+          <div class="term-card__head">
+            <h3>时间的 5 个属性<span class="term-card__en">Five attributes of time</span></h3>
+            <a class="term-card__src" href="lesson-05/">第 5 章 时序数据可视化</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">有序、连续、周期、独立于空间、有结构（间隔有含义）。</span>
+            <span data-lang="en">Ordered, continuous, cyclic, independent of space, and structured.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">其中「独立于空间」这一条最关键：空间数据的位置自带信息，时间必须由你决定它怎么落到平面上，所以时间可视化才有这么多非标准布局。</span>
+            <span data-lang="en">'Independent of space' is why time needs so many non-standard layouts.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="05">
+          <div class="term-card__head">
+            <h3>van Wijk 日历热图<span class="term-card__en">van Wijk calendar heatmap</span></h3>
+            <a class="term-card__src" href="lesson-05/">第 5 章 时序数据可视化</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">把一年按「行 = 年 / 列 = 周」摆成网格，用颜色表示每天的值。</span>
+            <span data-lang="en">A calendar grid with years as rows and weeks as columns, coloured by daily value.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">它牺牲了精确的数值比较，换来整年的模式识别 —— 这是布局设计里典型的「用精度换结构」。</span>
+            <span data-lang="en">A classic trade: precision for pattern recognition.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="05">
+          <div class="term-card__head">
+            <h3>阿基米德螺旋<span class="term-card__en">Archimedean spiral</span></h3>
+            <a class="term-card__src" href="lesson-05/">第 5 章 时序数据可视化</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">半径随角度线性增长的螺旋线。把时间沿它排列，同一周期的数据会落在同一条辐射方向上。</span>
+            <span data-lang="en">A spiral whose radius grows linearly with angle.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">折线图会把周期切成碎片，螺旋则让周期对齐成径向的一条条 —— 周期性因此变得可以直接看出来。</span>
+            <span data-lang="en">Periodic events align along rays, making cyclicity directly visible.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="05">
+          <div class="term-card__head">
+            <h3>Storyline<span class="term-card__en">Storyline</span></h3>
+            <a class="term-card__src" href="lesson-05/">第 5 章 时序数据可视化</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">多角色叙事可视化：每条线代表一个角色、组织或进程，线的交叉表示它们相遇或产生关系。</span>
+            <span data-lang="en">A narrative visualization where each line is a character and crossings are encounters.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">它是少数几个能把「叙事结构」本身画出来的方法。《侏罗纪公园》案例里，角色线的交织就是剧情的结构。</span>
+            <span data-lang="en">It visualizes narrative structure itself, not just values.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="01">
+          <div class="term-card__head">
+            <h3>比例尺（scale）<span class="term-card__en">Scale</span></h3>
+            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">把数据域映射到值域的函数。连续量用 scaleLinear，离散分类用 scaleBand，序数可用 scalePoint。</span>
+            <span data-lang="en">A function mapping a data domain to a visual range.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">选错比例尺是最常见的新手错误：给类别数据用线性比例尺，会算出「0.5 班」这种没有意义的值。</span>
+            <span data-lang="en">Using a linear scale on categorical data produces meaningless midpoints.</span>
+          </p>
+        </li>
+        <li class="term-card" data-term-ch="03">
+          <div class="term-card__head">
+            <h3>colormap 与色板的区别<span class="term-card__en">Colormap vs. palette</span></h3>
+            <a class="term-card__src" href="lesson-03/">第 3 章 色彩专题</a>
+          </div>
+          <p class="term-card__def">
+            <span data-lang="zh">colormap 是连续的（可插值），用于数值映射；色板是离散的一组颜色，用于类别区分。</span>
+            <span data-lang="en">A colormap is continuous and interpolated; a palette is a discrete set for categories.</span>
+          </p>
+          <p class="term-card__why">
+            <span data-lang="zh">把连续的 colormap 用在类别数据上，会暗示类别之间有中间态；把离散色板用在数值上，则会让读者以为数据是分档的。</span>
+            <span data-lang="en">Using one where the other belongs implies structure the data does not have.</span>
+          </p>
+        </li>
+      </ul>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <div>
+        <p>© 2026 《可视化导论》 · 中国石油大学（华东） · 授课教师：
+          <a href="https://cinger007.github.io" target="_blank" rel="noopener">李昕</a></p>
+        <p class="site-footer__note">
+          主要参考教材：陈为《可视化导论》。本站为课程网站重构版本：内容沿用原课程，
+          外壳、导航、检索与无障碍能力为重写。
+        </p>
+      </div>
+      <div class="site-footer__tech">
+        <span class="tech-chip">零依赖</span>
+        <span class="tech-chip">D3.js v7</span>
+        <span class="tech-chip">ES Modules</span>
+        <span class="tech-chip">无构建</span>
+      </div>
+    </div>
+  </footer>
+  <script type="module">
+    document.querySelectorAll("[data-term-filter]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const k = btn.getAttribute("data-term-filter");
+        document.querySelectorAll("[data-term-filter]").forEach(b =>
+          b.setAttribute("aria-pressed", String(b === btn)));
+        document.querySelectorAll(".term-card").forEach(card => {
+          const show = k === "all" || card.getAttribute("data-term-ch") === k;
+          card.style.display = show ? "" : "none";
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

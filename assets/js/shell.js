@@ -17,6 +17,12 @@
 
   var doc = document;
   var root = doc.documentElement;
+
+  /* 站点根目录。以本模块自身的位置推算（assets/js/shell.js -> 上两级），
+     因为页面可能位于 /、/lesson-0X/、/supplementary/ 等不同层级，
+     而站点级资源（搜索索引等）只有一份。 */
+  var SITE_ROOT = new URL("../../", import.meta.url);
+
   var STORE = {
     theme: "wb.theme",
     locale: "wb.locale",
@@ -84,6 +90,7 @@
     zh: {
       "search.placeholder": "搜索知识点、代码、演示…",
       "search.empty": "没有匹配的结果",
+      "search.failed": "搜索索引没能加载。请确认是通过 HTTP 服务器打开本站（直接双击 HTML 用 file:// 打开会被浏览器拦截）。",
       "search.hint": "输入关键词开始检索 · 支持中文与英文",
       "search.open": "打开搜索",
       "search.close": "关闭搜索",
@@ -105,11 +112,14 @@
       "tour.exit": "退出导览",
       "tour.prev": "上一步",
       "tour.next": "下一步",
-      "tour.step": "第 {n} / {total} 步"
+      "tour.step": "第 {n} / {total} 步",
+      "lab.eyebrow": "延伸实验",
+      "lab.open": "打开实验目录"
     },
     en: {
       "search.placeholder": "Search concepts, code, demos…",
       "search.empty": "No matching results",
+      "search.failed": "The search index could not be loaded. Make sure the site is opened over HTTP (file:// is blocked by browsers).",
       "search.hint": "Type to search · Chinese and English supported",
       "search.open": "Open search",
       "search.close": "Close search",
@@ -131,7 +141,9 @@
       "tour.exit": "Exit tour",
       "tour.prev": "Previous step",
       "tour.next": "Next step",
-      "tour.step": "Step {n} / {total}"
+      "tour.step": "Step {n} / {total}",
+      "lab.eyebrow": "Extra labs",
+      "lab.open": "Open lab folder"
     }
   };
 
@@ -277,9 +289,15 @@
       $$("[data-progress-scope]").forEach(function (el) {
         var scope = el.getAttribute("data-progress-scope");
         var items = $$('[data-progress-key^="' + scope + '"]');
-        if (!items.length) return;
+        // 门户页与侧栏的「全部章节」不在本章页面里，拿不到小节节点，
+        // 因此允许用 data-progress-total 显式声明分母。
+        var total = items.length || parseInt(el.getAttribute("data-progress-total") || "0", 10);
+        if (!total) return;
         var done = items.filter(function (i) { return map[i.getAttribute("data-progress-key")]; }).length;
-        var pct = Math.round((done / items.length) * 100);
+        if (!items.length) {
+          for (var k in map) if (map[k] && k.indexOf(scope) === 0) done++;
+        }
+        var pct = Math.min(100, Math.round((done / total) * 100));
         var out = $("[data-progress-out]", el);
         if (out) out.textContent = pct + "%";
         var bar = $("[data-progress-bar]", el);
@@ -330,6 +348,18 @@
       }
 
       function sync() {
+        // 1) 阅读进度：凡是「底边已经越过视口 60% 线」的小节都算读过。
+        //    这里必须放在下面的提前 return 之前 —— 之前把打点写在
+        //    「当前小节发生变化」那个分支里，结果是：只要不换节，
+        //    再怎么往下滚都不会记录，进度永远停在 0%。
+        var markLine = window.innerHeight * 0.6;
+        for (var i = 0; i < sections.length; i++) {
+          if (sections[i].getBoundingClientRect().bottom <= markLine) {
+            Progress.mark(sections[i].getAttribute("data-progress-key"));
+          }
+        }
+
+        // 2) 高亮「当前小节」：视口上部 22% 处所在的那一节
         var s = pick();
         var id = s.getAttribute("data-section-id");
         if (id === currentId) return;
@@ -337,12 +367,6 @@
         if (currentId && links[currentId]) links[currentId].removeAttribute("aria-current");
         currentId = id;
         if (links[id]) links[id].setAttribute("aria-current", "true");
-
-        // 阅读到底部附近才算「读完」这一节
-        var rect = s.getBoundingClientRect();
-        if (rect.bottom < window.innerHeight * 0.6) {
-          Progress.mark(s.getAttribute("data-progress-key"));
-        }
       }
 
       var ticking = false;
@@ -411,6 +435,11 @@
       doc.addEventListener("keydown", function (e) {
         if (e.key === "Escape" && self.isOpen()) { self.close(); }
       });
+
+      // 索引是按语言分组的，切换语言后已渲染的结果要跟着重来
+      doc.addEventListener("wb:locale", function () {
+        if (self.isOpen()) self.run(self.input.value);
+      });
     },
 
     isOpen: function () { return this.layer.getAttribute("data-open") === "true"; },
@@ -440,18 +469,35 @@
       if (this.index) return Promise.resolve(this.index);
       if (this.loading) return this.loading;
 
-      this.loading = fetch(window.WB_SEARCH_INDEX || "assets/search-index.json")
-        .then(function (r) { return r.ok ? r.json() : []; })
+      // 索引地址必须以 shell.js 自身的位置为基准，不能写成页面相对路径。
+      // 写成 "assets/search-index.json" 时，在 /lesson-03/ 下会去请求
+      // /lesson-03/assets/search-index.json —— 404 被下面的 catch 吞掉，
+      // 表现是「搜索框能打开、输入什么都不出结果」。也就是说：
+      // 除了门户页，全站搜索都是坏的，而且坏得没有任何提示。
+      var url = window.WB_SEARCH_INDEX ||
+                new URL("assets/search-index.json", SITE_ROOT).href;
+
+      this.loading = fetch(url)
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        })
         .then(function (data) { self.index = Array.isArray(data) ? data : (data.entries || []); return self.index; })
-        .catch(function () { self.index = []; return self.index; });
+        .catch(function (err) {
+          console.warn("[shell] 搜索索引加载失败：" + url, err);
+          self.index = [];
+          self.failed = true;
+          return self.index;
+        });
 
       return this.loading;
     },
 
-    /** 极简相关度打分：标题命中 > 正文命中，前缀命中 > 词中命中 */
+    /** 极简相关度打分：标题命中 > 正文命中，前缀命中 > 词中命中。
+     *  入参必须是 localize() 归一化过的条目（run() 里统一做过了）。 */
     score: function (entry, q) {
       var title = entry.title.toLowerCase();
-      var body = (entry.text || "").toLowerCase();
+      var body = entry.text.toLowerCase();
       var low = q.toLowerCase();
       var s = 0;
       var i = title.indexOf(low);
@@ -470,7 +516,7 @@
     run: function (query) {
       var self = this;
       var q = (query || "").trim();
-      var entries = this.index || [];
+      var entries = (this.index || []).map(localize);
 
       var hits;
       if (!q) {
@@ -490,7 +536,10 @@
       });
 
       if (!hits.length) {
-        this.list.innerHTML = '<p class="search-panel__empty">' + esc(Locale.t("search.empty")) + "</p>";
+        // 区分「确实没搜到」和「索引根本没加载成功」。
+        // 后者如果也显示「没有找到」，会让人以为站内真的没有这个内容。
+        var msg = this.failed ? Locale.t("search.failed") : Locale.t("search.empty");
+        this.list.innerHTML = '<p class="search-panel__empty">' + esc(msg) + "</p>";
         this.active = -1;
         return;
       }
@@ -554,6 +603,24 @@
     if (i < 0) return text.slice(0, 110);
     var start = Math.max(0, i - 34);
     return (start > 0 ? "…" : "") + text.slice(start, start + 120);
+  }
+
+  /* 搜索索引是**按语言分组的**：每条记录长这样
+       { href, primary, zh: { title, where, text }, en: { … } }
+     取字段必须先看当前语言。
+     之前直接读 entry.title / entry.text，全都取到 undefined，
+     于是「输入任何关键词」都会在 score() 里抛异常 —— 搜索框能打开，
+     列表里还留着上一次空查询的结果，看起来像是「搜不到」，其实是崩了。 */
+  function localize(entry) {
+    var loc = Locale.current === "en" ? "en" : "zh";
+    var o = entry[loc] || entry.zh || entry.en || {};
+    return {
+      href: entry.href,
+      primary: !!entry.primary,
+      title: o.title || "",
+      where: o.where || "",
+      text: o.text || ""
+    };
   }
 
   /* ============================================================== 7. 提示条 */
@@ -657,15 +724,37 @@
       this.bar = $("#tour-bar");
       if (!this.bar) return;
 
+      // 导览脚本内嵌在页面里（<script type="application/json" id="tour-data">），
+      // 这样脚本本身不必知道任何一章的内容
       this.steps = window.__WB_TOUR__ || [];
+      if (!this.steps.length) {
+        var holder = doc.getElementById("tour-data");
+        if (holder) {
+          try { this.steps = JSON.parse(holder.textContent); } catch (e) { this.steps = []; }
+        }
+      }
       if (!this.steps.length) return;
 
       var self = this;
-      $("#tour-play").addEventListener("click", function () { self.start(); });
-      $("#tour-prev").addEventListener("click", function () { self.go(self.i - 1); });
-      $("#tour-next").addEventListener("click", function () { self.go(self.i + 1); });
-      $("#tour-exit").addEventListener("click", function () { self.stop(); });
-      $("#tour-toggle").addEventListener("click", function () { self.playing ? self.pause() : self.resume(); });
+
+      // 逐个守卫，而不是假设它们都在。
+      // 之前 #tour-play 漏在模板外，一行 null.addEventListener 就把整个 boot
+      // 里排在后面的搜索、进度初始化全部中断了——而且不报 404，只是静默失效。
+      // 绑定失败最多少一个按钮用，不该拖垮别的模块。
+      [["#tour-play", function () { self.start(); }],
+       ["#tour-prev", function () { self.go(self.i - 1); }],
+       ["#tour-next", function () { self.go(self.i + 1); }],
+       ["#tour-exit", function () { self.stop(); }],
+       ["#tour-toggle", function () { self.playing ? self.pause() : self.resume(); }]
+      ].forEach(function (pair) {
+        var el = $(pair[0]);
+        if (!el) return;                       // 该形态下没这个按钮，正常
+        el.addEventListener("click", pair[1]);
+      });
+
+      // 折叠态按钮上标出总步数，让人知道点下去会发生什么
+      var total = $("#tour-total");
+      if (total) total.textContent = this.steps.length + " 步";
 
       doc.addEventListener("keydown", function (e) {
         if (!self.on) return;
@@ -812,17 +901,30 @@
   };
 
   /* ============================================================== 启动 */
+  /* 每个模块独立初始化并各自兜住异常。
+     理由很实在：这些模块之间没有依赖关系，但共用一次 boot。
+     之前 Tour.init 因为找不到一个按钮抛异常，就静默带停了后面的
+     进度条与 scrollspy —— 页面看起来「只是没反应」，排查成本很高。
+     现在一个坏了只影响它自己，并且控制台会直说是哪个模块坏在哪。 */
   function boot() {
-    Theme.init();
-    Locale.init();
-    Sidebar.init();
-    Search.init();
-    Lesson.init();
-    Keys.init();
-    initTopLink();
-    Tour.init();
-    Progress.paint();
-    ScrollSpy.init();
+    [
+      ["主题", Theme],
+      ["语言", Locale],
+      ["侧栏", Sidebar],
+      ["搜索", Search],
+      ["小节 Tab", Lesson],
+      ["快捷键", Keys],
+      ["回到顶部", { init: initTopLink }],
+      ["自动导览", Tour],
+      ["阅读进度", { init: function () { Progress.paint(); } }],
+      ["大纲高亮", ScrollSpy]
+    ].forEach(function (pair) {
+      try {
+        pair[1].init();
+      } catch (err) {
+        console.error("[shell] " + pair[0] + "初始化失败，已跳过：", err);
+      }
+    });
   }
 
   // 样式表与内联脚本已经把主题定好了，这里只需在 DOM 就绪后接管交互

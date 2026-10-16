@@ -1,3 +1,15 @@
+/* ============================================================================
+   第 5 章演示模块 —— 由 tools/build.py 从原 lesson.js 抽取
+   ----------------------------------------------------------------------------
+   原站把「导航 + tab 切换 + 演示注册」写在同一个 28848 字节的文件里，
+   而且 5 章的演示键会互相冲突（第 1 章的 d-3-1 和第 3 章的 d-3-1 同名）。
+   抽取时做了两件事：
+     · 删掉导航与 tab 相关函数 —— 这些已由 assets/js/shell.js 统一提供；
+     · 把 window.DEMOS 收进模块作用域，改为 default export，由 lesson.js
+       按需动态 import，因此打开页面时不会下载任何演示代码。
+   内容逻辑（5 个演示）未作任何改动。
+   ========================================================================= */
+
 // Doc-05 时序数据可视化 · 集成教学页面 · 5 个 demo
 // =========================================
 //   5.1 时间属性      → d-5-1 attributes
@@ -9,92 +21,14 @@
 
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
-window.DEMOS = window.DEMOS || {};
-
+const DEMOS = {};
 
 // ============================================================
-// 统一章节导航 + Tab 切换 + 自动渲染 demo（patched by patch_lesson_js.py）
 // ============================================================
-function __resolveDemoName(mount) {
-  return (mount.dataset && mount.dataset.demo)
-      || (mount.id && mount.id.replace(/^demo-mount-/, ""))
-      || null;
-}
-function __renderDemo(mount) {
-  if (!mount || mount.dataset.rendered) return;
-  const name = __resolveDemoName(mount);
-  if (!name) return;
-  const fn = (window.DEMOS && window.DEMOS[name]) || (typeof DEMOS !== "undefined" && DEMOS[name]);
-  if (fn) { fn(mount); mount.dataset.rendered = "1"; }
-}
-function __renderAllDemos() {
-  document.querySelectorAll(".demo-mount, [id^='demo-mount-']").forEach(__renderDemo);
-}
-function __activateChapter(id) {
-  if (!id) return;
-  document.querySelectorAll(".chapter-nav a[data-chapter]").forEach(l => {
-    l.classList.toggle("active", l.dataset.chapter === id);
-  });
-  document.querySelectorAll(".chapter").forEach(c => {
-    const isActive = c.id === id;
-    c.classList.toggle("active", isActive);
-    if (isActive) {
-      // 自动切到 demo tab
-      c.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === "demo"));
-      c.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === "demo"));
-      // 渲染 demo 并滚动
-      const mount = c.querySelector(".demo-mount, [id^='demo-mount-']");
-      __renderDemo(mount);
-      setTimeout(() => {
-        if (mount) mount.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 80);
-    }
-  });
-}
-function __bindLessonNav() {
-  // 章节 anchor 链接
-  document.querySelectorAll(".chapter-nav a[data-chapter]").forEach(a => {
-    a.addEventListener("click", e => {
-      e.preventDefault();
-      const id = a.dataset.chapter;
-      if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
-      __activateChapter(id);
-    });
-  });
-  // Tab 按钮
-  document.querySelectorAll(".chapter .tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const chapter = btn.closest(".chapter");
-      if (!chapter) return;
-      const tab = btn.dataset.tab;
-      chapter.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
-      chapter.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === tab));
-      if (tab === "demo") {
-        const mount = chapter.querySelector(".demo-mount, [id^='demo-mount-']");
-        __renderDemo(mount);
-      }
-    });
-  });
-  // hashchange
-  window.addEventListener("hashchange", () => {
-    const id = location.hash.replace(/^#/, "");
-    if (id) __activateChapter(id);
-  });
-}
-// 页面初始（module 加载后立即执行）
-__bindLessonNav();
-// 延迟到下一个 microtask，等当前 module 跑完（DEMOS 注册完毕）再渲染
-queueMicrotask(() => __renderAllDemos());
-// 如果 URL 带 hash，激活对应章节
-if (location.hash) {
-  const initialId = location.hash.replace(/^#/, "");
-  if (initialId) queueMicrotask(() => __activateChapter(initialId));
-}
-
 // =========================================
 // ⭐ d-5-1 · 时间属性（5.1）
 // =========================================
-window.DEMOS["d-5-1"] = async function (mount) {
+DEMOS["d-5-1"] = async function (mount) {
   const TIME_ATTRIBUTES = [
     { key: "ordered",             name: "有序性",      icon: "↗",  color: "#3b82f6",
       desc: "时间是有序的。两个事件发生的时间有先后次序，与因果关系紧密相连。",
@@ -162,7 +96,7 @@ window.DEMOS["d-5-1"] = async function (mount) {
 // =========================================
 // ⭐ d-5-2 · 法国人名折线图（5.2）
 // =========================================
-window.DEMOS["d-5-2"] = async function (mount) {
+DEMOS["d-5-2"] = async function (mount) {
   const res = await fetch('./data/french_names.json');
   const data = await res.json();
 
@@ -279,7 +213,7 @@ window.DEMOS["d-5-2"] = async function (mount) {
 // =========================================
 // ⭐ d-5-3 · 日历热图（5.3）
 // =========================================
-window.DEMOS["d-5-3"] = async function (mount) {
+DEMOS["d-5-3"] = async function (mount) {
   const dataRaw = await d3.csv('./data/weather_2024.csv', d3.autoType);
   const byKey = new Map(dataRaw.map(d => [d.date, d.temp_max]));
 
@@ -435,7 +369,7 @@ window.DEMOS["d-5-3"] = async function (mount) {
 // =========================================
 // ⭐ d-5-4 · 阿基米德螺旋（5.4）
 // =========================================
-window.DEMOS["d-5-4"] = async function (mount) {
+DEMOS["d-5-4"] = async function (mount) {
   const dataRaw = await d3.csv('./data/weather_2024.csv', d3.autoType);
   const byKey = new Map(dataRaw.map(d => [d.date, d.temp_max]));
   const year = 2024;
@@ -558,7 +492,7 @@ window.DEMOS["d-5-4"] = async function (mount) {
 // =========================================
 // ⭐ d-5-5 · Storyline（5.5，侏罗纪公园）
 // =========================================
-window.DEMOS["d-5-5"] = async function (mount) {
+DEMOS["d-5-5"] = async function (mount) {
   // 数据：侏罗纪公园 5 个角色
   const data = {
     title: "侏罗纪公园 (Jurassic Park, 1993)",
@@ -703,3 +637,6 @@ window.DEMOS["d-5-5"] = async function (mount) {
 
   render();
 };
+
+
+export default DEMOS;

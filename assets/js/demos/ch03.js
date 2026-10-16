@@ -1,3 +1,15 @@
+/* ============================================================================
+   第 3 章演示模块 —— 由 tools/build.py 从原 lesson.js 抽取
+   ----------------------------------------------------------------------------
+   原站把「导航 + tab 切换 + 演示注册」写在同一个 36165 字节的文件里，
+   而且 5 章的演示键会互相冲突（第 1 章的 d-3-1 和第 3 章的 d-3-1 同名）。
+   抽取时做了两件事：
+     · 删掉导航与 tab 相关函数 —— 这些已由 assets/js/shell.js 统一提供；
+     · 把 window.DEMOS 收进模块作用域，改为 default export，由 lesson.js
+       按需动态 import，因此打开页面时不会下载任何演示代码。
+   内容逻辑（8 个演示）未作任何改动。
+   ========================================================================= */
+
 // Doc-03 色彩专题 · 集成教学页面 · 8 个 demo
 // =========================================
 //   3.1 颜色模型基础   → d-3-1 color-models
@@ -12,88 +24,10 @@
 
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
-window.DEMOS = window.DEMOS || {};
-
+const DEMOS = {};
 
 // ============================================================
-// 统一章节导航 + Tab 切换 + 自动渲染 demo（patched by patch_lesson_js.py）
 // ============================================================
-function __resolveDemoName(mount) {
-  return (mount.dataset && mount.dataset.demo)
-      || (mount.id && mount.id.replace(/^demo-mount-/, ""))
-      || null;
-}
-function __renderDemo(mount) {
-  if (!mount || mount.dataset.rendered) return;
-  const name = __resolveDemoName(mount);
-  if (!name) return;
-  const fn = (window.DEMOS && window.DEMOS[name]) || (typeof DEMOS !== "undefined" && DEMOS[name]);
-  if (fn) { fn(mount); mount.dataset.rendered = "1"; }
-}
-function __renderAllDemos() {
-  document.querySelectorAll(".demo-mount, [id^='demo-mount-']").forEach(__renderDemo);
-}
-function __activateChapter(id) {
-  if (!id) return;
-  document.querySelectorAll(".chapter-nav a[data-chapter]").forEach(l => {
-    l.classList.toggle("active", l.dataset.chapter === id);
-  });
-  document.querySelectorAll(".chapter").forEach(c => {
-    const isActive = c.id === id;
-    c.classList.toggle("active", isActive);
-    if (isActive) {
-      // 自动切到 demo tab
-      c.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === "demo"));
-      c.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === "demo"));
-      // 渲染 demo 并滚动
-      const mount = c.querySelector(".demo-mount, [id^='demo-mount-']");
-      __renderDemo(mount);
-      setTimeout(() => {
-        if (mount) mount.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 80);
-    }
-  });
-}
-function __bindLessonNav() {
-  // 章节 anchor 链接
-  document.querySelectorAll(".chapter-nav a[data-chapter]").forEach(a => {
-    a.addEventListener("click", e => {
-      e.preventDefault();
-      const id = a.dataset.chapter;
-      if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
-      __activateChapter(id);
-    });
-  });
-  // Tab 按钮
-  document.querySelectorAll(".chapter .tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const chapter = btn.closest(".chapter");
-      if (!chapter) return;
-      const tab = btn.dataset.tab;
-      chapter.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
-      chapter.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === tab));
-      if (tab === "demo") {
-        const mount = chapter.querySelector(".demo-mount, [id^='demo-mount-']");
-        __renderDemo(mount);
-      }
-    });
-  });
-  // hashchange
-  window.addEventListener("hashchange", () => {
-    const id = location.hash.replace(/^#/, "");
-    if (id) __activateChapter(id);
-  });
-}
-// 页面初始（module 加载后立即执行）
-__bindLessonNav();
-// 延迟到下一个 microtask，等当前 module 跑完（DEMOS 注册完毕）再渲染
-queueMicrotask(() => __renderAllDemos());
-// 如果 URL 带 hash，激活对应章节
-if (location.hash) {
-  const initialId = location.hash.replace(/^#/, "");
-  if (initialId) queueMicrotask(() => __activateChapter(initialId));
-}
-
 // 公共工具：颜色空间转换 + CVD 模拟（颜色专题 8 个 demo 共用）
 function rgbToHsl(r, g, b) {
   r /= 255; g /= 255; b /= 255;
@@ -147,7 +81,7 @@ const CLASSIC_PALETTES = {
 // =========================================
 // ⭐ d-3-1 · 颜色模型基础（3.1）
 // =========================================
-window.DEMOS["d-3-1"] = async function (mount) {
+DEMOS["d-3-1"] = async function (mount) {
   mount.innerHTML = `
     <h4>📘 颜色模型基础</h4>
     <p class="demo-hint">拖动滑块改变颜色，下方 4 个色块同时显示四种颜色空间的呈现，CVD 模拟显示 3 种色盲眼中所见。</p>
@@ -236,7 +170,7 @@ window.DEMOS["d-3-1"] = async function (mount) {
 // =========================================
 // ⭐ d-3-2 · colormap 三类（3.2）
 // =========================================
-window.DEMOS["d-3-2"] = async function (mount) {
+DEMOS["d-3-2"] = async function (mount) {
   const sample = [
     0,2,4,7,9,12,15,18,21,24,28,32,35,38,41,45,48,51,55,58,
     62,66,70,74,78,82,86,90,94,98,102,106,110,114,115,122,126,130,135,140,
@@ -300,7 +234,7 @@ window.DEMOS["d-3-2"] = async function (mount) {
 // =========================================
 // ⭐ d-3-3 · Lab 色域图（3.3）
 // =========================================
-window.DEMOS["d-3-3"] = async function (mount) {
+DEMOS["d-3-3"] = async function (mount) {
   const W = 600, H = 420;
   let L = 60;
 
@@ -375,7 +309,7 @@ window.DEMOS["d-3-3"] = async function (mount) {
 // =========================================
 // ⭐ d-3-4 · 色系搭配规则（3.4）
 // =========================================
-window.DEMOS["d-3-4"] = async function (mount) {
+DEMOS["d-3-4"] = async function (mount) {
   const rules = [
     { name: "单色 Monochromatic", offset: 0,            desc: "同一色相不同亮度/饱和" },
     { name: "类比 Analogous",    offset: 30,           desc: "色轮相邻 ±30°" },
@@ -472,7 +406,7 @@ window.DEMOS["d-3-4"] = async function (mount) {
 // =========================================
 // ⭐ d-3-5 · 科研经典配色（3.5）
 // =========================================
-window.DEMOS["d-3-5"] = async function (mount) {
+DEMOS["d-3-5"] = async function (mount) {
   const data = Array.from({length: 20}, (_, i) => ({ x: i, y: Math.sin(i / 3) * 5 + i * 0.5 + (i % 3) }));
 
   mount.innerHTML = `
@@ -589,7 +523,7 @@ window.DEMOS["d-3-5"] = async function (mount) {
 // =========================================
 // ⭐ d-3-6 · 对错案例对比（3.6）
 // =========================================
-window.DEMOS["d-3-6"] = async function (mount) {
+DEMOS["d-3-6"] = async function (mount) {
   const cases = [
     { name: "A：彩虹谱 Jet",         type: "wrong",   reason: "Jet 非感知均匀 + CVD 不友好 + 打印不友好", palette: d3.interpolateRainbow },
     { name: "B：红绿对比",           type: "wrong",   reason: "红绿对红绿色盲完全不可分辨（约 6% 男性）", palette: (t) => d3.interpolateRgb("#dc2626", "#16a34a")(t) },
@@ -649,7 +583,7 @@ window.DEMOS["d-3-6"] = async function (mount) {
 // =========================================
 // ⭐ d-3-7 · 鲜艳+低饱和 哲学生成器（3.7）
 // =========================================
-window.DEMOS["d-3-7"] = async function (mount) {
+DEMOS["d-3-7"] = async function (mount) {
   let H = 220, S = 70, L = 55;
 
   mount.innerHTML = `
@@ -736,7 +670,7 @@ window.DEMOS["d-3-7"] = async function (mount) {
 // =========================================
 // ⭐ d-3-8 · CVD 论文图测（3.8）
 // =========================================
-window.DEMOS["d-3-8"] = async function (mount) {
+DEMOS["d-3-8"] = async function (mount) {
   mount.innerHTML = `
     <h4>📘 CVD 论文图测：你的图在色盲眼里还看得懂吗？</h4>
     <p class="demo-hint">下面 3 张"经典论文图"，模拟在 3 种视觉下的呈现。第一张常出现在 Nature Methods，第二张是顺序型热图，第三张是红绿对比。</p>
@@ -828,3 +762,6 @@ window.DEMOS["d-3-8"] = async function (mount) {
     </ul>
   `;
 };
+
+
+export default DEMOS;

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-locale="zh" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第 5 章 讲义 · 《可视化导论》</title>
+  <meta name="description" content="时间的 5 个属性决定了它需要用哪些非标准布局来画：折线之外，还有日历热图、阿基米德螺旋，以及能表现多角色叙事的 Storyline。" />
+  <meta name="theme-color" content="#3d4bc0" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <meta property="og:title" content="第 5 章 讲义 · 《可视化导论》" />
+  <meta property="og:description" content="时间的 5 个属性决定了它需要用哪些非标准布局来画：折线之外，还有日历热图、阿基米德螺旋，以及能表现多角色叙事的 Storyline。" />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/base.css" />
+  <link rel="stylesheet" href="../assets/css/shell.css" />
+  <link rel="stylesheet" href="../assets/css/content.css" />
+  <script>
+    /* 主题要在首次绘制前定好，否则深色模式会闪一下白 */
+    (function () {
+      try {
+        var s = localStorage.getItem("wb.theme");
+        var d = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.setAttribute("data-theme", s || (d ? "dark" : "light"));
+        var l = localStorage.getItem("wb.locale");
+        if (l) document.documentElement.setAttribute("data-locale", l === "en" ? "en" : "zh");
+      } catch (e) {}
+    })();
+  </script>
+  <script type="module" src="../assets/js/shell.js"></script>
+  <script type="module" src="../assets/js/enhance.js"></script>
+</head>
+<body id="top">
+  <a class="skip-link" href="#main">跳到主要内容</a>
+
+  <div class="progress-rail" aria-hidden="true"><div class="progress-rail__bar" id="progress-bar"></div></div>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <button class="icon-btn sidebar-toggle" id="sidebar-toggle" type="button"
+              aria-controls="sidebar" aria-expanded="false">
+        <span class="sr-only">打开目录</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+
+      <a class="topbar__brand" href="../">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text">可视化导论</span>
+      </a>
+
+      <span class="topbar__divider" aria-hidden="true"></span>
+
+      <nav class="breadcrumb" aria-label="面包屑导航">
+        <ol><li><a href="../">课程门户</a></li><li><a href="../lesson-05/">第 5 章 时序数据可视化</a></li><li><span aria-current="page">讲义</span></li></ol>
+      </nav>
+
+      <div class="topbar__actions">
+        <button class="search-trigger" type="button" data-search-open data-i18n-aria="search.open">
+          <svg class="search-trigger__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>
+          </svg>
+          <span class="search-trigger__label" data-i18n="search.placeholder">搜索</span>
+          <kbd>Ctrl K</kbd>
+        </button>
+
+        <button class="icon-btn" id="theme-toggle" type="button" data-i18n-aria="theme.toggle" aria-pressed="false">
+          <span class="sr-only">切换主题</span>
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" style="display:none">
+            <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/>
+          </svg>
+        </button>
+        
+        <div class="lang-switch" role="group" aria-label="切换语言 / Switch language">
+          <button type="button" data-lang-btn="zh" aria-pressed="true" aria-label="中文">中</button>
+          <button type="button" data-lang-btn="en" aria-pressed="false" aria-label="English">EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="search-layer" id="search-layer" data-open="false" role="dialog"
+       aria-modal="true" aria-label="全站搜索" aria-hidden="true">
+    <div class="search-panel">
+      <div class="search-panel__field">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+        <input class="search-panel__input" id="search-input" type="search" autocomplete="off"
+               spellcheck="false" data-i18n-placeholder="search.placeholder"
+               placeholder="搜索知识点、代码、演示…" aria-label="搜索关键词" />
+        <button class="icon-btn" type="button" data-search-close data-i18n-aria="search.close">
+          <span class="sr-only">关闭</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="search-panel__results" id="search-results" role="listbox" aria-label="搜索结果"></div>
+      <div class="search-panel__hint">
+        <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+        <span><kbd>Enter</kbd> 打开</span>
+        <span><kbd>Esc</kbd> 关闭</span>
+        <span style="margin-left:auto"><kbd>/</kbd> 随时唤起</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell">
+    <aside class="sidebar" id="sidebar" data-open="false" aria-label="讲义目录">
+      <nav class="sidebar__group">
+        <div class="sidebar__title">时序数据可视化 · 讲义</div>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="#ch-5-1"><span class="sidebar__num">5.1</span><span class="sidebar__text">时间属性</span></a></li>
+          <li><a class="sidebar__link" href="#ch-5-2"><span class="sidebar__num">5.2</span><span class="sidebar__text">标准时间可视化（折线图）</span></a></li>
+          <li><a class="sidebar__link" href="#ch-5-3"><span class="sidebar__num">5.3</span><span class="sidebar__text">日历热图（van Wijk）</span></a></li>
+          <li><a class="sidebar__link" href="#ch-5-4"><span class="sidebar__num">5.4</span><span class="sidebar__text">周期时间可视化（阿基米德螺旋）</span></a></li>
+          <li><a class="sidebar__link" href="#ch-5-5"><span class="sidebar__num">5.5</span><span class="sidebar__text">Storyline 时间线（侏罗纪公园）</span></a></li>
+          <li><a class="sidebar__link" href="../lesson-05/">
+            <span class="sidebar__text">← 返回交互版章节页</span></a></li>
+        </ul>
+      </nav>
+    </aside>
+    <div class="sidebar-scrim" id="sidebar-scrim" data-open="false" aria-hidden="true"></div>
+
+    <main class="main" id="main">
+      <article class="content lecture">
+        <h1 id="第-5-章-时序数据可视化">第 5 章 时序数据可视化</h1>
+        <blockquote class="note"><strong>本讲义配套集成教学页面</strong>：<a href="./index.html"><code>./index.html</code></a>（讲解 ⇄ 代码 ⇄ 演示 三 tab 自由切换）  推荐教学用法：浏览器打开 lesson 页面 → 左侧选章节 → 三个 tab 来回切（讲解看原理、代码看 ⭐ 关键点、演示看实际效果）。</blockquote>
+        <hr />
+        <h2 id="5-1-时间属性">5.1 时间属性</h2>
+        <blockquote class="note">时间有 5 个核心属性：有序 / 连续 / 周期 / 独立于空间 / 结构性。每个属性都影响可视化设计。</blockquote>
+        <h3 id="你的原案例">你的原案例</h3>
+        <p>原 6.1 节列出 5 个时间属性，没有可视化。这章把这 5 个属性变成可交互卡片。</p>
+        <h3 id="嵌入陈为教材理论">嵌入陈为教材理论</h3>
+        <ul><li>有序性：时间是有序的，两个事件有先后次序，与因果关系紧密相连。</li><li>连续性：时间连续，两个时间点之间总存在另一个时间点。</li><li>周期性：自然过程常有循环规律（季节、昼夜），可采用循环时间域。</li><li>独立于空间：时间与空间紧相关，但科学过程大多独立处理。</li><li>结构性：时间尺度分年/月/日/时/分/秒，分割既有自然反映（昼夜）也有人为定义（60 秒）。</li></ul>
+        <h3 id="为什么-5-个属性都重要">为什么 5 个属性都重要？</h3>
+        <p>设计时序图前先想清楚这 5 个属性，能避免常见错误：</p>
+        <ul><li>有序性缺失 → 散点图错位成噪声</li><li>连续性混淆 → 离散数据用错连线</li><li>周期性忽略 → 季节趋势被"抹平"</li><li>结构性不匹配 → 工作日/周末、闰年都出错</li></ul>
+        <hr />
+        <h2 id="5-2-标准时间可视化-折线图">5.2 标准时间可视化（折线图）</h2>
+        <blockquote class="note">x 轴 = 时间，y 轴 = 度量。最常见的时序图：法国人名 1900-2020 的使用频率。</blockquote>
+        <h3 id="你的原案例">你的原案例</h3>
+        <p>原 6.2.1 节用折线图展示法国几十年人名（Marie / Jean / Camille）的使用频率变化。 原始页面附带"词云 + 鼠标高亮 + 时间段筛选"，但代码只给了关键折线段。</p>
+        <h3 id="嵌入陈为教材理论">嵌入陈为教材理论</h3>
+        <ul><li>标准时序图本质：二维线图，x = 时间，y = 度量。优势是在线性时间域中的变化趋势一目了然。</li><li>缺点：难以表达周期性——所以才有了 5.3 日历图和 5.4 螺旋图。</li><li>交互：鼠标 hover 高亮、tip 显示、筛选时间段——是数据新闻标配。</li><li>实战选择：数据点数 ≤ 50 用 linear；点数 50-500 用 monotoneX / curveCatmullRom；点数 &gt; 500 才考虑面积 / 箱形。</li></ul>
+        <hr />
+        <h2 id="5-3-日历热图-van-wijk">5.3 日历热图（van Wijk）</h2>
+        <blockquote class="note">以"年=行 / 周=列"展示全年数据，发现周期性 + 周内趋势 + 节假日异常。</blockquote>
+        <h3 id="你的原案例">你的原案例</h3>
+        <p>原 6.2.2 节用日历热图展示 2024 年北京每日最高温度。每月之间用红线分隔。</p>
+        <h3 id="嵌入陈为教材理论">嵌入陈为教材理论</h3>
+        <ul><li>日历热图 (Calendar Heatmap)：van Wijk 2008 提出，x = 周（年内的第几周），y = 星期几，颜色 = 数值。</li><li>适用场景：长时序（年）+ 周期性（星期 / 月）+ 异常检测（节假日、工作日 vs 周末）。</li><li></li></ul>
+        <ul><li>设计要点：</li></ul>
+        <p>每周从周日（或周一）开始——影响"周末"在视觉上的位置</p>
+        <ul><li>月份之间用红线分隔——比 7×53 网格更易读</li><li>colormap 用顺序型（如 Viridis）——见 第 3 章 3.2 colormap</li></ul>
+        <h3 id="ismonthdivider-的巧妙之处">isMonthDivider 的巧妙之处</h3>
+        <p>判断 7 天前与今天是否同月——是则同月分割线，否则需要画月线。这是日历可视化的核心算法。</p>
+        <hr />
+        <h2 id="5-4-周期时间可视化-阿基米德螺旋">5.4 周期时间可视化（阿基米德螺旋）</h2>
+        <blockquote class="note">将时间沿圆周排列（螺旋 = 圆 + 持续展开）。发现周期性：每个回路 = 一个周期。</blockquote>
+        <h3 id="你的原案例">你的原案例</h3>
+        <p>原 6.2.3 节用阿基米德螺旋（等速螺旋）布局日期，每个回路代表 1 年 / 1 月 / 1 周。每个日期对应螺旋上的一个扇环。</p>
+        <h3 id="嵌入陈为教材理论">嵌入陈为教材理论</h3>
+        <ul><li>螺旋 vs 折线：折线在线性时间域表现"趋势"，但难以表现"周期"；螺旋沿圆周重复，能突出周期性。</li><li>阿基米德螺旋 (Archimedean Spiral)：r = a + bθ，等速展开（每转一圈半径增加常量 b）。</li><li>动态 Δθ 算法：原文档的精妙点——Δθ = boxSize / √(b² + r²)，让每个扇环的弧长近似相等，保持视觉一致性。</li><li>实战取舍：螺旋适合"年/季节/周"的循环，不适合"无周期"或"周期太长"。</li></ul>
+        <h3 id="关键路径生成">关键路径生成</h3>
+        <p>每个日期对应螺旋上的一个扇环——4 个关键点：起点外/终点外/终点内/起点内，闭合回起点。</p>
+        <hr />
+        <h2 id="5-5-storyline-时间线-侏罗纪公园">5.5 Storyline 时间线（侏罗纪公园）</h2>
+        <blockquote class="note">多角色叙事：每条线 = 一个角色 / 组织 / 进程，y 轴位置 = 聚散关系，时间 = 故事进展。</blockquote>
+        <h3 id="你的原案例">你的原案例</h3>
+        <p>原 6.2.4 节用《侏罗纪公园》5 个角色（Alan / T-REX / Raptors / Malcolm / Dilophosaurus）做 Storyline 时间线。事件层用红色半透明圆圈标注关键冲突。</p>
+        <h3 id="嵌入陈为教材理论">嵌入陈为教材理论</h3>
+        <ul><li>Storyline 起源：2008 年斯坦福大学 Ogawa &amp; Ma 提出，原本用于电影/学术合作者关系网。</li><li>核心：把每个角色/组织/进程抽象为"生命线"，线靠近 = 角色相遇 / 冲突，线分开 = 角色分离。</li><li></li></ul>
+        <ol><li>3 大元素：</li></ol>
+        <p>时间尺度映射：电影时长 → SVG 宽度，x 轴严格按比例对齐</p>
+        <ol><li>Catmull-Rom 样条：curveCatmullRom.alpha(0.5) 张力系数 0.5，"自然流动"但不"过度弯曲"</li><li>事件层：半透明红圈 + 文字，标注关键转折点</li></ol>
+        <ul><li>应用场景：电影分析、案件多人时间线、体育比赛互动、项目任务交接。</li></ul>
+        <h3 id="为什么-catmull-rom-不用-monotonex">为什么 Catmull-Rom 不用 monotoneX？</h3>
+        <p>monotoneX 保证"不过度弯曲"但会让线"过于直"，失去叙事的"河流感"。Catmull-Rom 张力系数 0.5 是经验值——既能流动又不震荡。</p>
+        <hr />
+      </article>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <div>
+        <p>© 2026 《可视化导论》 · 中国石油大学（华东） · 授课教师：
+          <a href="https://cinger007.github.io" target="_blank" rel="noopener">李昕</a></p>
+        <p class="site-footer__note">
+          主要参考教材：陈为《可视化导论》。本站为课程网站重构版本：内容沿用原课程，
+          外壳、导航、检索与无障碍能力为重写。
+        </p>
+      </div>
+      <div class="site-footer__tech">
+        <span class="tech-chip">零依赖</span>
+        <span class="tech-chip">D3.js v7</span>
+        <span class="tech-chip">ES Modules</span>
+        <span class="tech-chip">无构建</span>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

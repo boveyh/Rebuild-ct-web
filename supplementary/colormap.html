@@ -2,6 +2,9 @@
 <html>
 
 <head>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>D3.js 等值线图</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
@@ -97,6 +100,32 @@
                 .attr("fill", d => colorScale(d)); // d 直接是当前数据点的数值
         }
     </script>
+
+<!-- wb-demobar: 由 tools/build_supp.py 注入，给独立 demo 一个回站入口 -->
+<style id="wb-demobar-style">
+  .wb-demobar {
+    position: fixed; right: 14px; bottom: 14px; z-index: 2147483000;
+    display: flex; gap: 2px; align-items: center;
+    font: 12px/1.4 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: rgba(20, 24, 33, .86); color: #e8edf5;
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 999px; padding: 5px 6px 5px 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .28);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .wb-demobar span { opacity: .68; margin-right: 4px; }
+  .wb-demobar a {
+    color: #e8edf5; text-decoration: none; padding: 3px 9px; border-radius: 999px;
+    transition: background .15s;
+  }
+  .wb-demobar a:hover, .wb-demobar a:focus-visible { background: rgba(255, 255, 255, .16); }
+  @media print { .wb-demobar { display: none; } }
+</style>
+<div class="wb-demobar" role="navigation" aria-label="返回课程">
+  <span>可视化导论</span>
+  <a href="../">课程门户</a>
+  <a href="../glossary.html">术语表</a>
+</div>
 </body>
 
 </html>

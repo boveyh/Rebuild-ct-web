@@ -1,3 +1,15 @@
+/* ============================================================================
+   第 4 章演示模块 —— 由 tools/build.py 从原 lesson.js 抽取
+   ----------------------------------------------------------------------------
+   原站把「导航 + tab 切换 + 演示注册」写在同一个 21536 字节的文件里，
+   而且 5 章的演示键会互相冲突（第 1 章的 d-3-1 和第 3 章的 d-3-1 同名）。
+   抽取时做了两件事：
+     · 删掉导航与 tab 相关函数 —— 这些已由 assets/js/shell.js 统一提供；
+     · 把 window.DEMOS 收进模块作用域，改为 default export，由 lesson.js
+       按需动态 import，因此打开页面时不会下载任何演示代码。
+   内容逻辑（5 个演示）未作任何改动。
+   ========================================================================= */
+
 // Doc-04 低维数据可视化 · 集成教学页面 · 5 个 demo
 // =========================================
 //   4.1 数据转换       → d-4-1 crime-loader
@@ -9,103 +21,14 @@
 
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
-window.DEMOS = window.DEMOS || {};
-
+const DEMOS = {};
 
 // ============================================================
-// 统一章节导航 + Tab 切换 + 自动渲染 demo（patched by patch_lesson_js.py）
 // ============================================================
-function __resolveDemoName(mount) {
-  return (mount.dataset && mount.dataset.demo)
-      || (mount.id && mount.id.replace(/^demo-mount-/, ""))
-      || null;
-}
-function __renderDemo(mount) {
-  if (!mount || mount.dataset.rendered) return;
-  const name = __resolveDemoName(mount);
-  if (!name) return;
-  const fn = (window.DEMOS && window.DEMOS[name]) || (typeof DEMOS !== "undefined" && DEMOS[name]);
-  if (!fn) return;
-  // async demo 也要 await，否则 await 后的 throw 不会被 try/catch 捕获
-  Promise.resolve()
-    .then(() => fn(mount))
-    .then(() => { mount.dataset.rendered = "1"; })
-    .catch(err => {
-      // 友好的错误显示，方便定位哪个 demo 跑不起来
-      console.error(`[demo ${name}]`, err);
-      mount.dataset.rendered = "error";
-      const msg = (err && err.stack) ? String(err.stack) : String(err);
-      mount.innerHTML = `<div class="demo-error"><strong>Demo ${name} 跑不起来：</strong><pre>${msg.replace(/[<&>]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</pre></div>`;
-    });
-}
-function __renderAllDemos() {
-  document.querySelectorAll(".demo-mount, [id^='demo-mount-']").forEach(__renderDemo);
-}
-function __activateChapter(id) {
-  if (!id) return;
-  document.querySelectorAll(".chapter-nav a[data-chapter]").forEach(l => {
-    l.classList.toggle("active", l.dataset.chapter === id);
-  });
-  document.querySelectorAll(".chapter").forEach(c => {
-    const isActive = c.id === id;
-    c.classList.toggle("active", isActive);
-    if (isActive) {
-      // 自动切到 demo tab
-      c.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === "demo"));
-      c.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === "demo"));
-      // 渲染 demo 并滚动
-      const mount = c.querySelector(".demo-mount, [id^='demo-mount-']");
-      __renderDemo(mount);
-      setTimeout(() => {
-        if (mount) mount.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 80);
-    }
-  });
-}
-function __bindLessonNav() {
-  // 章节 anchor 链接
-  document.querySelectorAll(".chapter-nav a[data-chapter]").forEach(a => {
-    a.addEventListener("click", e => {
-      e.preventDefault();
-      const id = a.dataset.chapter;
-      if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
-      __activateChapter(id);
-    });
-  });
-  // Tab 按钮
-  document.querySelectorAll(".chapter .tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const chapter = btn.closest(".chapter");
-      if (!chapter) return;
-      const tab = btn.dataset.tab;
-      chapter.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
-      chapter.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === tab));
-      if (tab === "demo") {
-        const mount = chapter.querySelector(".demo-mount, [id^='demo-mount-']");
-        __renderDemo(mount);
-      }
-    });
-  });
-  // hashchange
-  window.addEventListener("hashchange", () => {
-    const id = location.hash.replace(/^#/, "");
-    if (id) __activateChapter(id);
-  });
-}
-// 页面初始（module 加载后立即执行）
-__bindLessonNav();
-// 延迟到下一个 microtask，等当前 module 跑完（DEMOS 注册完毕）再渲染
-queueMicrotask(() => __renderAllDemos());
-// 如果 URL 带 hash，激活对应章节
-if (location.hash) {
-  const initialId = location.hash.replace(/^#/, "");
-  if (initialId) queueMicrotask(() => __activateChapter(initialId));
-}
-
 // =========================================
 // ⭐ d-4-1 · 数据转换（4.1）
 // =========================================
-window.DEMOS["d-4-1"] = async function (mount) {
+DEMOS["d-4-1"] = async function (mount) {
   mount.innerHTML = `
     <h4>📘 数据转换：长格式 vs 宽格式</h4>
     <p class="demo-hint">crime.csv 是宽格式（每个州一行，每个指标一列）。可视化和 d3 操作通常需要长格式（每行一个观测）。</p>
@@ -162,7 +85,7 @@ ${raw.slice(0, 3).flatMap(d => ['murder','robbery','burglary'].map(k => JSON.str
 // =========================================
 // ⭐ d-4-2 · 三层坐标变换（4.2）
 // =========================================
-window.DEMOS["d-4-2"] = async function (mount) {
+DEMOS["d-4-2"] = async function (mount) {
   const raw = await d3.csv('./data/crime.csv', d3.autoType);
   const data = raw.map(d => ({ state: d.state, x: d.murder, y: d.robbery }));
 
@@ -242,7 +165,7 @@ const xScreen = d3.scaleLinear().domain([0, innerW]).range([M.l, M.l + innerW]);
 // =========================================
 // ⭐ d-4-3 · 曲线拟合（4.3，10 种曲线对比）
 // =========================================
-window.DEMOS["d-4-3"] = async function (mount) {
+DEMOS["d-4-3"] = async function (mount) {
   const raw = await d3.csv('./data/crime.csv', d3.autoType);
   const data = raw.map(d => ({ x: d.population, y: d.murder }));
 
@@ -340,7 +263,7 @@ window.DEMOS["d-4-3"] = async function (mount) {
 // =========================================
 // ⭐ d-4-4 · 倾角感知（4.4，Cleveland 1984）
 // =========================================
-window.DEMOS["d-4-4"] = async function (mount) {
+DEMOS["d-4-4"] = async function (mount) {
   let angle = 45;
   const W = 720, H = 320;
   const line = (a) => {
@@ -413,7 +336,7 @@ window.DEMOS["d-4-4"] = async function (mount) {
 // =========================================
 // ⭐ d-4-5 · Marching Squares 等值线（4.5）
 // =========================================
-window.DEMOS["d-4-5"] = async function (mount) {
+DEMOS["d-4-5"] = async function (mount) {
   const N = 8;
   function field(x, y) {
     const cx = 3.5, cy = 4;
@@ -530,3 +453,6 @@ window.DEMOS["d-4-5"] = async function (mount) {
   thInput.addEventListener("input", render);
   render();
 };
+
+
+export default DEMOS;

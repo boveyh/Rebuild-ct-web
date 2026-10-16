@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-locale="zh" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>第 1 章 讲义 · 《可视化导论》</title>
+  <meta name="description" content="从 DeepSeek 合成的新生数据出发，把「数据是什么」拆成四件可操作的事：怎么装载、怎么定义、怎么分类、怎么变换。" />
+  <meta name="theme-color" content="#3d4bc0" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <meta property="og:title" content="第 1 章 讲义 · 《可视化导论》" />
+  <meta property="og:description" content="从 DeepSeek 合成的新生数据出发，把「数据是什么」拆成四件可操作的事：怎么装载、怎么定义、怎么分类、怎么变换。" />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/base.css" />
+  <link rel="stylesheet" href="../assets/css/shell.css" />
+  <link rel="stylesheet" href="../assets/css/content.css" />
+  <script>
+    /* 主题要在首次绘制前定好，否则深色模式会闪一下白 */
+    (function () {
+      try {
+        var s = localStorage.getItem("wb.theme");
+        var d = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.setAttribute("data-theme", s || (d ? "dark" : "light"));
+        var l = localStorage.getItem("wb.locale");
+        if (l) document.documentElement.setAttribute("data-locale", l === "en" ? "en" : "zh");
+      } catch (e) {}
+    })();
+  </script>
+  <script type="module" src="../assets/js/shell.js"></script>
+  <script type="module" src="../assets/js/enhance.js"></script>
+</head>
+<body id="top">
+  <a class="skip-link" href="#main">跳到主要内容</a>
+
+  <div class="progress-rail" aria-hidden="true"><div class="progress-rail__bar" id="progress-bar"></div></div>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <button class="icon-btn sidebar-toggle" id="sidebar-toggle" type="button"
+              aria-controls="sidebar" aria-expanded="false">
+        <span class="sr-only">打开目录</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+
+      <a class="topbar__brand" href="../">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text">可视化导论</span>
+      </a>
+
+      <span class="topbar__divider" aria-hidden="true"></span>
+
+      <nav class="breadcrumb" aria-label="面包屑导航">
+        <ol><li><a href="../">课程门户</a></li><li><a href="../lesson-01/">第 1 章 数据</a></li><li><span aria-current="page">讲义</span></li></ol>
+      </nav>
+
+      <div class="topbar__actions">
+        <button class="search-trigger" type="button" data-search-open data-i18n-aria="search.open">
+          <svg class="search-trigger__icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>
+          </svg>
+          <span class="search-trigger__label" data-i18n="search.placeholder">搜索</span>
+          <kbd>Ctrl K</kbd>
+        </button>
+
+        <button class="icon-btn" id="theme-toggle" type="button" data-i18n-aria="theme.toggle" aria-pressed="false">
+          <span class="sr-only">切换主题</span>
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" style="display:none">
+            <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/>
+          </svg>
+        </button>
+        
+        <div class="lang-switch" role="group" aria-label="切换语言 / Switch language">
+          <button type="button" data-lang-btn="zh" aria-pressed="true" aria-label="中文">中</button>
+          <button type="button" data-lang-btn="en" aria-pressed="false" aria-label="English">EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="search-layer" id="search-layer" data-open="false" role="dialog"
+       aria-modal="true" aria-label="全站搜索" aria-hidden="true">
+    <div class="search-panel">
+      <div class="search-panel__field">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+        <input class="search-panel__input" id="search-input" type="search" autocomplete="off"
+               spellcheck="false" data-i18n-placeholder="search.placeholder"
+               placeholder="搜索知识点、代码、演示…" aria-label="搜索关键词" />
+        <button class="icon-btn" type="button" data-search-close data-i18n-aria="search.close">
+          <span class="sr-only">关闭</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="search-panel__results" id="search-results" role="listbox" aria-label="搜索结果"></div>
+      <div class="search-panel__hint">
+        <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+        <span><kbd>Enter</kbd> 打开</span>
+        <span><kbd>Esc</kbd> 关闭</span>
+        <span style="margin-left:auto"><kbd>/</kbd> 随时唤起</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell">
+    <aside class="sidebar" id="sidebar" data-open="false" aria-label="讲义目录">
+      <nav class="sidebar__group">
+        <div class="sidebar__title">数据 · 讲义</div>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="#ch-1-1"><span class="sidebar__num">1.1</span><span class="sidebar__text">数据生成</span></a></li>
+          <li><a class="sidebar__link" href="#ch-1-2"><span class="sidebar__num">1.2</span><span class="sidebar__text">数据定义</span></a></li>
+          <li><a class="sidebar__link" href="#ch-1-3"><span class="sidebar__num">1.3</span><span class="sidebar__text">数据属性</span></a></li>
+          <li><a class="sidebar__link" href="#ch-1-4"><span class="sidebar__num">1.4</span><span class="sidebar__text">数据变换</span></a></li>
+          <li><a class="sidebar__link" href="#ch-1-5"><span class="sidebar__num">1.5</span><span class="sidebar__text">D3 数据选择器</span></a></li>
+          <li><a class="sidebar__link" href="../lesson-01/">
+            <span class="sidebar__text">← 返回交互版章节页</span></a></li>
+        </ul>
+      </nav>
+    </aside>
+    <div class="sidebar-scrim" id="sidebar-scrim" data-open="false" aria-hidden="true"></div>
+
+    <main class="main" id="main">
+      <article class="content lecture">
+        <h1 id="第-1-章-数据">第 1 章 数据</h1>
+        <blockquote class="note"><strong>本讲义配套集成教学页面</strong>：<a href="./index.html"><code>./index.html</code></a>（讲解 ⇄ 代码 ⇄ 演示 三 tab 自由切换）  推荐教学用法：浏览器打开 lesson 页面 → 左侧选章节 → 三个 tab 来回切（讲解看原理、代码看 ⭐ 关键点、演示看实际效果）。</blockquote>
+        <h2 id="教学目标">📌 教学目标</h2>
+        <ol><li>理解数据的本质（DIKW 金字塔）与可视化在其中的位置</li><li>掌握 Stevens 测量尺度 × Mackinlay 视觉通道的匹配原则</li><li>熟练使用 D3 数据加载与转换 API</li><li>理解 D3 Selection 的 enter / update / exit 三态模型</li><li><strong>重点掌握</strong>：⭐ 标注的 JavaScript 关键编程点（13 个）</li></ol>
+        <hr />
+        <h2 id="1-1-数据生成">1.1 数据生成</h2>
+        <h3 id="你的原案例">你的原案例</h3>
+        <p>本章采用中国石油大学（华东）2025 级新生数据。数据由 DeepSeek 大模型合成，含 80 条记录：</p>
+        <div class="code-block"><pre><code class="lang-text">序号、姓名、性别、生日、年龄、班级、籍贯、民族</code></pre></div>
+        <h3 id="嵌入理论-ai-合成数据的可信度边界">嵌入理论：AI 合成数据的可信度边界</h3>
+        <table class="theory-table"><thead><tr><th>维度</th><th>含义</th><th>DeepSeek 生成数据</th></tr></thead><tbody><tr><td data-label="维度">准确性</td><td data-label="含义">反映真实世界的程度</td><td data-label="DeepSeek 生成数据">⚠️ 姓名/籍贯虚构</td></tr><tr><td data-label="维度">完整性</td><td data-label="含义">必填字段是否齐全</td><td data-label="DeepSeek 生成数据">✅ 字段齐全</td></tr><tr><td data-label="维度">一致性</td><td data-label="含义">同一概念在不同地方表达一致</td><td data-label="DeepSeek 生成数据">✅ 字段一致</td></tr><tr><td data-label="维度">时效性</td><td data-label="含义">数据反映当前状态</td><td data-label="DeepSeek 生成数据">✅ 入学年份匹配</td></tr></tbody></table>
+        <p><strong>AI 合成数据的"采样偏差"</strong>：模型倾向"看起来合理"的分布（民族偏汉族、籍贯偏大城市）。</p>
+        <h3 id="关键代码段-①-字段名映射"><span class="star">⭐</span> 关键代码段 ①：字段名映射</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ①：字段映射 —— 把中文 CSV 列名转英文 JS 变量
+        const COLUMN_MAP = {
+          "序号": "id",
+          "姓名": "name",
+          "性别": "gender",
+          "生日": "birthday",
+          "年龄": "age",
+          "班级": "class",
+        };</code></pre></div>
+        <p><strong>为什么不用中文 key？</strong></p>
+        <ul><li>JS 引擎对中文标识符的容错性差（老浏览器报错）</li><li>后端、JSON、URL 编码都可能引入乱码</li><li>IDE 自动补全、搜索、重构工具对中文支持不一致</li></ul>
+        <p><strong>最佳实践</strong>：CSV 用人可读的中文名，JS 内部统一英文变量。</p>
+        <h3 id="关键代码段-②-类型转换函数"><span class="star">⭐</span> 关键代码段 ②：类型转换函数</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ②：类型转换 —— 用户原文「推荐方式」
+        function transformRow(d) {
+          return {
+            id:       +d["序号"],              // 一元 + 把字符串转 Number
+            name:     d["姓名"].trim(),       // trim() 去掉首尾空白
+            birthday: new Date(d["生日"]),   // 字符串 → Date 对象
+            age:      +d["年龄"],
+            class:    d["班级"].trim(),
+          };
+        }</code></pre></div>
+        <p><strong>关键点解释</strong>：</p>
+        <ul><li><code>+d["年龄"]</code> 是一元加运算符，是 JS 里把字符串转数字的最快写法</li><li><code>new Date(str)</code> 解析 ISO 格式日期，对 <code>"2007/8/15"</code> 兼容性差，要用 <code>d3.timeParse("%Y-%m-%d")</code> 兜底</li><li><strong>坑</strong>：没有 <code>trim()</code> 的话，"软件工程1班 " 里的空格会让后续过滤/聚合出错</li></ul>
+        <h3 id="关键代码段-③-d3-csv-第二参直接传-row-回调"><span class="star">⭐</span> 关键代码段 ③：d3.csv 第二参直接传 row 回调</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ③：一行完成加载 + 转换
+        const data = await d3.csv("data/newstudent.csv", transformRow);
+
+        // 验证类型确实转换了：
+        console.log(typeof data[0].age);              // "number"
+        console.log(data[0].birthday instanceof Date); // true</code></pre></div>
+        <p><strong>为什么这一行很重要</strong>：</p>
+        <ul><li><code>d3.csv</code> 是异步函数，必须 <code>await</code></li><li>第二参的 row 回调会在<strong>每一行解析后立即调用</strong>——比"先 <code>await d3.csv()</code> 再 <code>.map()</code>"省内存</li><li><strong>异步加载的意义</strong>：不阻塞页面渲染，用户能继续交互</li></ul>
+        <h3 id="配套-demo">配套 Demo</h3>
+        <p><a href="./index.html"><code>./index.html#ch-1-1</code></a> · 切到「代码」tab 看 ⭐ 关键点，切到「演示」tab 看实际加载效果。</p>
+        <hr />
+        <h2 id="1-2-数据定义">1.2 数据定义</h2>
+        <h3 id="你的原案例-dikw-金字塔">你的原案例（DIKW 金字塔）</h3>
+        <table class="theory-table"><thead><tr><th>层</th><th>原文</th><th>回答的问题</th></tr></thead><tbody><tr><td data-label="层">数据 Data</td><td data-label="原文">原始、离散的观察结果</td><td data-label="回答的问题">—</td></tr><tr><td data-label="层">信息 Information</td><td data-label="原文">经过处理、组织、赋予上下文的数据</td><td data-label="回答的问题">谁/什么/何时/何地</td></tr><tr><td data-label="层">知识 Knowledge</td><td data-label="原文">对信息的进一步提炼和理解</td><td data-label="回答的问题">如何</td></tr><tr><td data-label="层">智慧 Wisdom</td><td data-label="原文">运用知识做出明智判断和战略决策</td><td data-label="回答的问题">为什么/应该怎么做</td></tr></tbody></table>
+        <h3 id="嵌入理论-可视化在-dikw-中的位置">嵌入理论：可视化在 DIKW 中的位置</h3>
+        <p><strong>关键洞见</strong>：可视化主要把 <strong>Data 升到 Information</strong>，少数场景能升到 <strong>Knowledge</strong>，但难以跨越到 Wisdom。</p>
+        <ul><li>✅ Data → Information：把表格"翻译"成可读图形（折线图、柱状图、热图）</li><li>⚠ Information → Knowledge：模式发现需要统计模型辅助（机器学习）</li><li>❌ Knowledge → Wisdom：决策与战略超出可视化能力</li></ul>
+        <p><strong>Rowley (2007) 批评</strong>：DIKW 是过度简化的层次模型。但作为教学脚手架仍然最有价值。</p>
+        <h3 id="关键代码段-①-svg-金字塔路径"><span class="star">⭐</span> 关键代码段 ①：SVG 金字塔路径</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ①：trapezoid 路径 —— 从上到下 4 个点的连线
+        const topW = 60, botW = 120;
+        const yTop = 20, yBot = 100;
+        const path = `
+          M ${cx - topW/2} ${yTop}
+          L ${cx + topW/2} ${yTop}
+          L ${cx + botW/2} ${yBot}
+          L ${cx - botW/2} ${yBot}
+          Z
+        `;</code></pre></div>
+        <p><strong>关键点解释</strong>：</p>
+        <ul><li>SVG path 的 <code>M</code>(moveto)、<code>L</code>(lineto)、<code>Z</code>(close) 是 3 个最常用指令</li><li>模板字符串 <code>${...}</code> 直接嵌入 JS 变量，比字符串拼接可读</li><li><strong>实践</strong>：复杂形状用 <code>d3.symbol()</code>（内置 ★●▲），自己 path 容易出错</li></ul>
+        <h3 id="关键代码段-②-交互高亮-事件"><span class="star">⭐</span> 关键代码段 ②：交互高亮（事件）</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ②：选择集绑定事件 —— 注意 function 而非箭头函数
+        const g = svg.append("g")
+          .style("cursor", "pointer")
+          .on("mouseover", function () {       // ⚠️ 必须 function，不能箭头函数
+            d3.select(this).select("path")      //    因为要用 this 访问当前元素
+               .transition().duration(150)
+               .attr("fill", d3.color(layer.color).brighter(0.5));
+          })
+          .on("click", () => showDetail(layer));  // 这里箭头函数 OK（不用 this）</code></pre></div>
+        <p><strong>关键点解释</strong>：</p>
+        <ul><li><strong>必须用 <code>function()</code> 而非箭头函数</strong>——因为 D3 回调要用 <code>this</code> 访问当前元素，箭头函数捕获外层 <code>this</code> 会失效</li><li>这是 D3 最常见的坑</li><li><code>transition().duration()</code> 是 D3 内置动画 API，比 jQuery 还简洁</li></ul>
+        <h3 id="配套-demo">配套 Demo</h3>
+        <p><a href="./index.html"><code>./index.html#ch-1-2</code></a> · 演示 tab 可点击金字塔各层查看详情。</p>
+        <hr />
+        <h2 id="1-3-数据属性">1.3 数据属性</h2>
+        <h3 id="你的原案例-3-大类">你的原案例（3 大类）</h3>
+        <table class="theory-table"><thead><tr><th>类别</th><th>例子</th><th>说明</th></tr></thead><tbody><tr><td data-label="类别">类别型</td><td data-label="例子">姓名、性别</td><td data-label="说明">无顺序关系</td></tr><tr><td data-label="类别">序数型</td><td data-label="例子">班级、学位</td><td data-label="说明">有顺序，无间距</td></tr><tr><td data-label="类别">数值型</td><td data-label="例子">年龄、考试成绩</td><td data-label="说明">定量</td></tr></tbody></table>
+        <h3 id="嵌入理论-stevens-测量尺度-1946-4-类">嵌入理论：Stevens 测量尺度（1946）—— 4 类</h3>
+        <p>比你的原文更精细的 4 类：</p>
+        <table class="theory-table"><thead><tr><th>类别</th><th>允许的运算</th><th>典型示例</th><th>对应你原文</th></tr></thead><tbody><tr><td data-label="类别"><strong>名义 Nominal</strong></td><td data-label="允许的运算">等价 / 不等价</td><td data-label="典型示例">姓名、性别</td><td data-label="对应你原文">类别型</td></tr><tr><td data-label="类别"><strong>序数 Ordinal</strong></td><td data-label="允许的运算">+ &gt; &lt;</td><td data-label="典型示例">等级、班级序号</td><td data-label="对应你原文">序数型</td></tr><tr><td data-label="类别"><strong>区间 Interval</strong></td><td data-label="允许的运算">+ 加减</td><td data-label="典型示例">温度（°C）</td><td data-label="对应你原文">—</td></tr><tr><td data-label="类别"><strong>比率 Ratio</strong></td><td data-label="允许的运算">+ 加减乘除</td><td data-label="典型示例">年龄、价格</td><td data-label="对应你原文">数值型</td></tr></tbody></table>
+        <p><strong>关键区别</strong>：区间尺度没有"真零点"（0°C 不是"没有温度"）；比率尺度有真零点（0 元 = 没有钱）。</p>
+        <h3 id="嵌入理论-mackinlay-视觉通道排序-1986">嵌入理论：Mackinlay 视觉通道排序（1986）</h3>
+        <table class="theory-table"><thead><tr><th>档次</th><th>通道</th><th>适合的属性</th></tr></thead><tbody><tr><td data-label="档次"><strong>定量型</strong></td><td data-label="通道">位置、长度、角度</td><td data-label="适合的属性">比率 / 区间</td></tr><tr><td data-label="档次"><strong>顺序型</strong></td><td data-label="通道">亮度、密度、饱和度</td><td data-label="适合的属性">序数</td></tr><tr><td data-label="档次"><strong>定性型</strong></td><td data-label="通道">色相、形状</td><td data-label="适合的属性">名义</td></tr></tbody></table>
+        <p><strong>核心发现</strong>：位置是最强的定量通道；色相是最强的定性通道。<strong>错配 → 信息丢失</strong>。</p>
+        <h3 id="关键代码段-①-比例尺选型"><span class="star">⭐</span> 关键代码段 ①：比例尺选型</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ①：scale 选型 —— 属性 ↔ 通道的映射
+        // 比率型数据 → scaleLinear（连续定量）
+        const x = d3.scaleLinear().domain([0, 100]).range([0, 800]);
+
+        // 名义/序数型数据 → scaleBand（离散分类）
+        const x = d3.scaleBand()
+          .domain(["软件1班", "软件2班", "数据1班"])
+          .range([0, 800]);</code></pre></div>
+        <p><strong>关键点解释</strong>：</p>
+        <ul><li><code>domain()</code> 是数据域（输入），<code>range()</code> 是值域（输出像素）</li><li><strong>选错比例尺是初学者最常犯的错</strong>：类别数据用 scaleLinear 会算出没有意义的中间值（如 0.5 班）</li><li><strong>记忆口诀</strong>：连续定量用 Linear，离散分类用 Band，序数可用 Point</li></ul>
+        <h3 id="关键代码段-②-colormap-选型"><span class="star">⭐</span> 关键代码段 ②：colormap 选型</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ②：颜色映射 —— 顺序 vs 定性 vs 发散
+        // 顺序型（顺序有意义）→ Viridis / Blues —— CVD 友好
+        const color = d3.scaleSequential(d3.interpolateViridis);
+
+        // 定性型（无顺序）→ schemeTableau10
+        const color = d3.scaleOrdinal().range(d3.schemeTableau10);
+
+        // 发散型（有中点）→ RdBu
+        const color = d3.scaleDiverging(d3.interpolateRdBu);</code></pre></div>
+        <p><strong>关键点解释</strong>：</p>
+        <ul><li>Viridis 是顺序 colormap 标杆，色觉缺陷（CVD）友好且感知均匀</li><li><strong>常见错误</strong>：用彩虹色 <code>interpolateRainbow</code> 编码数值——既不 CVD 友好，又有假边界</li><li><strong>什么时候用发散型</strong>：有"中间值"的数据（正负、温度 vs 平均值）</li></ul>
+        <h3 id="配套-demo">配套 Demo</h3>
+        <p><a href="./index.html"><code>./index.html#ch-1-3</code></a> · 4 个 sub-demo 对比演示。</p>
+        <hr />
+        <h2 id="1-4-数据变换">1.4 数据变换</h2>
+        <h3 id="你的原案例-8-个函数">你的原案例（8 个函数）</h3>
+        <table class="theory-table"><thead><tr><th>#</th><th>函数</th><th>用途</th></tr></thead><tbody><tr><td data-label="#">1</td><td data-label="函数"><code>map(iterable, mapper)</code></td><td data-label="用途">类似 Array.map</td></tr><tr><td data-label="#">2</td><td data-label="函数"><code>reduce(iterable, reducer, init)</code></td><td data-label="用途">类似 Array.reduce</td></tr><tr><td data-label="#">3</td><td data-label="函数"><code>cross(...iterables, reducer)</code></td><td data-label="用途">笛卡尔积</td></tr><tr><td data-label="#">4</td><td data-label="函数"><code>merge(iterables)</code></td><td data-label="用途">合并为扁平数组</td></tr><tr><td data-label="#">5</td><td data-label="函数"><code>pairs(iterable, reducer)</code></td><td data-label="用途">相邻元素对</td></tr><tr><td data-label="#">6</td><td data-label="函数"><code>transpose(matrix)</code></td><td data-label="用途">矩阵转置</td></tr><tr><td data-label="#">7</td><td data-label="函数"><code>zip(...arrays)</code></td><td data-label="用途">按位合并</td></tr><tr><td data-label="#">8</td><td data-label="函数"><code>filter(iterable, test)</code></td><td data-label="用途">类似 Array.filter</td></tr></tbody></table>
+        <h3 id="嵌入理论-函数式数据流">嵌入理论：函数式数据流</h3>
+        <p>这 8 个函数的共同特点：</p>
+        <ul><li>✅ <strong>不可变（immutable）</strong>：输入不变，返回新数组</li><li>✅ <strong>纯函数</strong>：相同输入 → 相同输出</li><li>✅ <strong>可链式</strong>：返回值是数组，可以接下一层变换</li></ul>
+        <p><strong>为什么函数式？</strong> 可推理（每层独立可测）、可并行（map/reduce 天然并行）、可缓存（纯函数可记忆化）。</p>
+        <p><strong>OLAP 数据立方体雏形</strong>：<code>transpose</code> 做宽/长格式转换，<code>group + rollup</code> 做切片/切块/钻取。</p>
+        <h3 id="关键代码段-①-map-reduce-链式组合"><span class="star">⭐</span> 关键代码段 ①：map / reduce 链式组合</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ①：函数式数据流 —— map 后接 filter 再 reduce
+        const avgAge =
+          students
+            .filter(s => s.gender === "男")     // ① 过滤男生
+            .map(s => s.age)                    // ② 提取年龄
+            .reduce((sum, a) => sum + a, 0)     // ③ 合计
+          / students.filter(s => s.gender === "男").length; // ④ 求平均</code></pre></div>
+        <p><strong>关键点解释</strong>：</p>
+        <ul><li>链式调用的每一步返回新数组，不会修改原数组</li><li><strong>与命令式对比</strong>：命令式需要 4 个临时变量 + 一个 for 循环，函数式一行搞定</li><li><strong>性能权衡</strong>：每次 map/filter 都会创建新数组，对超大数组有性能损耗（百万级以上才显著）</li></ul>
+        <h3 id="关键代码段-②-cross-笛卡尔积"><span class="star">⭐</span> 关键代码段 ②：cross（笛卡尔积）</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ②：cross —— 笛卡尔积
+        const genders = ["男", "女"];
+        const majors  = ["软件工程", "数据科学"];
+        const combos  = d3.cross(genders, majors);
+        // → [["男","软件工程"], ["男","数据科学"], ["女","软件工程"], ["女","数据科学"]]</code></pre></div>
+        <p><strong>关键点解释</strong>：</p>
+        <ul><li>笛卡尔积常用在"两两组合"分析（如性别 × 专业的人数统计）</li><li>第二参 reducer 可选，用来"合并"两个元素</li><li><strong>扩展</strong>：n 个数组的笛卡尔积大小是各数组长度的乘积</li></ul>
+        <h3 id="关键代码段-③-group-rollup-聚合"><span class="star">⭐</span> 关键代码段 ③：group / rollup（聚合）</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ③：group 与 rollup —— 层次聚合
+        // group 返回 Map（保留所有元素）
+        const byClass = d3.group(students, s => s.class);
+
+        // rollup 返回 Map（每个 key 只保留聚合值）
+        const countByClass = d3.rollup(
+          students,
+          v => v.length,         // reducer
+          s => s.class           // key 提取函数
+        );</code></pre></div>
+        <p><strong>关键点解释</strong>：</p>
+        <ul><li><code>group</code> vs <code>rollup</code> 是"分组保留"vs"分组聚合"的区别</li><li><code>rollup</code> 第二参是 reducer 函数（这里取长度）</li><li>后续章节 doc-02 会详细用 rollup 做树形数据</li></ul>
+        <h3 id="配套-demo">配套 Demo</h3>
+        <p><a href="./index.html"><code>./index.html#ch-1-4</code></a> · 演示 tab 下拉切换 10 个函数（含 group / rollup 加项）。</p>
+        <hr />
+        <h2 id="1-5-d3-数据选择器">1.5 D3 数据选择器</h2>
+        <h3 id="你的原案例-6-个方法">你的原案例（6 个方法）</h3>
+        <table class="theory-table"><thead><tr><th>方法</th><th>返回</th></tr></thead><tbody><tr><td data-label="方法"><code>d3.select</code></td><td data-label="返回">单个元素</td></tr><tr><td data-label="方法"><code>d3.selectAll</code></td><td data-label="返回">多个元素的 selection</td></tr><tr><td data-label="方法"><code>selection.select</code></td><td data-label="返回">每个选中元素的后代中第一个</td></tr><tr><td data-label="方法"><code>selection.selectAll</code></td><td data-label="返回">后代中所有</td></tr><tr><td data-label="方法"><code>selection.selectChild</code></td><td data-label="返回">直接子元素第一个</td></tr><tr><td data-label="方法"><code>selection.selectChildren</code></td><td data-label="返回">所有直接子元素</td></tr></tbody></table>
+        <h3 id="嵌入理论-data-join-三态模型">嵌入理论：Data-Join 三态模型</h3>
+        <p>D3 的核心是 <strong>Data-Join</strong>：把数据数组"绑定"到 DOM 元素上。当数据变化时：</p>
+        <ul><li>新数据 &gt; 旧数据：多出来的进入 <strong>enter</strong>（要 append）</li><li>新数据 = 旧数据：原有元素进入 <strong>update</strong>（要改属性）</li><li>新数据 &lt; 旧数据：多余的元素进入 <strong>exit</strong>（要 remove）</li></ul>
+        <h3 id="关键代码段-①-join-enter-update-exit-三态"><span class="star">⭐</span> 关键代码段 ①：.join(enter, update, exit) 三态</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ①：D3 v5+ 的 join() API —— 优雅处理三态
+        const circles = svg.selectAll("circle")
+          .data(currentData)
+          .join(
+            enter  => enter.append("circle").attr("fill", "green"),  // enter
+            update => update.attr("fill", "cyan"),                    // update
+            exit   => exit.remove()                                   // exit
+          );</code></pre></div>
+        <p><strong>关键点解释</strong>：</p>
+        <ul><li>join 的三个回调分别在 enter / update / exit 阶段被调用</li><li>比 v3 的 <code>enter().append()</code> + <code>exit().remove()</code> 写法更简洁，逻辑更不易出错</li><li><strong>类比</strong>：React 的 diff + patch —— 同样思想，但 React 帮你做了，D3 让你自己写变换函数</li></ul>
+        <h3 id="关键代码段-②-key-函数保身份"><span class="star">⭐</span> 关键代码段 ②：key 函数保身份</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ②：key 函数 —— 元素身份的稳定器
+        // ❌ 不带 key：数据顺序变化 → 所有元素都"update"，过渡动画错乱
+        svg.selectAll("circle").data(newData);
+
+        // ✅ 带 key：用唯一字段绑定身份
+        svg.selectAll("circle").data(newData, d => d.id);
+
+        // 同样的逻辑用 React 描述：key={item.id}</code></pre></div>
+        <p><strong>关键点解释</strong>：</p>
+        <ul><li><strong>key 函数是 D3 动画的灵魂</strong></li><li>没有 key 时，D3 按 index 绑定身份：数据重排会导致"所有元素都换位置"</li><li>带 key 后，每个 circle 知道自己的 id 是什么，重排时只是 cx 变化，过渡动画自然</li><li><strong>类比</strong>：与 React 的 <code>key={item.id}</code> 完全相同的思想</li></ul>
+        <h3 id="关键代码段-③-select-vs-selectall"><span class="star">⭐</span> 关键代码段 ③：select vs selectAll</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ③：选择器的核心区别
+        // select：返回 1 个元素（第一个匹配）；数据绑定只对这一个元素
+        const title = d3.select("#title");
+
+        // selectAll：返回多个元素；数据绑定按顺序一一对应
+        const bars = d3.selectAll(".bar").data(values);</code></pre></div>
+        <p><strong>关键点解释</strong>：</p>
+        <ul><li><code>select</code> 用于"操作单个元素"，<code>selectAll</code> 用于"批量绑定数据"</li><li><strong>常见错误</strong>：用 <code>selectAll(".bar")</code> 给数组绑定数据时，元素数量与数据数量必须匹配，否则"留空"或"溢出"</li><li><strong>最佳实践</strong>：先用 <code>selectAll</code> 创建占位元素（可能为空），再 <code>.data().join(...)</code></li></ul>
+        <h3 id="配套-demo">配套 Demo</h3>
+        <p><a href="./index.html"><code>./index.html#ch-1-5</code></a> · 演示 tab 点击按钮触发 enter / update / exit。</p>
+        <hr />
+        <h2 id="教师视角-本章教学要点">📚 教师视角 · 本章教学要点</h2>
+        <h3 id="13-个-关键点速查">13 个 ⭐ 关键点速查</h3>
+        <table class="theory-table"><thead><tr><th>章节</th><th>关键点</th></tr></thead><tbody><tr><td data-label="章节">3.1</td><td data-label="关键点">① 字段名映射 ② 类型转换 ③ d3.csv 第二参回调</td></tr><tr><td data-label="章节">3.2</td><td data-label="关键点">① SVG path ② <strong>function vs 箭头函数</strong></td></tr><tr><td data-label="章节">3.3</td><td data-label="关键点">① scale 选型 ② colormap 选型</td></tr><tr><td data-label="章节">3.4</td><td data-label="关键点">① 链式组合 ② cross 笛卡尔积 ③ group/rollup</td></tr><tr><td data-label="章节">3.5</td><td data-label="关键点">① join 三态 ② key 函数 ③ select vs selectAll</td></tr></tbody></table>
+        <h3 id="重点-难点">重点 &amp; 难点</h3>
+        <p><strong>重点</strong>：Data-Join 三态、Stevens × Mackinlay 对应、字段映射+类型转换。</p>
+        <p><strong>难点</strong>：</p>
+        <ul><li>key 函数的意义（学生最容易忽略）</li><li><code>function</code> vs 箭头函数（D3 回调的 this 绑定）</li><li>colormap 顺序/定性/发散选型</li></ul>
+        <h3 id="考察点">考察点</h3>
+        <ol><li>给一段数据，判断应该用什么视觉通道</li><li>给出错误 demo，让学生指出问题</li><li>让学生解释"为什么用 key 函数"</li><li>让学生手写一个 group + rollup 聚合</li></ol>
+        <hr />
+        <h2 id="全部-demo-一键运行">🏃 全部 demo 一键运行</h2>
+        <h3 id="集成教学页面-推荐">集成教学页面（推荐）</h3>
+        <div class="code-block"><pre><code class="lang-bash">cd docs/doc-01-数据/lesson
+        python -m http.server 8080
+        # 浏览器打开 http://localhost:8080</code></pre></div>
+        <p><strong>特性</strong>：讲解 ⇄ 代码 ⇄ 演示 三 tab 自由切换，13 个 ⭐ 关键点都有文字解释。</p>
+        <h3 id="独立-demo-备选">独立 demo（备选）</h3>
+        <div class="code-block"><pre><code class="lang-bash">cd docs/doc-01-数据/demo
+        python -m http.server 8081</code></pre></div>
+        <p>5 个 demo 各自独立，适合课后练习。</p>
+      </article>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <div>
+        <p>© 2026 《可视化导论》 · 中国石油大学（华东） · 授课教师：
+          <a href="https://cinger007.github.io" target="_blank" rel="noopener">李昕</a></p>
+        <p class="site-footer__note">
+          主要参考教材：陈为《可视化导论》。本站为课程网站重构版本：内容沿用原课程，
+          外壳、导航、检索与无障碍能力为重写。
+        </p>
+      </div>
+      <div class="site-footer__tech">
+        <span class="tech-chip">零依赖</span>
+        <span class="tech-chip">D3.js v7</span>
+        <span class="tech-chip">ES Modules</span>
+        <span class="tech-chip">无构建</span>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

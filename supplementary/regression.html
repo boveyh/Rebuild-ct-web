@@ -1,13 +1,120 @@
-<html>
-    <body>
-<script src="https://unpkg.com/d3-regression@1.3.10/dist/d3-regression.min.js"></script>
-<script>
-data = [{x: 8, y: 3}, {x: 2, y: 10}, {x: 11, y: 3}, {x: 6, y: 6}, {x: 5, y: 8}, {x: 4, y: 12}, {x: 12, y: 1}, {x: 9, y: 4}, {x: 6, y: 9}, {x: 1, y: 14}];
-const regression = d3.regressionLinear()
-  .x(d => d.x)
-  .y(d => d.y)
-  .domain([0, 100]);
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <meta charset="utf-8" />
+  <title>d3-regression 最小示例 · 线性拟合</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- 顺序不能反。实测两个 UMD 包的挂载方式不一样：
+         d3 v7          ->  window.d3 = window.d3 || {}        （叠加，安全）
+         d3-regression  ->  window.d3 = {}                      （无条件覆盖！）
+       所以如果 d3 先加载，随后会被 d3-regression 整个抹掉，
+       页面报 "d3.scaleLinear is not a function"。
+       正确顺序：先插件，再本体。 -->
+  <script src="https://unpkg.com/d3-regression@1.3.10/dist/d3-regression.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <style>
+    :root { --ink:#1b2330; --muted:#6b7686; --grid:#e3e8ef; --bg:#fff; --accent:#3d4bc0; }
+    @media (prefers-color-scheme: dark) {
+      :root { --ink:#e6ebf3; --muted:#9aa5b4; --grid:#2a3140; --bg:#141924; --accent:#8fa0ff; }
+    }
+    body { margin:0; padding:28px; background:var(--bg); color:var(--ink);
+           font:14px/1.7 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; }
+    h1 { font-size:18px; margin:0 0 4px; }
+    p.lead { color:var(--muted); margin:0 0 20px; max-width:62ch; }
+    figure { margin:0; }
+    figcaption { color:var(--muted); font-size:13px; margin-top:10px; }
+    .grid-line { stroke:var(--grid); stroke-width:1; }
+    .axis text { fill:var(--muted); font-size:11px; }
+    .axis path, .axis line { stroke:var(--grid); }
+    .dot { fill:var(--accent); fill-opacity:.75; }
+    .fit { stroke:#d1495b; stroke-width:2.5; fill:none; }
+    .fit-label { fill:#d1495b; font-size:12px; font-weight:600; }
+  </style>
+</head>
+<body>
+  <h1>d3-regression 最小示例</h1>
+  <p class="lead">
+    这个页面的作用是「只留回归本身」：10 个点、一条最小二乘直线，
+    方便和 <a href="crime1985.html">crime1985.html</a> 里那套完整散点图对照着看。
+    重构前的版本算出了回归对象却没有把它画出来，页面是全白的。
+  </p>
+  <figure>
+    <div id="chart"></div>
+    <figcaption>数据点固定写死在源码里，改数值刷新即可看到直线跟着变。</figcaption>
+  </figure>
 
-</script>
-    </body>
+  <script>
+    const data = [
+      {x: 8, y: 3}, {x: 2, y: 10}, {x: 11, y: 3}, {x: 6, y: 6}, {x: 5, y: 8},
+      {x: 4, y: 12}, {x: 12, y: 1}, {x: 9, y: 4}, {x: 6, y: 9}, {x: 1, y: 14}
+    ];
+
+    const W = 560, H = 340, M = { top: 20, right: 24, bottom: 44, left: 52 };
+    const iw = W - M.left - M.right, ih = H - M.top - M.bottom;
+
+    const x = d3.scaleLinear().domain([0, 13]).range([0, iw]);
+    const y = d3.scaleLinear().domain([0, 15]).range([ih, 0]);
+
+    const svg = d3.select("#chart").append("svg")
+      .attr("viewBox", `0 0 ${W} ${H}`)
+      .attr("width", "100%").attr("style", "max-width:640px;height:auto")
+      .attr("role", "img")
+      .attr("aria-label", "10 个散点与一条最小二乘拟合直线");
+
+    const g = svg.append("g").attr("transform", `translate(${M.left},${M.top})`);
+
+    // 网格
+    g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5).tickSize(-iw).tickFormat(""));
+    g.append("g").attr("class", "axis").attr("transform", `translate(0,${ih})`)
+      .call(d3.axisBottom(x).ticks(6).tickSize(-ih).tickFormat(""));
+
+    // 真实刻度
+    g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5));
+    g.append("g").attr("class", "axis").attr("transform", `translate(0,${ih})`).call(d3.axisBottom(x).ticks(6));
+
+    // 点
+    g.selectAll("circle").data(data).join("circle")
+      .attr("class", "dot")
+      .attr("cx", d => x(d.x)).attr("cy", d => y(d.y)).attr("r", 5);
+
+    // 最小二乘拟合 —— d3.regressionLinear() 返回 {a, b, predict}
+    const fit = d3.regressionLinear().x(d => d.x).y(d => d.y)(data);
+
+    g.append("line").attr("class", "fit")
+      .attr("x1", x(0)).attr("y1", y(fit.predict(0)))
+      .attr("x2", x(13)).attr("y2", y(fit.predict(13)));
+
+    // 斜率与截距：a 是斜率，b 是截距
+    g.append("text").attr("class", "fit-label")
+      .attr("x", x(0.5)).attr("y", y(fit.predict(0.5)) - 10)
+      .text(`y = ${fit.a.toFixed(3)}x + ${fit.b.toFixed(3)}`);
+  </script>
+
+<!-- wb-demobar: 由 tools/build_supp.py 注入，给独立 demo 一个回站入口 -->
+<style id="wb-demobar-style">
+  .wb-demobar {
+    position: fixed; right: 14px; bottom: 14px; z-index: 2147483000;
+    display: flex; gap: 2px; align-items: center;
+    font: 12px/1.4 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: rgba(20, 24, 33, .86); color: #e8edf5;
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 999px; padding: 5px 6px 5px 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .28);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .wb-demobar span { opacity: .68; margin-right: 4px; }
+  .wb-demobar a {
+    color: #e8edf5; text-decoration: none; padding: 3px 9px; border-radius: 999px;
+    transition: background .15s;
+  }
+  .wb-demobar a:hover, .wb-demobar a:focus-visible { background: rgba(255, 255, 255, .16); }
+  @media print { .wb-demobar { display: none; } }
+</style>
+<div class="wb-demobar" role="navigation" aria-label="返回课程">
+  <span>可视化导论</span>
+  <a href="../">课程门户</a>
+  <a href="../glossary.html">术语表</a>
+</div>
+</body>
 </html>
