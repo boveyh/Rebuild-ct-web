@@ -4,3 +4,10 @@
 __pycache__/
 .DS_Store
 Thumbs.db
+*.pyc
+
+# Agent 会话数据（记忆日志等），不进版本库
+.workbuddy/
+
+# 浏览器验证截图：由 tools/verify_render.mjs 随时可再生成
+tools/screenshots/

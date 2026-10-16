@@ -205,6 +205,48 @@ def split_num(title: str):
     return "", title
 
 
+RE_TAG = re.compile(r"<(/?)([a-zA-Z][\w-]*)([^>]*)>")
+VOID_TAGS = {
+    "br", "img", "input", "hr", "meta", "link", "source", "col", "area", "base",
+    "embed", "param", "track", "wbr",
+}
+
+
+def count_stars(code_html: str) -> int:
+    """数「必须掌握的编程点」。
+
+    原作者统一用 ⭐ 标记关键点，但中英两版各有一份，直接全页计数会翻倍。
+    这里做一个很小的标签扫描：维护一层「当前语言」栈，只在不在 en 子树里
+    才计入。比起用正则去删 en 片段，这种方式不会被嵌套标签骗到。
+    """
+    count = 0
+    stack = []          # 每个元素的语言（None 表示没写 data-lang，继承父级）
+    pos = 0
+
+    for m in RE_TAG.finditer(code_html):
+        cur = stack[-1] if stack else None
+        if cur != "en":
+            count += code_html[pos:m.start()].count("⭐")
+        pos = m.end()
+
+        closing, tag, attrs = m.group(1), m.group(2).lower(), m.group(3)
+        if tag in VOID_TAGS:
+            continue
+        if closing:
+            if stack:
+                stack.pop()
+            continue
+        if attrs.rstrip().endswith("/"):
+            continue
+        lm = re.search(r'data-lang="([a-z]+)"', attrs)
+        inherited = stack[-1] if stack else None
+        stack.append(lm.group(1) if lm else inherited)
+
+    if not (stack and stack[-1] == "en"):
+        count += code_html[pos:].count("⭐")
+    return count
+
+
 def extract_sections(html: str):
     """从一章的原站 HTML 里抽出全部小节。"""
     body_m = re.search(r'<section class="chapter-content"[^>]*>(?P<body>.*)', html, re.S)
@@ -254,7 +296,7 @@ def extract_sections(html: str):
             "subtitle": {"zh": subs.get("zh", ""), "en": subs.get("en", "")},
             "panels": panels,
             "demo": demo_key,
-            "stars": panels.get("code", "").count('class="star"'),
+            "stars": count_stars(panels.get("code", "")),
         })
     return sections
 
@@ -327,16 +369,33 @@ def head(title, desc, depth, extra_css=(), extra_js=(), theme_color="#3d4bc0"):
 </head>"""
 
 
+def href_attr(href):
+    """把 href 渲染成属性。以 `@` 开头 -> data-root-link（见 topbar 的说明）。"""
+    if href.startswith("@"):
+        return f'data-root-link="{href[1:]}"'
+    return f'href="{href}"'
+
+
 def topbar(depth, crumbs, current, lang_toggle=True):
-    """顶栏：侧栏开关 + 品牌 + 面包屑 + 搜索 / 主题 / 语言"""
+    """顶栏：侧栏开关 + 品牌 + 面包屑 + 搜索 / 主题 / 语言
+
+    href 以 `@` 开头表示「相对站点根」——只有 404 页需要：
+    该页会被部署在站点根，但地址栏保留的是缺失路径，构建期算不出正确前缀，
+    所以输出 `data-root-link` 交给运行时那段极小探测脚本补 href。
+    """
     up = depth
+
+    def link(href, label, cls=""):
+        c = f' class="{cls}"' if cls else ""
+        return f"<a{c} {href_attr(href)}>{label}</a>"
+
     crumb_html = []
     for i, (label, href) in enumerate(crumbs):
         last = i == len(crumbs) - 1
-        if last:
+        if last or href is None:
             crumb_html.append(f'<li><span aria-current="page">{label}</span></li>')
         else:
-            crumb_html.append(f'<li><a href="{href}">{label}</a></li>')
+            crumb_html.append(f"<li>{link(href, label)}</li>")
     lang = ""
     if lang_toggle:
         lang = """
@@ -354,7 +413,7 @@ def topbar(depth, crumbs, current, lang_toggle=True):
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
 
-      <a class="topbar__brand" href="{up}">
+      <a class="topbar__brand" {href_attr(up)}>
         {BRAND_MARK}<span class="brand-text">可视化导论</span>
       </a>
 
@@ -440,7 +499,7 @@ def sidebar(chapters, cur_slug, sections=None, resources=True):
     ch_items = []
     for c in chapters:
         cur = ' aria-current="page"' if c["slug"] == cur_slug else ""
-        scope = f' data-progress-scope="c{c["id"]}s"'
+        scope = f' data-progress-scope="c{c["id"]}s" data-progress-total="{c.get("_sections", 0)}"'
         ch_items.append(
             f'        <li><a class="sidebar__chapter" href="{"../" if cur_slug else ""}{c["slug"]}/"{cur}{scope}>'
             f'<span data-lang="zh">第 {c["num"]} 章 {c["title"]["zh"]}</span>'
@@ -473,7 +532,7 @@ def sidebar(chapters, cur_slug, sections=None, resources=True):
 
 {foot}
     </aside>
-    <div class="sidebar-scrim" id="sidebar-scrim" data-open="false" hidden-a11y="true"></div>"""
+    <div class="sidebar-scrim" id="sidebar-scrim" data-open="false" aria-hidden="true"></div>"""
 
 
 def site_footer(depth):
@@ -499,20 +558,39 @@ def site_footer(depth):
 
 
 def close_page(extra_js="", tour=False):
+    """页面收尾。
+
+    导览条有两种形态：
+      · 折叠态（data-open="false"）—— 只露出一个「自动导览本章」的胶囊按钮，
+        章节页默认就是这一态；
+      · 展开态（data-open="true"）—— 显示步骤、解说与四个控制按钮。
+
+    这里必须把启动按钮也放进来。此前它只写在门户页上，而章节页的 tour-bar
+    里只有展开态的 DOM，于是：章节页既没有启动入口，shell.js 的 Tour.init
+    在绑定 #tour-play 时还会因为取到 null 抛异常，把同一次 boot 里排在它后面的
+    搜索、进度这些初始化全部带停。一个缺失的按钮，代价是三块功能静默失效。
+    """
     tour_bar = ""
     if tour:
         tour_bar = """
   <div class="tour-bar" id="tour-bar" data-open="false" role="region" aria-label="自动导览">
-    <div class="tour-bar__head">
-      <span class="tour-bar__count" id="tour-count">1 / 1</span>
-      <strong class="tour-bar__title" id="tour-title"></strong>
-    </div>
-    <p class="tour-bar__say" id="tour-say"></p>
-    <div class="tour-bar__actions">
-      <button type="button" id="tour-prev" data-i18n="tour.prev">上一步</button>
-      <button type="button" id="tour-toggle" data-i18n="tour.pause">暂停</button>
-      <button type="button" id="tour-next" data-i18n="tour.next">下一步</button>
-      <button type="button" id="tour-exit" data-i18n="tour.exit">退出导览</button>
+    <button class="tour-bar__trigger" type="button" id="tour-play">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg>
+      <span data-i18n="tour.play">自动导览本章</span>
+      <span class="tour-bar__steps" id="tour-total"></span>
+    </button>
+    <div class="tour-bar__panel">
+      <div class="tour-bar__head">
+        <span class="tour-bar__count" id="tour-count">1 / 1</span>
+        <strong class="tour-bar__title" id="tour-title"></strong>
+      </div>
+      <p class="tour-bar__say" id="tour-say"></p>
+      <div class="tour-bar__actions">
+        <button type="button" id="tour-prev" data-i18n="tour.prev">上一步</button>
+        <button type="button" id="tour-toggle" data-i18n="tour.pause">暂停</button>
+        <button type="button" id="tour-next" data-i18n="tour.next">下一步</button>
+        <button type="button" id="tour-exit" data-i18n="tour.exit">退出导览</button>
+      </div>
     </div>
   </div>"""
     return f"""{tour_bar}
@@ -564,7 +642,7 @@ def section_html(section, first):
                f'<span data-lang="en">{sub_en or sub_zh}</span></p>')
 
     return f"""      <section class="section" data-section-id="{sid}" id="sec-{sid}"
-               data-progress-key="c{sid.split('-')[1]}s{section['num'].split('.')[-1]}"
+               data-progress-key="c{int(sid.split('-')[1]):02d}s{section['num'].split('.')[-1]}"
                aria-labelledby="{sid}">
         <div class="section__head">
           <div class="section__eyebrow">
@@ -612,13 +690,43 @@ def objectives_html(ch):
 
 # ============================================================ 章节页
 
+# ============================================================ 延伸实验
+# 第 1 章额外带了一批「可独立运行」的实验页面（lesson-01/demo/），
+# 每个都自包含、能单独拷给学生改。原站旧导航里出现过一次，重构后一度变成孤儿——
+# 内容没问题，只是没有任何页面指向它了。这类「能打开但走不到」的页面，
+# 和断链一样会导致内容实质不可达，所以重新接线回章节页。
+
+LABS = {
+    "01": {
+        "href": "demo/",
+        "name": "5 个可独立运行的实验",
+        "desc": "数据加载器 · DIKW 金字塔 · 属性类型 × 视觉通道 · D3 数组函数 · Selection 三态模型。"
+                "每个实验都是一个独立页面，不依赖本站其他资源。",
+    },
+}
+
+
+def lab_callout(ch):
+    lab = LABS.get(ch["id"])
+    if not lab:
+        return ""
+    return f"""
+        <aside class="lab-callout">
+          <div>
+            <p class="lab-callout__eyebrow" data-i18n="lab.eyebrow">延伸实验</p>
+            <h2 class="lab-callout__title">{lab['name']}</h2>
+            <p class="lab-callout__desc">{lab['desc']}</p>
+          </div>
+          <a class="lab-callout__cta" href="{lab['href']}">
+            <span data-i18n="lab.open">打开实验目录</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+          </a>
+        </aside>"""
+
+
 def build_lesson(ch):
     slug = ch["slug"]
-    raw = read(ORIGIN / f"{slug}.index.html")
-    sections = extract_sections(raw)
-    ch["_sections"] = len(sections)
-    ch["_stars"] = sum(s["stars"] for s in sections)
-
+    sections = ch["_section_data"]
     idx = CHAPTERS.index(ch)
     prev_ch = CHAPTERS[idx - 1] if idx > 0 else None
     next_ch = CHAPTERS[idx + 1] if idx < len(CHAPTERS) - 1 else None
@@ -679,6 +787,8 @@ def build_lesson(ch):
 
 {chr(10).join(section_html(s, "explain" if i == 0 else None) for i, s in enumerate(sections))}
 
+{lab_callout(ch)}
+
         <nav class="lesson-pager" data-prev="{"../" + prev_ch["slug"] + "/" if prev_ch else ""}"
              data-next="{"../" + next_ch["slug"] + "/" if next_ch else ""}" aria-label="章节翻页">
           {pager_prev}
@@ -731,7 +841,7 @@ def build_lecture(ch, md_text, sections):
         </ul>
       </nav>
     </aside>
-    <div class="sidebar-scrim" id="sidebar-scrim" data-open="false" hidden-a11y="true"></div>
+    <div class="sidebar-scrim" id="sidebar-scrim" data-open="false" aria-hidden="true"></div>
 
     <main class="main" id="main">
       <article class="content lecture">
@@ -872,29 +982,61 @@ DEMO_HEADER = """/* ============================================================
 """
 
 
+def strip_js_blocks(src: str, header_re) -> str:
+    """删掉匹配 header_re 的顶层语句块（含 {} 平衡体）。
+
+    用来清掉原 lesson.js 里的导航副作用，例如：
+        if (location.hash) { ... __activateChapter(initialId) ... }
+    这类逻辑现在由 assets/js/shell.js 的 ScrollSpy 统一负责。
+    """
+    pat = re.compile(header_re, re.M)
+    while True:
+        m = pat.search(src)
+        if not m:
+            break
+        open_idx = src.index("{", m.end() - 1)
+        close_idx = js_match_brace(src, open_idx)
+        start = m.start()
+        while start > 0 and src[start - 1] in " \t":
+            start -= 1
+        src = src[:start] + src[close_idx + 1:]
+    return src
+
+
 def build_demos():
     counts = {}
     for ch in CHAPTERS:
         cid = ch["id"]
-        src = read(ROOT / ch["slug"] / "lesson.js")
+        # 从 tools/origin/ 读，而不是从 lesson-0X/lesson.js 读。
+        # 后者会被 cleanup_legacy() 删掉，如果直接从站点树读，
+        # 这个管道就只能跑一次（第一次之后输入就没了），没法复现也没法 diff。
+        src = read(ORIGIN / f"lesson-{cid}.js")
         original_size = len(src.encode("utf-8"))
         n_reg = len(re.findall(r'DEMOS\["', src))
 
         src = strip_js_functions(src, NAV_FUNCS)
+        src = strip_js_blocks(src, r"^if\s*\(\s*location\.hash\s*\)")
         # 摘掉对已删除函数的顶层调用
         src = re.sub(r"^[ \t]*__bindLessonNav\(\);[ \t]*\n", "", src, flags=re.M)
         src = re.sub(r"^[ \t]*__renderAllDemos\(\);[ \t]*\n", "", src, flags=re.M)
         src = re.sub(r"^[ \t]*queueMicrotask\(\(\) => __renderAllDemos\(\)\);[ \t]*\n",
                      "", src, flags=re.M)
+        # 原文件里交代「本文件已被补丁脚本改过」的注释，抽取后不再成立
+        src = re.sub(r"^// 统一章节导航 \+ Tab 切换 \+ 自动渲染 demo.*\n", "", src, flags=re.M)
+        src = re.sub(r"^\s*// 页面初始（module 加载后立即执行）\s*\n", "", src, flags=re.M)
+        src = re.sub(r"^\s*// 延迟到下一个 microtask.*\n", "", src, flags=re.M)
+        src = re.sub(r"^\s*// 如果 URL 带 hash，激活对应章节\s*\n", "", src, flags=re.M)
         # 把全局注册表收进模块作用域，避免跨章同名冲突
         src = re.sub(r"window\.DEMOS\s*=\s*window\.DEMOS\s*\|\|\s*\{\};", "const DEMOS = {};", src)
         src = re.sub(r"(?:window|globalThis)\.DEMOS\s*\[\s*", "DEMOS[", src)
         # 删掉残留的「传给已删除函数」的调用
         src = re.sub(r"^[ \t]*const mount = .*__[a-zA-Z]+\(.*\);[ \t]*\n", "", src, flags=re.M)
+        src = re.sub(r"\n{3,}", "\n\n", src)
 
         leftovers = [fn for fn in NAV_FUNCS if fn in src]
         if leftovers:
-            print(f"  ! 第 {ch['num']} 章演示模块仍引用: {leftovers}")
+            raise SystemExit(f"第 {ch['num']} 章演示模块仍引用已删除的 {leftovers}，"
+                             f"抽取规则需要调整")
 
         assert "import * as d3" in src, f"lesson-{cid} 缺少 d3 导入"
 
@@ -995,7 +1137,7 @@ def build_portal(all_sections, demo_counts):
             f'<li><span data-lang="zh">{s["title"]["zh"]}</span>'
             f'<span data-lang="en">{s["title"]["en"]}</span></li>' for s in secs
         )
-        cards.append(f"""        <a class="chapter-card" href="{ch['slug']}/" data-progress-scope="c{ch['id']}s">
+        cards.append(f"""        <a class="chapter-card" href="{ch['slug']}/" data-progress-scope="c{ch['id']}s" data-progress-total="{len(secs)}">
           <span class="chapter-card__glow" aria-hidden="true"></span>
           <span class="chapter-card__top">
             <span class="chapter-card__num">第 {ch['num']} 章</span>
@@ -1156,38 +1298,47 @@ def main():
 
     all_sections = {}
     print("\n[1/6] 抽取章节正文")
+    # 先把 5 章的正文全部抽完：侧栏与门户要显示「每章多少小节」，
+    # 如果边抽边建，第 1 章渲染时后面 4 章的数字还没算出来。
     for ch in CHAPTERS:
-        secs = build_lesson(ch)
+        secs = extract_sections(read(ORIGIN / f"{ch['slug']}.index.html"))
+        ch["_sections"] = len(secs)
+        ch["_stars"] = sum(s["stars"] for s in secs)
+        ch["_section_data"] = secs
         all_sections[ch["id"]] = secs
         print(f"  · 第 {ch['num']} 章 {ch['title']['zh']}：{len(secs)} 小节，"
               f"{ch['_stars']} 处关键代码")
-    print("  统计：", json.dumps({c["id"]: {"sections": c["_sections"], "stars": c["_stars"]}
-                                for c in CHAPTERS}, ensure_ascii=False))
 
-    print("\n[2/6] 抽取演示模块")
+    print("\n[2/6] 装配章节页面")
+    for ch in CHAPTERS:
+        build_lesson(ch)
+    print("  · 已完成 " + "、".join(f"lesson-{c['id']}" for c in CHAPTERS))
+
+    print("\n[3/6] 抽取演示模块")
     demo_counts = build_demos()
 
-    print("\n[3/6] 生成门户页")
+    print("\n[4/6] 生成门户页")
     build_portal(all_sections, demo_counts)
 
-    print("\n[4/6] 生成搜索索引")
+    print("\n[5/6] 生成搜索索引与配套页面")
     index = build_search_index(all_sections)
     write(ROOT / "assets" / "search-index.json",
           json.dumps(index, ensure_ascii=False, separators=(",", ":")))
     print(f"  · {len(index)} 条索引")
 
-    print("\n[5/6] 生成配套页面")
+    build_supplementary()
     build_404()
     build_glossary(all_sections)
 
-    print("\n[6/6] 清理原站遗留")
+    print("\n[6/7] 修复补充 Demo 与第 1 章独立演示")
+    sys.path.insert(0, str(ROOT / "tools"))
+    import build_supp
+    build_supp.main()
+
+    print("\n[7/7] 清理原站遗留")
     cleanup_legacy()
 
     print("\n完成。")
-
-
-if __name__ == "__main__":
-    main()
 
 
 # ============================================================ 补充 demo 集合
@@ -1300,9 +1451,52 @@ def build_supplementary():
 
 # ============================================================ 404
 
+# 404 页专用：把站点根算出来再补 href。
+# 单独放字符串常量而不是塞进 f-string，是为了避免 JS 里的大量花括号和 Python 的
+# f-string 占位符打架（要么到处写 {{ }}，要么像现在这样分开放）。
+ROOT_SCRIPT = """  <script>
+    /* 只有这一页需要：把站点根算出来，再给所有 data-root-link 补上 href。
+       从当前路径逐级向上探测，找第一个真的能取到 assets/css/tokens.css 的层级。
+       覆盖三种部署情形：域根、/vis/ 子路径、本地 http.server。 */
+    (function () {
+      var segs = location.pathname.split("/").filter(Boolean);
+      // 直接访问 404.html 时，最后一段是文件名而不是「缺失的目录名」，
+      // 拿它去拼路径只会多打一次注定 404 的请求，先摘掉。
+      if (/\\.[a-z0-9]{1,6}$/i.test(segs[segs.length - 1] || "")) segs.pop();
+
+      var base = "/", i, cand, x;
+      for (i = segs.length; i >= 0; i--) {
+        cand = "/" + segs.slice(0, i).join("/") + (i ? "/" : "");
+        try {
+          x = new XMLHttpRequest();
+          x.open("GET", cand + "assets/css/tokens.css", false);
+          x.send(null);
+          if (x.status === 200) { base = cand; break; }
+        } catch (e) {}
+      }
+      document.querySelectorAll("[data-root-link]").forEach(function (a) {
+        a.setAttribute("href", base + a.getAttribute("data-root-link"));
+      });
+    })();
+  </script>"""
+
+
 def build_404():
+    """生成 404 页。
+
+    GitHub Pages 会把这个文件部署在**站点根目录**，但浏览器地址栏里保留的仍然是
+    「没找到的那个路径」。这带来两个陷阱：
+
+      · 写相对链接（`assets/css/...`）——浏览器会按「缺失路径」当基准去解析，必错；
+      · 写站点根绝对链接（`/glossary.html`）——本地 `http.server` 下是对的，
+        但部署到 `https://<user>.github.io/vis/` 后 `/glossary.html` 指向域根，同样 404。
+
+    所以在页面前面放一段极短的同步探测：从当前路径逐级向上，找第一个真的能取到
+    `assets/css/tokens.css` 的层级，那就是站点根。只在这一个页面上跑，代价可以接受，
+    而且它对「部署在域根」「部署在子路径」「本地预览」三种情况都成立。
+    """
     links = "".join(
-        f'          <li><a href="{c["slug"]}/">第 {c["num"]} 章 {c["title"]["zh"]}'
+        f'          <li><a data-root-link="{c["slug"]}/">第 {c["num"]} 章 {c["title"]["zh"]}'
         f'<span>{len(c["objectives"]["zh"])} 项目标</span></a></li>'
         for c in CHAPTERS
     )
@@ -1310,7 +1504,7 @@ def build_404():
                "没有找到这个页面。下面是可以去的地方。", "")}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
-{topbar("", [("课程门户", "/")], "")}
+{topbar("@", [("课程门户", None)], "")}
 {search_layer()}
   <main class="shell shell--wide" id="main" style="display:block">
     <div class="page-head">
@@ -1321,15 +1515,15 @@ def build_404():
       </p>
     </div>
     <ul class="demo-grid">
-      <li><a class="demo-card" href="/index.html">
+      <li><a class="demo-card" data-root-link="">
         <span class="demo-card__file">HOME</span>
         <span class="demo-card__name">课程门户</span>
         <span class="demo-card__desc">五章总览与课程主线</span></a></li>
-      <li><a class="demo-card" href="/supplementary/">
+      <li><a class="demo-card" data-root-link="supplementary/">
         <span class="demo-card__file">DEMO</span>
         <span class="demo-card__name">补充 Demo 集合</span>
         <span class="demo-card__desc">独立可运行的配套示例</span></a></li>
-      <li><a class="demo-card" href="/glossary.html">
+      <li><a class="demo-card" data-root-link="glossary.html">
         <span class="demo-card__file">TERM</span>
         <span class="demo-card__name">术语表</span>
         <span class="demo-card__desc">全课程名词解释</span></a></li>
@@ -1340,6 +1534,7 @@ def build_404():
     </ul>
   </main>
 {site_footer("")}
+{ROOT_SCRIPT}
 {close_page()}"""
     write(ROOT / "404.html", html)
 
@@ -1351,10 +1546,10 @@ def build_glossary(all_sections):
     items = []
     for term in data["terms"]:
         ch = next(c for c in CHAPTERS if c["id"] == term["ch"])
-        items.append(f"""        <li class="term-card" data-term="{term['zh']} {term['en']}">
+        items.append(f"""        <li class="term-card" data-term-ch="{term['ch']}">
           <div class="term-card__head">
             <h3>{term['zh']}<span class="term-card__en">{term['en']}</span></h3>
-            <a class="term-card__src" href="../{ch['slug']}/">第 {ch['num']} 章 {ch['title']['zh']}</a>
+            <a class="term-card__src" href="{ch['slug']}/">第 {ch['num']} 章 {ch['title']['zh']}</a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">{term['zh_def']}</span>
@@ -1368,11 +1563,11 @@ def build_glossary(all_sections):
 
     html = f"""{head("术语表 · 《可视化导论》",
                "《可视化导论》全课程术语表：每个名词给出定义，并说明它为什么重要、容易在哪儿搞错。",
-               "../", extra_css=("portal",))}
+               "", extra_css=("portal",))}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 
-{topbar("../", [("课程门户", "../"), ("术语表", None)], "")}
+{topbar("", [("课程门户", "./"), ("术语表", None)], "")}
 
 {search_layer()}
 
@@ -1398,7 +1593,7 @@ def build_glossary(all_sections):
     </main>
   </div>
 
-{site_footer("../")}
+{site_footer("")}
   <script type="module">
     document.querySelectorAll("[data-term-filter]").forEach(btn => {{
       btn.addEventListener("click", () => {{
@@ -1447,3 +1642,8 @@ def cleanup_legacy():
                 p.unlink()
             removed += 1
     print(f"  · 共移除 {removed} 个已被取代的文件，释放 {freed / 1024:.0f} KB")
+
+
+# 入口放在文件最后：main() 会调用前面所有构建函数，必须等它们都定义完再执行
+if __name__ == "__main__":
+    main()
