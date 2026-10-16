@@ -1,0 +1,256 @@
+/* ============================================================================
+   tokens.css —— 设计令牌（Design Tokens）
+   ----------------------------------------------------------------------------
+   设计取向：以「数据仪器」为隐喻的视觉语言。
+   - 中性灰构成绝大部分界面（阅读友好），品牌色只用于交互与定位。
+   - 排版承担「科技感」：章节号/数据/代码统一用等宽字体，正文用系统无衬线。
+   - 全部色值取自本课程第 3 章「色彩专题」讲的 Wong 色觉缺陷友好色板与原则，
+     网站自身的配色即课程内容的一次示范。
+   - 不加载任何 Web 字体：中文 Web 字体体积过大，且本课程要求离线可用。
+   ========================================================================= */
+
+/* ---------------------------------------------------------------- 原始色阶 */
+:root {
+  /* 中性灰阶（微冷，贴近数据仪表盘的观感） */
+  --n-0:    #ffffff;
+  --n-25:   #fbfcfd;
+  --n-50:   #f6f8fa;
+  --n-100:  #eef1f5;
+  --n-200:  #e3e8ef;
+  --n-300:  #ccd4de;
+  --n-400:  #9aa5b4;
+  --n-500:  #6b7688;
+  --n-600:  #4d5766;
+  --n-700:  #38414e;
+  --n-800:  #232b36;
+  --n-900:  #161c24;
+  --n-950:  #0d1117;
+
+  /* 品牌色（靛蓝）：用于交互、定位、当前状态 */
+  --b-50:   #eef1ff;
+  --b-100:  #dee4ff;
+  --b-200:  #c1cbff;
+  --b-300:  #9aa8ff;
+  --b-400:  #6f7ff2;
+  --b-500:  #5261dc;
+  --b-600:  #3d4bc0;
+  --b-700:  #303b9c;
+  --b-800:  #2a337c;
+
+  /* 强调色（青绿）：用于数据高亮、成功、进度 */
+  --a-50:   #e7f6f4;
+  --a-100:  #c4eae5;
+  --a-200:  #8fd6cc;
+  --a-400:  #2fa89a;
+  --a-600:  #0f766e;
+  --a-700:  #0b5d57;
+
+  /* 语义色（选取可读性达 AA 的深色调） */
+  --ok-50:   #e8f6ee;
+  --ok-600:  #2f7d4f;
+  --ok-700:  #24603d;
+  --warn-50: #fdf4e3;
+  --warn-600: #a86a12;
+  --warn-700: #7d4e0d;
+  --err-50:  #fdeceb;
+  --err-600: #c0392b;
+  --err-700: #96291e;
+
+  /* ------------------------------------------------------------------
+     Wong 色板（Nature Methods 2011，色觉缺陷友好）
+     第 3 章色彩专题的核心结论之一：做科研图不要用彩虹色，
+     用 Wong / Paul Tol 这类 CVD 友好且感知均匀的定性色板。
+     本站在「知识主线图 / 进度图 / 概念依赖图」中直接复用。
+     ------------------------------------------------------------------ */
+  --viz-1: #0072b2;  /* 蓝 */
+  --viz-2: #e69f00;  /* 橙 */
+  --viz-3: #009e73;  /* 绿 */
+  --viz-4: #d55e00;  /* 朱红 */
+  --viz-5: #56b4e9;  /* 天蓝 */
+  --viz-6: #cc79a7;  /* 品红 */
+  --viz-7: #f0e442;  /* 黄（仅作填充，不承载文字） */
+  --viz-8: #5c6b7a;  /* 灰蓝（中性类别） */
+}
+
+/* ------------------------------------------------- 语义令牌 · 浅色（默认） */
+:root,
+html[data-theme="light"] {
+  color-scheme: light;
+
+  --bg-page:      var(--n-50);
+  --bg-surface:   var(--n-0);
+  --bg-raised:    var(--n-0);
+  --bg-sunken:    var(--n-100);
+  --bg-inset:     var(--n-25);
+  --bg-code:      #f5f7fa;
+  --bg-overlay:   rgba(22, 28, 36, 0.44);
+
+  --text-1: var(--n-900);   /* 正文主色  #161c24 on #fff → 15.6:1 */
+  --text-2: var(--n-600);   /* 次级说明  #4d5766 on #fff →  7.6:1 */
+  --text-3: var(--n-500);   /* 弱提示    #6b7688 on #fff →  4.9:1 */
+  --text-inverse: var(--n-0);
+
+  --border-1: #e8ecf1;      /* 极淡分隔线 */
+  --border-2: var(--n-200); /* 常规边框 */
+  --border-3: var(--n-300); /* 加强边框 / hover */
+
+  --brand:          var(--b-600);
+  --brand-text:     var(--b-700);
+  --brand-bg:       var(--b-50);
+  --brand-border:   var(--b-200);
+  --brand-solid:    var(--b-600);
+
+  --accent:      var(--a-600);
+  --accent-text: var(--a-700);
+  --accent-bg:   var(--a-50);
+
+  --focus-ring: var(--b-500);
+
+  --shadow-1: 0 1px 2px rgba(22, 28, 36, 0.05);
+  --shadow-2: 0 2px 8px rgba(22, 28, 36, 0.07);
+  --shadow-3: 0 10px 28px rgba(22, 28, 36, 0.11);
+  --shadow-pop: 0 18px 48px rgba(22, 28, 36, 0.18);
+
+  --code-keyword: #a626a4;
+  --code-string:  #2f7d4f;
+  --code-number:  #b1590a;
+  --code-comment: #8b95a3;
+  --code-func:    #3d4bc0;
+  --code-punct:   #5d6875;
+}
+
+/* --------------------------------------------------------- 语义令牌 · 深色 */
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg-page:      var(--n-950);
+  --bg-surface:   #151b23;
+  --bg-raised:    #1b232d;
+  --bg-sunken:    #10161d;
+  --bg-inset:     #1b232d;
+  --bg-code:      #10161d;
+  --bg-overlay:   rgba(3, 6, 10, 0.68);
+
+  --text-1: #e6edf3;        /* 14.4:1 on #0d1117 */
+  --text-2: #a7b3c2;        /*  7.5:1 */
+  --text-3: #7d8899;        /*  4.6:1 */
+  --text-inverse: var(--n-950);
+
+  --border-1: rgba(255, 255, 255, 0.07);
+  --border-2: rgba(255, 255, 255, 0.13);
+  --border-3: rgba(255, 255, 255, 0.24);
+
+  --brand:        #8794ff;
+  --brand-text:   #aab3ff;
+  --brand-bg:     rgba(82, 97, 220, 0.16);
+  --brand-border: rgba(122, 138, 255, 0.34);
+  --brand-solid:  var(--b-500);
+
+  --accent:      #3fc4b3;
+  --accent-text: #6fd8ca;
+  --accent-bg:   rgba(47, 168, 154, 0.16);
+
+  --focus-ring: #8794ff;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 2px 10px rgba(0, 0, 0, 0.45);
+  --shadow-3: 0 12px 30px rgba(0, 0, 0, 0.55);
+  --shadow-pop: 0 20px 52px rgba(0, 0, 0, 0.66);
+
+  --code-keyword: #d9a0e8;
+  --code-string:  #7fd192;
+  --code-number:  #e0a568;
+  --code-comment: #6f7b8a;
+  --code-func:    #8fa4ff;
+  --code-punct:   #93a1b1;
+
+  /* 深色下 Wong 色板需提亮才能达到对比度要求 */
+  --viz-1: #4aa8e0;
+  --viz-2: #f2b447;
+  --viz-3: #3cc79a;
+  --viz-4: #ef7d47;
+  --viz-5: #7fc9f0;
+  --viz-6: #e093bc;
+  --viz-7: #e6da6a;
+  --viz-8: #9aa5b4;
+}
+
+/* ---------------------------------------------------------------- 排版令牌 */
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei",
+    "Source Han Sans SC", "Noto Sans CJK SC", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", "JetBrains Mono",
+    "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace;
+
+  /* 字号阶梯（12 起步，保证中文最小可读性） */
+  --fs-xs:   0.75rem;    /* 12px 标签/脚注 */
+  --fs-sm:   0.8125rem;  /* 13px 次要说明 */
+  --fs-base: 0.9375rem;  /* 15px 正文 */
+  --fs-md:   1rem;       /* 16px 正文强调 */
+  --fs-lg:   1.125rem;   /* 18px 小标题 */
+  --fs-xl:   1.375rem;   /* 22px 小节标题 */
+  --fs-2xl:  1.75rem;    /* 28px 章标题 */
+  --fs-3xl:  2.25rem;    /* 36px 门户标题 */
+  --fs-4xl:  3rem;       /* 48px 门户主标题 */
+
+  --lh-tight: 1.3;
+  --lh-snug:  1.5;
+  --lh-base:  1.75;   /* 中文正文需要更宽松的行距 */
+  --lh-loose: 1.9;
+
+  --tracking-tight: -0.011em;
+  --tracking-wide:  0.06em;   /* 等宽小标签用 */
+  --tracking-wider: 0.14em;
+
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+}
+
+/* ---------------------------------------------------------------- 空间令牌 */
+:root {
+  --sp-1:  0.25rem;   /*  4 */
+  --sp-2:  0.5rem;    /*  8 */
+  --sp-3:  0.75rem;   /* 12 */
+  --sp-4:  1rem;      /* 16 */
+  --sp-5:  1.25rem;   /* 20 */
+  --sp-6:  1.5rem;    /* 24 */
+  --sp-8:  2rem;      /* 32 */
+  --sp-10: 2.5rem;    /* 40 */
+  --sp-12: 3rem;      /* 48 */
+  --sp-16: 4rem;      /* 64 */
+  --sp-20: 5rem;      /* 80 */
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+
+  /* 布局尺寸 */
+  --topbar-h: 56px;
+  --sidebar-w: 272px;
+  --content-max: 78ch;
+  --page-max: 1440px;
+}
+
+/* ---------------------------------------------------------------- 动效令牌 */
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+}
+
+/* 尊重系统的「减少动态效果」偏好 */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 1ms;
+    --dur-base: 1ms;
+    --dur-slow: 1ms;
+  }
+}

@@ -1,0 +1,286 @@
+{
+  "_note": "本文件是重构时新增的教学元数据（学习目标 / 前置知识 / 时长 / 概念依赖图 / 导览脚本）。正文内容沿用原作者，本文件只描述「怎么学」，不描述「学什么」，因此与 tools/origin 下的抓取内容严格分离。",
+
+  "site": {
+    "title": { "zh": "《可视化导论》", "en": "Introduction to Visualization" },
+    "subtitle": { "zh": "从数据到图表：JavaScript + D3.js 实战课程", "en": "From Data to Charts: A Hands-on Course in JavaScript + D3.js" },
+    "tag": "VISUALIZATION · INTRODUCTION",
+    "school": { "zh": "中国石油大学（华东）", "en": "China University of Petroleum (East China)" },
+    "teacher": "李昕",
+    "teacherUrl": "https://cinger007.github.io",
+    "book": { "zh": "陈为《可视化导论》", "en": "Chen Wei, Introduction to Visualization" },
+    "year": "2026",
+    "totalMinutes": 230
+  },
+
+  "chapters": [
+    {
+      "id": "01",
+      "num": 1,
+      "slug": "lesson-01",
+      "title": { "zh": "数据", "en": "Data" },
+      "short": { "zh": "数据", "en": "Data" },
+      "source": { "zh": "对应你的文档 3 · 数据", "en": "Source doc 3 · Data" },
+      "lead": {
+        "zh": "从 DeepSeek 合成的新生数据出发，把「数据是什么」拆成四件可操作的事：怎么装载、怎么定义、怎么分类、怎么变换。",
+        "en": "Starting from a DeepSeek-synthesized freshman dataset, breaking 'what is data' into four actionable tasks: loading, defining, classifying and transforming."
+      },
+      "minutes": 45,
+      "prereq": {
+        "zh": "会写基础 JavaScript（变量、函数、数组）。不需要任何可视化基础。",
+        "en": "Basic JavaScript (variables, functions, arrays). No visualization background required."
+      },
+      "objectives": {
+        "zh": [
+          "说清 DIKW 金字塔的四级，并指出可视化主要停在「信息」这一级，很难跨到「智慧」",
+          "用 Stevens 的 4 种测量尺度给一列字段分类，并识别出区间尺度没有真零点",
+          "按 Mackinlay 的通道排名把属性映射到合适的视觉通道，并说出错配会丢什么信息",
+          "用 d3.csv 的 row 回调，一行代码完成「加载 + 字段映射 + 类型转换」",
+          "用 enter / update / exit 三态解释数据变化时 DOM 发生了什么，并说明 key 函数为什么是过渡动画的前提"
+        ],
+        "en": [
+          "Explain the four levels of the DIKW pyramid and why visualization mostly stops at Information",
+          "Classify fields with Stevens' four measurement scales and spot that interval scales have no true zero",
+          "Map attributes onto visual channels using Mackinlay's ranking, and say what information a mismatch loses",
+          "Use d3.csv's row callback to do loading, field mapping and type conversion in one line",
+          "Explain the enter / update / exit model and why a key function is a prerequisite for smooth transitions"
+        ]
+      },
+      "concept": {
+        "nodes": [
+          { "id": "n1", "d": 0, "zh": "数据生成", "en": "Data loading" },
+          { "id": "n2", "d": 1, "zh": "数据定义 · DIKW", "en": "Data definition · DIKW" },
+          { "id": "n3", "d": 2, "zh": "数据属性 · 尺度 × 通道", "en": "Attributes · scale × channel" },
+          { "id": "n4", "d": 3, "zh": "数据变换 · 函数式数组", "en": "Transformation · array ops" },
+          { "id": "n5", "d": 4, "zh": "选择器 · Data-Join 三态", "en": "Selectors · data-join" }
+        ],
+        "edges": [["n1", "n2"], ["n2", "n3"], ["n3", "n4"], ["n4", "n5"], ["n1", "n4"]]
+      },
+      "tour": [
+        { "title": "第 1 章在讲什么", "say": "这一章把一个模糊的问题「数据是什么」拆成了四件可以动手做的事：装载、定义、分类、变换。左侧目录的五节正好一一对应。", "top": true, "hold": 6000 },
+        { "title": "先看数据本身", "say": "1.1 节用 DeepSeek 合成的新生数据开场。注意这里有个教学上的自觉：用合成数据避免隐私问题，但必须标注「合成」，否则学生会把它当成真实人口分布。", "section": "ch-1-1", "tab": "explain", "hold": 7000 },
+        { "title": "关键点集中看", "say": "切到「关键代码」。原作者的写法是把每个必须掌握的编程点用星号标出来，并配一段「为什么这么写」和「有什么坑」。重构后每个代码块右上角会统计这一块里有几处关键点。", "section": "ch-1-1", "tab": "code", "hold": 7000 },
+        { "title": "DIKW 的边界", "say": "1.2 节是 DIKW 金字塔。这里最值得讲的是它的边界：可视化主要把数据升到信息，少数情况能到知识，但跨不到智慧。", "section": "ch-1-2", "tab": "explain", "hold": 7000 },
+        { "title": "尺度和通道必须配对", "say": "1.3 节把 Stevens 的四种测量尺度和 Mackinlay 的通道排名放在一起，讲的是同一件事：属性类型决定了该用哪个视觉通道。位置是最强的定量通道，色相是最强的定性通道，配错就会丢信息。", "section": "ch-1-3", "tab": "explain", "hold": 8000 },
+        { "title": "可运行的演示", "say": "每个小节的第三个标签页都是可以直接跑的演示。这一页的演示把类别用色相、序数用亮度、数值用位置三种正确配对，和一种错误配对放在一起对比。", "section": "ch-1-3", "tab": "demo", "hold": 7000 },
+        { "title": "Data-Join 三态", "say": "最后一节 1.5 是 D3 的核心心智模型：数据比元素多就 enter，相等就 update，少就 exit。key 函数是这套模型的灵魂，也是过渡动画的前提。", "section": "ch-1-5", "tab": "explain", "hold": 7000 }
+      ]
+    },
+
+    {
+      "id": "02",
+      "num": 2,
+      "slug": "lesson-02",
+      "title": { "zh": "数据可视化流程", "en": "Visualization Workflow" },
+      "short": { "zh": "可视化流程", "en": "Workflow" },
+      "source": { "zh": "对应你的文档 4 · 数据可视化流程", "en": "Source doc 4 · Workflow" },
+      "lead": {
+        "zh": "把「拿到一张表」到「画出一张图」之间那段平时看不见的路，用 Card 的四阶段模型摊开：原数据 → 数据表 → 视觉结构 → 视图。",
+        "en": "Laying out the usually invisible path from 'a table' to 'a chart' with Card's four-stage model: raw data → data tables → visual structures → views."
+      },
+      "minutes": 40,
+      "prereq": {
+        "zh": "第 1 章（数据与 Data-Join 三态）。",
+        "en": "Chapter 1 (data and the data-join model)."
+      },
+      "objectives": {
+        "zh": [
+          "用 Card 的 D → T → V → R 模型拆解任意一张图表的生成链路",
+          "说清「原数据 → 数据表」阶段里清洗、聚合、连接、派生各自解决什么问题",
+          "把 Mackinlay 的通道排名用到实际映射上，说明为什么位置比色相更适合承载定量信息",
+          "用 d3.rollup 从平表构造层次数据，并用 Reingold-Tilford 布局把它画成一棵树",
+          "解释事件委托为什么比给每个节点单独绑事件更好，以及动画在「渲染 → 交互」反馈循环里的作用"
+        ],
+        "en": [
+          "Decompose any chart into Card's D → T → V → R pipeline",
+          "Explain what cleaning, aggregation, joining and derivation each solve in the raw → table stage",
+          "Apply Mackinlay's channel ranking to real mappings and say why position beats hue for quantitative data",
+          "Build hierarchical data from a flat table with d3.rollup and lay it out with Reingold-Tilford",
+          "Explain why event delegation beats per-node listeners, and the role of animation in the render-feedback loop"
+        ]
+      },
+      "concept": {
+        "nodes": [
+          { "id": "n1", "d": 0, "zh": "Card 数据流模型", "en": "Card's pipeline model" },
+          { "id": "n2", "d": 1, "zh": "数据变换 D → T", "en": "Transform D → T" },
+          { "id": "n3", "d": 2, "zh": "视觉映射 T → V", "en": "Map T → V" },
+          { "id": "n4", "d": 3, "zh": "视图渲染 V → R", "en": "Render V → R" },
+          { "id": "n5", "d": 4, "zh": "用户交互与反馈", "en": "Interaction & feedback" }
+        ],
+        "edges": [["n1", "n2"], ["n2", "n3"], ["n3", "n4"], ["n4", "n5"]],
+        "loop": ["n5", "n2"]
+      },
+      "tour": [
+        { "title": "这一章补的是「中间那段路」", "say": "上一章讲了数据，这一章讲从数据到图中间那段平时看不见的路。Card 在 1999 年提出的这个四阶段模型，是整门课的骨架。", "top": true, "hold": 6500 },
+        { "title": "四阶段模型", "say": "原数据 → 数据表 → 视觉结构 → 视图。注意最后还有一个从视图回到数据的反馈箭头，这就是交互。", "section": "ch-2-1", "tab": "explain", "hold": 7500 },
+        { "title": "清洗、聚合、连接、派生", "say": "2.2 节把「数据变换」这一阶段拆成四类操作。真实项目里这一步往往占掉一半以上的工作量，而它恰恰是最不容易被看见的。", "section": "ch-2-2", "tab": "explain", "hold": 7500 },
+        { "title": "从平表到树", "say": "2.3 节用 d3.rollup 把一张平表聚合成层次数据，再用 Reingold-Tilford 布局画成树。切到演示标签页可以看到完整链路。", "section": "ch-2-3", "tab": "demo", "hold": 7500 },
+        { "title": "事件委托", "say": "2.4 节讲渲染之后的交互。事件委托用一个监听器接管所有子节点的事件，节点数量再多也不会线性变慢。", "section": "ch-2-4", "tab": "explain", "hold": 7000 }
+      ]
+    },
+
+    {
+      "id": "03",
+      "num": 3,
+      "slug": "lesson-03",
+      "title": { "zh": "色彩专题", "en": "Color" },
+      "short": { "zh": "色彩", "en": "Color" },
+      "source": { "zh": "独立专题 · 颜色是可视化的基础", "en": "Standalone topic · color as a foundation" },
+      "lead": {
+        "zh": "八节把配色一次讲透：颜色空间、colormap 选型、色系规则、科研经典色板、色觉缺陷检测。学完可以直接拿去做论文图。",
+        "en": "Eight sections covering color end to end: color spaces, colormap choice, harmony rules, research-grade palettes and colour-vision-deficiency testing."
+      },
+      "minutes": 55,
+      "prereq": {
+        "zh": "无需前置知识，可以脱离其他章节单独学习。",
+        "en": "No prerequisites; this topic stands on its own."
+      },
+      "objectives": {
+        "zh": [
+          "说清 RGB / HSL / Lab / HCL 四种颜色空间各自擅长什么，以及为什么 Lab 叫「感知均匀」",
+          "拿到一份数据就能判断该用顺序型、发散型还是定性型 colormap，并说出选错的后果",
+          "用 5 类色系搭配规则（单色 / 类比 / 互补 / 三等分 / 分裂互补）给一组类别数据配色",
+          "直接取用 Wong、Paul Tol、Okabe-Ito 这类色觉缺陷友好色板，而不是自己凑颜色",
+          "按「数量 ≤ 7、鲜艳颜色 + 低饱和度」生成一组既醒目又耐看的配色",
+          "用色觉缺陷模拟检查自己的图在色盲读者眼里是否还读得懂"
+        ],
+        "en": [
+          "Explain what RGB / HSL / Lab / HCL each excel at, and why Lab is called perceptually uniform",
+          "Pick sequential, diverging or qualitative colormaps for a given dataset, and say what a wrong pick costs",
+          "Apply the five colour-harmony rules to a categorical dataset",
+          "Reach for Wong, Paul Tol or Okabe-Ito instead of inventing colours",
+          "Generate a palette with the 'vivid but low-saturation' rule (≤ 7 colours)",
+          "Simulate colour-vision deficiency to check whether your figure still reads"
+        ]
+      },
+      "concept": {
+        "nodes": [
+          { "id": "n1", "d": 0, "zh": "颜色模型基础", "en": "Color models" },
+          { "id": "n2", "d": 1, "zh": "colormap 三类", "en": "Three colormap types" },
+          { "id": "n3", "d": 1, "zh": "色系搭配 5 类", "en": "Five harmony rules" },
+          { "id": "n4", "d": 2, "zh": "科研经典色板", "en": "Research palettes" },
+          { "id": "n5", "d": 2, "zh": "鲜艳 + 低饱和", "en": "Vivid + low saturation" },
+          { "id": "n6", "d": 3, "zh": "CVD 色觉缺陷校验", "en": "CVD verification" }
+        ],
+        "edges": [["n1", "n2"], ["n1", "n3"], ["n2", "n4"], ["n3", "n5"], ["n4", "n6"], ["n5", "n6"]]
+      },
+      "tour": [
+        { "title": "为什么把颜色单列一章", "say": "颜色是唯一一个「用错了没人提醒、但读者会直接读错」的通道。所以这门课把它从低维可视化里拆出来，单独讲八节。", "top": true, "hold": 6500 },
+        { "title": "四种颜色空间", "say": "RGB 面向屏幕，HSL 面向人的直觉，Lab 和 HCL 才是感知均匀、适合做数据映射的。这个区别是整章的地基。", "section": "ch-3-1", "tab": "explain", "hold": 7500 },
+        { "title": "选错 colormap 的代价", "say": "顺序型、发散型、定性型。把发散型用在没有中间值的数据上，读者会凭空读出一个「中心」；把彩虹色用在定量数据上，会出现并不存在的边界。", "section": "ch-3-2", "tab": "demo", "hold": 8000 },
+        { "title": "直接抄顶标的配色", "say": "3.5 节给了 Wong、Paul Tol、Okabe-Ito 三套经过色觉缺陷检验的色板。做论文图不需要自己凑颜色，直接用这些。", "section": "ch-3-5", "tab": "explain", "hold": 7500 },
+        { "title": "对错案例", "say": "3.6 节是四张图里挑出唯一一张对的，可以现场让学生投票，这个交互很有效。", "section": "ch-3-6", "tab": "demo", "hold": 7500 },
+        { "title": "自己生成一套配色", "say": "3.7 节把「鲜艳 + 低饱和」这个经验规则做成了生成器：颜色数量控制在七个以内，鲜艳的颜色同时压低饱和度。", "section": "ch-3-7", "tab": "demo", "hold": 8000 }
+      ]
+    },
+
+    {
+      "id": "04",
+      "num": 4,
+      "slug": "lesson-04",
+      "title": { "zh": "低维数据可视化", "en": "Low-Dimensional Data" },
+      "short": { "zh": "低维数据", "en": "Low-dim data" },
+      "source": { "zh": "对应你的文档 5 · 低维数据可视化", "en": "Source doc 5 · Low-dimensional visualization" },
+      "lead": {
+        "zh": "以 Crime 数据为主线，讲坐标变换的三层职责、十种曲线拟合的手感差异、Cleveland 的 45° 黄金角，以及等值线提取算法。",
+        "en": "Using the Crime dataset to cover the three layers of coordinate transforms, ten curve interpolations, Cleveland's 45° sweet spot and contour extraction."
+      },
+      "minutes": 45,
+      "prereq": {
+        "zh": "第 1 章、第 2 章（数据变换与视觉映射）。",
+        "en": "Chapters 1 and 2."
+      },
+      "objectives": {
+        "zh": [
+          "把宽格式的 Crime 数据转成长格式，并说清为什么可视化常常需要长格式",
+          "分层说清「数据空间 → 坐标系空间 → 屏幕空间」三层变换各自负责什么",
+          "用 10 种 line.curve 画同一组点，判断哪种拟合方式适合哪种数据形态",
+          "解释 Cleveland 的 45° 为什么是斜率感知的「中点」，以及它如何决定图表的宽高比",
+          "用 Marching Squares 从标量场 + 阈值提取等值线，并说明歧义格子该怎么处理"
+        ],
+        "en": [
+          "Reshape wide-format Crime data into long format, and say why visualization usually wants long format",
+          "Distinguish what each of the three layers — data, coordinate and screen space — is responsible for",
+          "Draw the same points with ten line.curve interpolators and judge which suits which data shape",
+          "Explain why Cleveland's 45° is the perceptual midpoint for slope, and how it sets an aspect ratio",
+          "Extract contours from a scalar field with Marching Squares, including ambiguous cells"
+        ]
+      },
+      "concept": {
+        "nodes": [
+          { "id": "n1", "d": 0, "zh": "数据转换 宽 → 长", "en": "Wide → long reshape" },
+          { "id": "n2", "d": 1, "zh": "坐标轴变换 三层", "en": "Three-layer transforms" },
+          { "id": "n3", "d": 2, "zh": "曲线拟合 10 种", "en": "Ten curve types" },
+          { "id": "n4", "d": 2, "zh": "倾角感知 45°", "en": "45° slope perception" },
+          { "id": "n5", "d": 3, "zh": "等值线 Marching Squares", "en": "Marching Squares" }
+        ],
+        "edges": [["n1", "n2"], ["n2", "n3"], ["n2", "n4"], ["n3", "n5"]]
+      },
+      "tour": [
+        { "title": "低维数据在讲什么", "say": "低维数据就是没有空间坐标的那类数据。这一章处理的是它们的坐标系怎么建、线怎么连、面怎么画。", "top": true, "hold": 6500 },
+        { "title": "先解决格式问题", "say": "4.1 节先把宽格式的 Crime 数据转成长格式。这一步在真实项目里经常被跳过，然后所有后续代码都别扭。", "section": "ch-4-1", "tab": "explain", "hold": 7000 },
+        { "title": "三层坐标系", "say": "4.2 节把坐标变换拆成三层，每一层只管一件事。数据空间描述语义，坐标系空间描述几何，屏幕空间描述像素。分开之后比例尺就不再神秘了。", "section": "ch-4-2", "tab": "demo", "hold": 8000 },
+        { "title": "四十五度为什么是黄金角", "say": "4.4 节是这一章最有意思的一点：人眼估计斜率不是线性的。四十五度附近感知最准，所以重要的对比关系应该安排在四十五度附近。", "section": "ch-4-4", "tab": "demo", "hold": 8000 },
+        { "title": "从标量场到等值线", "say": "4.5 节讲 Marching Squares 算法。它把连续的标量场变成一条条等值线，是热力图和地形图的底层算法。", "section": "ch-4-5", "tab": "demo", "hold": 7500 }
+      ]
+    },
+
+    {
+      "id": "05",
+      "num": 5,
+      "slug": "lesson-05",
+      "title": { "zh": "时序数据可视化", "en": "Time-Series Data" },
+      "short": { "zh": "时序数据", "en": "Time series" },
+      "source": { "zh": "对应你的文档 6 · 时序数据可视化", "en": "Source doc 6 · Time-series visualization" },
+      "lead": {
+        "zh": "时间的 5 个属性决定了它需要用哪些非标准布局来画：折线之外，还有日历热图、阿基米德螺旋，以及能表现多角色叙事的 Storyline。",
+        "en": "The five attributes of time explain why it needs non-standard layouts: beyond line charts there are calendar heatmaps, Archimedean spirals and narrative storylines."
+      },
+      "minutes": 45,
+      "prereq": {
+        "zh": "第 2 章（视觉映射与渲染）。",
+        "en": "Chapter 2."
+      },
+      "objectives": {
+        "zh": [
+          "说出时间的 5 个核心属性，并解释「独立于空间」这一条为什么让时间如此特别",
+          "用折线图做标准时间序列，说清「x 轴 = 时间、y 轴 = 度量」这一约定，以及它什么时候会失效",
+          "用 van Wijk 的「年 = 行 / 周 = 列」布局把全年数据放进一张热图",
+          "用阿基米德螺旋把时间沿圆周排列，从而发现周期性",
+          "用 Storyline 把多角色叙事画成多条交织的线，读懂《侏罗纪公园》案例"
+        ],
+        "en": [
+          "List the five core attributes of time and explain why 'independent of space' makes time special",
+          "Build a standard time-series line chart, and say when the x = time, y = measure convention breaks down",
+          "Lay out a whole year in one heatmap using van Wijk's year-per-row, week-per-column grid",
+          "Arrange time along an Archimedean spiral to reveal periodicity",
+          "Draw a multi-character narrative as interleaving lines with Storyline, using the Jurassic Park case"
+        ]
+      },
+      "concept": {
+        "nodes": [
+          { "id": "n1", "d": 0, "zh": "时间属性 5 个", "en": "Five time attributes" },
+          { "id": "n2", "d": 1, "zh": "标准时间可视化 折线图", "en": "Standard line chart" },
+          { "id": "n3", "d": 2, "zh": "日历热图 van Wijk", "en": "Calendar heatmap" },
+          { "id": "n4", "d": 2, "zh": "周期时间 阿基米德螺旋", "en": "Archimedean spiral" },
+          { "id": "n5", "d": 3, "zh": "Storyline 时间线叙事", "en": "Storyline narrative" }
+        ],
+        "edges": [["n1", "n2"], ["n2", "n3"], ["n2", "n4"], ["n1", "n5"]]
+      },
+      "tour": [
+        { "title": "时间为什么难画", "say": "时间有五个属性，其中「独立于空间」这一条最关键：空间可视化里位置本身就带信息，而时间需要你替它决定怎么落在平面上。", "top": true, "hold": 7000 },
+        { "title": "五个属性", "say": "有序、连续、周期、独立于空间、有结构。后面的四种布局，每一种都是在回应这里的某一个属性。", "section": "ch-5-1", "tab": "explain", "hold": 7500 },
+        { "title": "从折线图开始", "say": "5.2 节是标准做法：x 轴是时间，y 轴是度量。但它有前提，一旦数据有周期性，折线图会把周期切成一段段，看不出重复。", "section": "ch-5-2", "tab": "demo", "hold": 7500 },
+        { "title": "把一年放进一张图", "say": "5.3 节是 van Wijk 的日历热图，一年一行、一周一列。它牺牲了精确的数值比较，换来了整年的模式识别。", "section": "ch-5-3", "tab": "demo", "hold": 8000 },
+        { "title": "螺旋找周期", "say": "5.4 节把时间沿圆周排布成阿基米德螺旋。周期性一旦存在，就会在螺旋上对齐成径向的一条条。", "section": "ch-5-4", "tab": "demo", "hold": 8000 },
+        { "title": "多角色叙事", "say": "最后一节是 Storyline，用《侏罗纪公园》做案例。每个角色一条线，线的相交就是角色相遇，这是一种把叙事结构可视化的方法。", "section": "ch-5-5", "tab": "demo", "hold": 8000 }
+      ]
+    }
+  ],
+
+  "portalTour": [
+    { "title": "这是一门什么样的课", "say": "《可视化导论》，中国石油大学（华东），案例驱动，零依赖，浏览器打开就能跑。重构的重点不是换配色，而是让内容的层级和检索路径更清楚。", "selector": ".portal-hero", "hold": 7500 },
+    { "title": "课程主线", "say": "五章不是并列的，而是一条有依赖的路径：先用数据把地基打好，再用流程把整条链路串起来，然后单独用一章讲颜色，最后用低维和时序两类数据做实战。", "selector": ".roadmap", "hold": 8000 },
+    { "title": "每个知识点都落到代码上", "say": "每章都是同样的结构：讲解、关键代码、可运行演示三个标签页。关键代码里用星号标出的就是必须掌握的编程点。", "selector": ".chapter-grid", "hold": 7500 }
+  ]
+}

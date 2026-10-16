@@ -1,0 +1,6 @@
+# 本地预览与临时产物
+.tmp/
+*.log
+__pycache__/
+.DS_Store
+Thumbs.db
