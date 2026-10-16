@@ -200,6 +200,21 @@
 
 .chapter-card:hover .chapter-card__glow { opacity: 1; }
 
+/* 卡顶的主题微缩图。图形由构建期写死（见 tools/build.py 的 CHAPTER_MOTIFS），
+   这里只管容器：定高、浅底、内收圆角，让它读起来像一枚「封面」而不是插图。
+   颜色不在这里给 —— 图形取的是 --viz-* 令牌，明暗两套主题各自成立。 */
+.chapter-card__motif {
+  display: block;
+  width: 100%;
+  height: 60px;
+  margin-bottom: var(--sp-1);
+  /* currentColor 的来源：图形里的网格线、坐标轴都靠它上色 */
+  color: var(--text-2);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-md);
+}
+
 .chapter-card__top {
   display: flex;
   align-items: center;

@@ -530,6 +530,85 @@ def check_content(rep: Report) -> None:
 
 
 # ---------------------------------------------------------------------------
+# 样式覆盖：页面用到的类，是否真有「本页加载了的」样式表去定义它
+# ---------------------------------------------------------------------------
+# 这条规则来自一次真实事故，值得写下来：
+#   门户页 index.html 的 head 里漏了 portal.css，于是 .chapter-grid、
+#   .chapter-card、.portal-stats、.roadmap 这些类一个样式都没有，首页
+#   整个塌成一列纯文字 —— 用户看到的第一反应是「首页全是文字，设计有问题」。
+#   而它在所有既有检查项目里都是"干净"的：没有断链（根本没请求这个文件）、
+#   没有 404、没有 JS 报错、元素也都存在，浏览器验证只断言"元素在不在"，
+#   自然也抓不到。缺的是一条「结构与样式是否对得上」的检查。
+
+def css_class_owners() -> dict[str, set[str]]:
+    """类名 -> 定义它的样式表（去掉扩展名的文件名）集合。"""
+    owners: dict[str, set[str]] = defaultdict(set)
+    for f in sorted((ROOT / "assets" / "css").glob("*.css")):
+        txt = re.sub(
+            r"/\*.*?\*/", " ", f.read_text(encoding="utf-8", errors="replace"), flags=re.S
+        )
+        # 点号后必须紧跟字母/下划线/连字符，这样 1.5rem、.5em 之类的
+        # 数字不会被当成类名
+        for c in re.findall(r"\.(-?[_a-zA-Z][-_a-zA-Z0-9]*)", txt):
+            owners[c].add(f.stem)
+    return owners
+
+
+def check_css_coverage(rep: Report) -> None:
+    owners = css_class_owners()
+    all_css = {p.stem for p in (ROOT / "assets" / "css").glob("*.css")}
+    referenced: set[str] = set()
+
+    for page in site_files():
+        if page.suffix != ".html":
+            continue
+        rel = page.relative_to(ROOT).as_posix()
+        # 自包含的独立 Demo：自带 <style>，本来就不套站点外壳
+        if rel.startswith("lesson-01/demo/"):
+            continue
+        if rel.startswith("supplementary/") and rel != "supplementary/index.html":
+            continue
+
+        txt = page.read_text(encoding="utf-8", errors="replace")
+
+        # 本页真正加载的样式表。只认 <link rel="stylesheet">：404 页的探测
+        # 脚本里也有一句 "assets/css/tokens.css"，那是拿去做 XHR 探测的字符串，
+        # 不是引用。
+        loaded = set(
+            re.findall(
+                r'<link[^>]+rel="stylesheet"[^>]+href="[^"]*assets/css/([\w-]+)\.css"', txt
+            )
+        )
+        referenced |= loaded
+
+        # 页面里的类名。先挖掉 <script>/<style>，免得把 JS 里的
+        # querySelector(".foo") 或模板串里的类名当成页面结构。
+        body = re.sub(
+            r"<script\b.*?</script>|<style\b.*?</style>", " ", txt, flags=re.S | re.I
+        )
+        classes: set[str] = set()
+        for grp in re.findall(r'class="([^"]*)"', body):
+            classes |= set(grp.split())
+
+        for c in sorted(classes):
+            own = owners.get(c)
+            # 全站都没定义过这个类 -> 属于另一类问题（可能是 JS 的钩子），这里不管
+            if not own or (own & loaded):
+                continue
+            rep.add(
+                "L7",
+                "样式未加载",
+                rel,
+                f".{c} 只由 {','.join(sorted(own))}.css 定义，而本页加载的是 "
+                f"{','.join(sorted(loaded)) or '（无样式表）'}",
+            )
+
+    # 反过来也查一遍：有没有样式表根本没被人引用（死文件）
+    for css in sorted(all_css - referenced):
+        rep.add("L7", "样式未引用", f"assets/css/{css}.css", "没有任何页面加载它")
+
+
+# ---------------------------------------------------------------------------
 # 主流程
 # ---------------------------------------------------------------------------
 
@@ -547,12 +626,15 @@ def main() -> int:
     check_leftovers(files, rep)
     check_a11y(files, rep)
     check_content(rep)
+    check_css_coverage(rep)
 
     kinds = rep.by_kind()
     order = [
         "断链",
         "运行时资源缺失",
         "站点根绝对路径",
+        "样式未加载",
+        "样式未引用",
         "编辑器残留",
         "非法 HTML",
         "脚本加载方式",
@@ -572,7 +654,11 @@ def main() -> int:
         items = kinds.get(k)
         if not items:
             continue
-        mark = "❌" if k in ("断链", "运行时资源缺失", "章节页缺失") else "⚠️"
+        mark = (
+            "❌"
+            if k in ("断链", "运行时资源缺失", "章节页缺失", "样式未加载")
+            else "⚠️"
+        )
         print(f"{mark} {k}（{len(items)}）")
         seen: dict[str, list[str]] = defaultdict(list)
         for it in items:

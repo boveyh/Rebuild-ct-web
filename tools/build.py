@@ -1130,6 +1130,94 @@ def build_search_index(all_sections):
 
 # ============================================================ 门户页
 
+# --------------------------------------------------------------- 章节微缩图
+# 每张章节卡片顶部的一枚小图形。三个约束：
+#   1. 内联 SVG，构建期就写死 —— 不发额外请求，也不依赖 JS，脚本禁用也在；
+#   2. 取色一律走 --viz-* 令牌（Wong 色板，深色模式下会自动换成提亮版本），
+#      线条用 currentColor + opacity，因此明暗两套主题都自动适配；
+#   3. 只作视觉指引，语义信息仍由卡片文字承载，所以标 aria-hidden。
+# 之所以要加：这是一门讲可视化的课，门户页本身却全靠文字介绍，说不过去。
+_MOTIF_OPEN = ('<svg class="chapter-card__motif" viewBox="0 0 330 60" '
+               'preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">')
+
+
+def _motif_table():
+    """第 1 章：数据 = 带类型的属性表。表头着色区分属性类型，下方是取值。"""
+    cols = [("5", "--viz-2"), ("88", "--viz-1"), ("171", "--viz-3"), ("254", "--viz-6")]
+    rows = []
+    for x, color in cols:
+        rows.append(f'<rect x="{x}" y="9" width="71" height="12" rx="3" fill="var({color})"/>')
+        for y in (25, 36, 47):
+            rows.append(f'<rect x="{x}" y="{y}" width="71" height="8" rx="2.5" '
+                        f'fill="currentColor" opacity=".15"/>')
+    return _MOTIF_OPEN + "".join(rows) + "</svg>"
+
+
+def _motif_pipeline():
+    """第 2 章：流程 = 四个阶段的节点链。箭头表示数据在阶段之间流动。"""
+    nodes = [(5, "--viz-1"), (90, "--viz-5"), (175, "--viz-3"), (260, "--viz-4")]
+    parts = []
+    for i, (x, color) in enumerate(nodes):
+        parts.append(f'<rect x="{x}" y="18" width="64" height="24" rx="7" '
+                     f'fill="var({color})" fill-opacity=".16" '
+                     f'stroke="var({color})" stroke-width="1.5"/>')
+        if i < 3:
+            ax = x + 64 + 4
+            parts.append(f'<path d="M{ax} 25 L{ax + 8} 30 L{ax} 35 Z" '
+                         f'fill="currentColor" opacity=".38"/>')
+    return _MOTIF_OPEN + "".join(parts) + "</svg>"
+
+
+def _motif_color():
+    """第 3 章：色彩 = 色相带 + 明度渐变带。色相取本课程自己用的 Wong 六色。"""
+    hues = ["--viz-1", "--viz-5", "--viz-3", "--viz-7", "--viz-2", "--viz-6"]
+    parts = []
+    for i, c in enumerate(hues):
+        x = 5 + i * 53.3
+        parts.append(f'<rect x="{x:.1f}" y="9" width="53.4" height="19" '
+                     f'fill="var({c})"/>')
+    parts.append('<defs><linearGradient id="motif-ch3-lum" x1="0" y1="0" x2="1" y2="0">'
+                 '<stop offset="0" stop-color="#0b0e14"/>'
+                 '<stop offset="1" stop-color="#ffffff"/></linearGradient></defs>')
+    parts.append('<rect x="5" y="34" width="320" height="15" rx="2.5" '
+                 'fill="url(#motif-ch3-lum)" opacity=".9"/>')
+    return _MOTIF_OPEN + "".join(parts) + "</svg>"
+
+
+def _motif_scatter():
+    """第 4 章：低维数据 = 相关系数、聚类这些「按量级分组」的问题。"""
+    a = [(30, 44), (46, 47), (58, 40), (72, 45), (86, 38), (40, 36), (64, 33)]
+    b = [(198, 24), (218, 18), (238, 25), (262, 15), (284, 21), (206, 30), (250, 31)]
+    pts = "".join(f'<circle cx="{x}" cy="{y}" r="3.2" fill="var(--viz-1)" opacity=".8"/>'
+                  for x, y in a)
+    pts += "".join(f'<circle cx="{x}" cy="{y}" r="3.2" fill="var(--viz-2)" opacity=".8"/>'
+                   for x, y in b)
+    axis = ('<path d="M14 7 V50 H322" fill="none" stroke="currentColor" '
+            'stroke-width="1.5" opacity=".28"/>')
+    return _MOTIF_OPEN + axis + pts + "</svg>"
+
+
+def _motif_timeseries():
+    """第 5 章：时序数据 = 折线在时间轴上的走势，阴影是其到基线的累积。"""
+    line = "M14 43 L62 34 L110 39 L158 22 L206 29 L254 13 L322 20"
+    area = line + " L322 51 L14 51 Z"
+    return (_MOTIF_OPEN
+            + f'<path d="{area}" fill="var(--viz-1)" opacity=".14"/>'
+            + f'<path d="{line}" fill="none" stroke="var(--viz-1)" stroke-width="2.4" '
+              'stroke-linejoin="round" stroke-linecap="round"/>'
+            + '<path d="M14 51 H322" stroke="currentColor" stroke-width="1.5" opacity=".28"/>'
+            + "</svg>")
+
+
+CHAPTER_MOTIFS = {
+    "01": _motif_table(),
+    "02": _motif_pipeline(),
+    "03": _motif_color(),
+    "04": _motif_scatter(),
+    "05": _motif_timeseries(),
+}
+
+
 def build_portal(all_sections, demo_counts):
     total_sections = sum(len(v) for v in all_sections.values())
     total_stars = sum(c["_stars"] for c in CHAPTERS)
@@ -1144,6 +1232,7 @@ def build_portal(all_sections, demo_counts):
         )
         cards.append(f"""        <a class="chapter-card" href="{ch['slug']}/" data-progress-scope="c{ch['id']}s" data-progress-total="{len(secs)}">
           <span class="chapter-card__glow" aria-hidden="true"></span>
+          {CHAPTER_MOTIFS[ch['id']]}
           <span class="chapter-card__top">
             <span class="chapter-card__num">第 {ch['num']} 章</span>
             <span class="chapter-card__progress" data-progress-out>0%</span>
@@ -1173,7 +1262,7 @@ def build_portal(all_sections, demo_counts):
 
     html = f"""{head("《可视化导论》· 课程门户",
                "中国石油大学（华东）《可视化导论》课程：案例驱动，零依赖，浏览器打开即用。",
-               "", extra_js=("conceptmap", "portal"))}
+               "", extra_css=("portal",), extra_js=("conceptmap", "portal"))}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 
@@ -1527,7 +1616,7 @@ def build_404():
     )
     html = f"""{head("页面不存在 · 《可视化导论》",
                "没有找到这个页面。下面是可以去的地方。", "",
-               root_probe=True)}
+               extra_css=("portal",), root_probe=True)}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 {topbar("@", [("课程门户", None)], "")}

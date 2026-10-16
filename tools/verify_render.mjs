@@ -308,6 +308,61 @@ for (const [name, ok, detail] of interact) {
 }
 if (iErr.length) log("   页面异常：" + iErr.join(" | "));
 
+/* ------------------------------------------------- 布局成型检查 */
+/* 这一段是有来由的：门户页的 head 里曾漏掉 portal.css，于是 .chapter-grid、
+   .portal-stats 这些容器一个样式都没有，首页塌成一列纯文字。
+   而当时所有检查都是"绿"的 —— 元素都在、没有报错、没有 404。
+   所以这里不看元素在不在，只量它「排开了没有」：
+   数一个容器里出现了多少个不同的左边界，就是它实际排出的列数。 */
+log("\n" + "-".repeat(76));
+log("布局成型（门户页在 1440 宽下是否真的排开了）");
+log("-".repeat(76));
+
+const lpage = await browser.newPage();
+const lErr = [];
+lpage.on("pageerror", e => lErr.push(String(e.message).split("\n")[0]));
+
+await lpage.setViewport({ width: 1440, height: 900 });
+await lpage.goto(BASE + "/", { waitUntil: "networkidle2" });
+await new Promise(r => setTimeout(r, 700));
+
+const layout = await lpage.evaluate(() => {
+  function columns(sel) {
+    const host = document.querySelector(sel);
+    if (!host) return { sel, cols: 0 };
+    const xs = [...host.children]
+      .filter(el => {
+        const s = getComputedStyle(el);
+        // 绝对定位的装饰元素（如卡片右上角的 glow）不参与栅格，排除掉
+        return s.display !== "none" && s.position !== "absolute";
+      })
+      .map(el => Math.round(el.getBoundingClientRect().left));
+    return { sel, cols: [...new Set(xs)].length };
+  }
+  const motif = document.querySelector(".chapter-card__motif");
+  const r = motif?.getBoundingClientRect();
+  return {
+    chapterGrid: columns(".chapter-grid"),
+    stats: columns(".portal-stats"),
+    howto: columns(".howto-grid"),
+    motifs: document.querySelectorAll(".chapter-card__motif").length,
+    motifShapes: document.querySelectorAll(
+      ".chapter-card__motif rect, .chapter-card__motif circle, .chapter-card__motif path"
+    ).length,
+    motifBox: r ? Math.round(r.width) + "x" + Math.round(r.height) : "缺失",
+  };
+});
+
+const layoutOk =
+  layout.chapterGrid.cols >= 3 &&
+  layout.stats.cols >= 5 &&
+  layout.howto.cols >= 4 &&
+  layout.motifs === 5 &&
+  layout.motifShapes >= 20;
+if (!layoutOk) hardFail += 1;
+log((layoutOk ? "✅ " : "❌ ") + "章节网格 / 统计条 / 使用说明真的排开了  " + JSON.stringify(layout));
+if (lErr.length) { hardFail += 1; log("❌ 门户页异常：" + lErr.join(" | ")); }
+
 /* ------------------------------------------------- 窄屏 + 打印媒体回归 */
 log("\n" + "-".repeat(76));
 log("窄屏 (390×844) 与打印媒体");
