@@ -124,6 +124,51 @@ const homeProbe = await home.evaluate(() => {
   };
 });
 
+/* --------------------------------- 章节页：演示真的能渲染 --------------------------------- */
+/* 再加一段的理由还是同一类：页面不报错、不 404、元素都在，但演示区一片「加载失败」。
+   演示模块是动态 import 的，路径拼错或模块解析失败都只在真正点开时才暴露，
+   而「资源可达性」探测完全看不见。所以这里真的点一遍、等它渲染。 */
+const demoProbe = [];
+for (const cid of ["01", "02", "03", "04", "05"]) {
+  const dp = await browser.newPage();
+  const bad = [];
+  dp.on("response", (r) => {
+    if (r.status() >= 400) bad.push(`${r.status()} ${r.url()}`);
+  });
+  try {
+    await dp.goto(`${BASE}lesson-${cid}/`, { waitUntil: "networkidle2", timeout: 45000 });
+    const res = await dp.evaluate(async () => {
+      document.querySelectorAll('button[data-tab="demo"]').forEach((b) => b.click());
+      // 轮询到全部就绪（或明确报错）为止，不用固定 sleep：演示要等 d3 从 CDN
+      // 下载、有的还要再取 CSV，固定等 3.5 秒在慢网络下会误报成「没渲染」。
+      const deadline = Date.now() + 25000;
+      let mounts = [...document.querySelectorAll(".demo-mount[data-demo]")];
+      while (Date.now() < deadline) {
+        mounts = [...document.querySelectorAll(".demo-mount[data-demo]")];
+        const done = mounts.filter((m) => {
+          const s = m.getAttribute("data-state");
+          return m.getAttribute("data-ready") === "1" || s === "error";
+        });
+        if (mounts.length > 0 && done.length === mounts.length) break;
+        await new Promise((r) => setTimeout(r, 300));
+      }
+      return {
+        mounts: mounts.length,
+        ready: mounts.filter((m) => m.getAttribute("data-ready") === "1").length,
+        empty: mounts.filter((m) => m.children.length === 0).map((m) => m.dataset.demo),
+        pending: mounts
+          .filter((m) => m.getAttribute("data-ready") !== "1")
+          .map((m) => `${m.dataset.demo}:${m.getAttribute("data-state") || "-"}`),
+        legacy: document.querySelectorAll(".demo-mount:not([data-demo])").length,
+      };
+    });
+    demoProbe.push({ cid, ...res, bad: bad.slice(0, 2) });
+  } catch (e) {
+    demoProbe.push({ cid, error: String(e.message).slice(0, 120) });
+  }
+  await dp.close();
+}
+
 await browser.close();
 
 const checks = [];
@@ -164,6 +209,21 @@ push(homeProbe.chapterCols >= 3, "首页章节网格排开了", `${homeProbe.cha
 push(homeProbe.statsCols >= 5, "首页统计条排开了", `${homeProbe.statsCols} 列`);
 push(homeProbe.motifs === 5, "5 枚章节微缩图都在", `${homeProbe.motifs} 枚`);
 push(homeErr.length === 0, "首页无未捕获异常", homeErr.join(" | ") || "0 个");
+
+// 6) 章节页演示：5 章逐个点开，必须全部 ready、无空框、无残留占位
+const demoTotal = demoProbe.reduce((n, d) => n + (d.mounts || 0), 0);
+const demoReady = demoProbe.reduce((n, d) => n + (d.ready || 0), 0);
+const demoEmpty = demoProbe.flatMap((d) => d.empty || []);
+const demoBad = demoProbe.flatMap((d) => d.bad || []);
+const demoLegacy = demoProbe.reduce((n, d) => n + (d.legacy || 0), 0);
+const demoErr = demoProbe.filter((d) => d.error).map((d) => `ch${d.cid}: ${d.error}`);
+const demoPending = demoProbe.flatMap((d) => (d.pending || []).map((p) => `ch${d.cid}/${p}`));
+push(demoErr.length === 0 && demoTotal > 0 && demoReady === demoTotal,
+     "5 章演示全部渲染",
+     demoErr[0] || (demoPending.length ? demoPending.join(", ") : `${demoReady}/${demoTotal} 个挂载点 ready`));
+push(demoEmpty.length === 0, "没有空挂载点", demoEmpty.join(", ") || "0 个");
+push(demoLegacy === 0, "没有遗留占位块", `${demoLegacy} 个`);
+push(demoBad.length === 0, "演示无失败请求", demoBad.join(" | ") || "0 个");
 
 // 输出
 console.log("=".repeat(70));
