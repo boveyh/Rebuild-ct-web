@@ -1437,6 +1437,59 @@ def build_portal(all_sections, demo_counts):
           </span>
         </a>""")
 
+    # 第 6 格：5 章在 3 列网格里排成 3+2，右下角空出一个洞。
+    # 与其让它空着，不如把「散在别处的入口」收进这一格 —— 术语表、补充 demo、
+    # 独立实验原本只在页面最底「配套资源」那段文字里各占一行，学生走不到那儿。
+    # 这一格不是章节，所以用虚线边框、不放进度条，视觉上明确区分。
+    n_terms = len(json.loads(read(DATA / "glossary.json"))["terms"])
+    n_supp = len([p for p in (ROOT / "supplementary").glob("*.html") if p.stem != "index"])
+    n_lab = len(list((ROOT / "lesson-01" / "demo").glob("*/index.html")))
+    cards.append(f"""        <div class="portal-extra">
+          <span class="portal-extra__glow" aria-hidden="true"></span>
+          <span class="portal-extra__label">
+            <span data-lang="zh">速查与延伸</span><span data-lang="en">Reference</span>
+          </span>
+          <ul class="portal-extra__list">
+            <li>
+              <a href="glossary.html">
+                <span class="portal-extra__name">
+                  <span data-lang="zh">术语表</span><span data-lang="en">Glossary</span>
+                </span>
+                <span class="portal-extra__meta">
+                  <span data-lang="zh">{n_terms} 个名词，每个都写了「容易在哪儿搞错」</span>
+                  <span data-lang="en">{n_terms} terms, each with the usual pitfall</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="supplementary/">
+                <span class="portal-extra__name">
+                  <span data-lang="zh">补充 Demo</span><span data-lang="en">Extra demos</span>
+                </span>
+                <span class="portal-extra__meta">
+                  <span data-lang="zh">{n_supp} 个页面，按图形类型排的独立示例</span>
+                  <span data-lang="en">{n_supp} standalone pages grouped by chart type</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a href="lesson-01/demo/">
+                <span class="portal-extra__name">
+                  <span data-lang="zh">独立实验</span><span data-lang="en">Lab exercises</span>
+                </span>
+                <span class="portal-extra__meta">
+                  <span data-lang="zh">{n_lab} 个自包含页面，可单独拷给学生改</span>
+                  <span data-lang="en">{n_lab} self-contained pages, easy to hand out</span>
+                </span>
+              </a>
+            </li>
+          </ul>
+          <span class="portal-extra__hint">
+            <span data-lang="zh">或按 <kbd>Ctrl</kbd>+<kbd>K</kbd> 直接搜</span>
+            <span data-lang="en">Or press <kbd>Ctrl</kbd>+<kbd>K</kbd> to search</span>
+          </span>
+        </div>""")
+
     roadmap = json.dumps({
         "nodes": [{"id": c["id"], "zh": c["title"]["zh"], "en": c["title"]["en"],
                    "num": c["num"]} for c in CHAPTERS],

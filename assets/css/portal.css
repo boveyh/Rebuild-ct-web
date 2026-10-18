@@ -221,6 +221,106 @@
   gap: var(--sp-3);
 }
 
+/* ============================================ 第 6 格：速查与延伸
+   5 章在 3 列网格里排成 3+2，右下角会空出一格。这一格塞的是「散在页面
+   最底部、学生走不到」的几个入口。它不是章节，所以用虚线边框、不给进度条，
+   视觉上一眼就能分出「这不是第 6 章」。 */
+.portal-extra {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  overflow: hidden;
+  background: var(--bg-inset);
+  border: 1px dashed var(--border-3);
+  border-radius: var(--radius-lg);
+}
+
+/* 用径向渐变而不是纯色圆：纯色圆在深色底上会显出一道硬边，看起来像没裁干净的
+   图形。渐变到 transparent 才是「光」而不是「圆」。 */
+.portal-extra__glow {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 190px;
+  height: 190px;
+  background: radial-gradient(circle at 50% 50%, var(--brand-bg), transparent 68%);
+  pointer-events: none;
+}
+
+.portal-extra__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+
+/* 三条链接在卡片里均分高度。这块会被 grid 拉伸到和章节卡一样高（457px），
+   如果内容都挤在顶部，中间会空出一条比左右两卡都显眼的空白带。 */
+.portal-extra__list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.portal-extra__list a {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-3);
+  color: var(--text-1);
+  text-decoration: none;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-md);
+  transition: border-color var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out);
+}
+
+.portal-extra__list a:hover {
+  color: var(--text-1);
+  text-decoration: none;
+  border-color: var(--brand-border);
+  transform: translateX(2px);
+}
+
+.portal-extra__name {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+
+.portal-extra__list a:hover .portal-extra__name { color: var(--brand-text); }
+
+.portal-extra__meta {
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+  color: var(--text-3);
+}
+
+.portal-extra__hint {
+  margin-top: auto;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.portal-extra__hint kbd {
+  font-family: var(--font-mono);
+  font-size: 0.95em;
+  padding: 1px 5px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-2);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+}
+
 .chapter-card__num {
   font-family: var(--font-mono);
   font-size: var(--fs-xs);
