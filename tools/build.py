@@ -1310,6 +1310,28 @@ def build_search_index(all_sections):
                            "where": f"{scope} demo", "text": s["subtitle"]["en"]},
                 })
 
+    # 术语表与补充 Demo 原本一条都不在索引里 —— 学生搜「视觉通道」「日历热图」
+    # 只会得到「没有匹配」，可这两处恰恰是最该被搜到的地方：术语表就是拿来查的，
+    # 补充 Demo 是按图形类型排的图例集。索引只覆盖 5 章正文是这套检索最大的漏。
+    for t in json.loads(read(DATA / "glossary.json"))["terms"]:
+        entries.append({
+            "href": f"glossary.html#term-{t['id']}",
+            "primary": False,
+            "zh": {"title": t["zh"], "where": f"术语表 · 第 {int(t['ch'])} 章",
+                   "text": (t["zh_def"] + " " + t["zh_why"])[:420]},
+            "en": {"title": t["en"], "where": f"Glossary · ch. {int(t['ch'])}",
+                   "text": (t["en_def"] + " " + t["en_why"])[:420]},
+        })
+
+    for cid, _title, _hint, demos in SUPP_GROUPS:
+        for fname, name, desc in demos:
+            entries.append({
+                "href": f"supplementary/{fname}",
+                "primary": False,
+                "zh": {"title": name, "where": f"补充 Demo · 第 {int(cid)} 章", "text": desc},
+                "en": {"title": name, "where": f"Extra demo · ch. {int(cid)}", "text": desc},
+            })
+
     return entries
 
 
@@ -1955,7 +1977,7 @@ def build_glossary(all_sections):
     items = []
     for term in data["terms"]:
         ch = next(c for c in CHAPTERS if c["id"] == term["ch"])
-        items.append(f"""        <li class="term-card" data-term-ch="{term['ch']}">
+        items.append(f"""        <li class="term-card" id="term-{term['id']}" data-term-ch="{term['ch']}">
           <div class="term-card__head">
             <h2>{term['zh']}<span class="term-card__en">{term['en']}</span></h2>
             <a class="term-card__src" href="{ch['slug']}/">第 {ch['num']} 章 {ch['title']['zh']}</a>

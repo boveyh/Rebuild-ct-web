@@ -272,6 +272,24 @@ try {
   interact.push(["搜索面板能出结果", ok.ok, JSON.stringify(ok)]);
 } catch (e) { interact.push(["搜索", false, String(e.message)]); }
 
+/* 3b. 索引覆盖面：搜一个只在术语表里出现的词，必须能落到术语表。
+   索引曾经只收录 5 章正文，搜「视觉通道」「色觉缺陷」全是「没有匹配」——
+   而术语表本来就是拿来查的。这条断言盯的就是「索引别又漏了某类页面」。 */
+try {
+  const ok = await ipage.evaluate(async () => {
+    const input = document.querySelector("#search-input");
+    if (!input) return { ok: false, why: "面板没打开" };
+    input.value = "色觉缺陷";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    await new Promise(r => setTimeout(r, 900));
+    const rows = [...document.querySelectorAll(".search-result")];
+    const hit = rows.find(r => /术语表/.test(r.textContent));
+    return { ok: !!hit, rows: rows.length,
+             top: hit ? hit.textContent.replace(/\s+/g, " ").slice(0, 46) : "无术语表命中" };
+  });
+  interact.push(["搜术语能落到术语表", ok.ok, JSON.stringify({ rows: ok.rows, top: ok.top })]);
+} catch (e) { interact.push(["搜术语", false, String(e.message)]); }
+
 // 3. 深色模式
 try {
   const ok = await ipage.evaluate(async () => {
