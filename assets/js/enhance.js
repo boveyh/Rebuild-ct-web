@@ -256,6 +256,100 @@
     });
   }
 
+  /* ==================================================== 6. 图片点击放大
+     这门课的不少图本身就是内容：Mackinlay 1986 的通道排序图有 1205×779，
+     正文里最宽只能占到 920px，上面的小字和刻度基本看不清。放大不是锦上添花，
+     是把原本传不过去的信息补回来。
+
+     用 <dialog> 而不是自建遮罩：ESC 关闭、焦点陷阱、backdrop 都是浏览器给的，
+     少写一堆还更可靠。图片本身不加 role="button" —— 那会覆盖掉 <img> 的语义，
+     读屏用户就听不到 alt 了；改用 tabindex + aria-haspopup 表达「可打开」。 */
+  function enhanceImageZoom() {
+    var imgs = $$(".content img, .topic img").filter(function (img) {
+      // 用构建期写进属性的 width 判断，而不是 naturalWidth：图是 lazy 的，
+      // 视口外的图此刻还没加载，naturalWidth 是 0，会被误判成图标跳过。
+      var declared = parseInt(img.getAttribute("width"), 10) || 0;
+      return declared >= 200 && !img.closest("a");
+    });
+    if (!imgs.length) return;
+
+    var dlg = doc.createElement("dialog");
+    dlg.className = "img-zoom";
+    dlg.setAttribute("aria-label", "图片放大");
+    dlg.innerHTML =
+      '<button class="img-zoom__close" type="button" aria-label="关闭">' +
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
+      "</button>" +
+      '<figure class="img-zoom__body">' +
+        '<img alt="" />' +
+        "<figcaption></figcaption>" +
+      "</figure>";
+    doc.body.appendChild(dlg);
+
+    var big = dlg.querySelector("img");
+    var cap = dlg.querySelector("figcaption");
+
+    function open(src, alt, w, h) {
+      big.src = src;
+      big.alt = alt || "";
+      big.width = w || "";
+      big.height = h || "";
+      cap.textContent = alt || "";
+      cap.hidden = !alt;
+      if (typeof dlg.showModal === "function") dlg.showModal();
+      else dlg.setAttribute("open", "true");
+    }
+
+    function close() {
+      if (typeof dlg.close === "function") dlg.close();
+      else dlg.removeAttribute("open");
+    }
+
+    // 点关闭按钮；点图片外的空白也关（<dialog> 的点击目标是它自己时说明点在了
+    // 内容区的留白处，而不是图或文字上）
+    dlg.querySelector(".img-zoom__close").addEventListener("click", close);
+    dlg.addEventListener("click", function (e) {
+      if (e.target === dlg) close();
+    });
+
+    imgs.forEach(function (img) {
+      img.classList.add("is-zoomable");
+      img.setAttribute("aria-haspopup", "dialog");
+      var alt = img.getAttribute("alt") || "";
+      if (alt) img.setAttribute("title", alt + "（点击放大）");
+
+      function fire() {
+        // 章节页一个图片可能同时存在于「讲解」和「关键代码」两个面板里，
+        // 只有一个面板是显示的。隐藏时不该响应，否则会弹出一张读者没看到的图。
+        if (!img.getClientRects().length) return;
+        open(img.currentSrc || img.src, alt, img.naturalWidth, img.naturalHeight);
+      }
+      img.addEventListener("click", fire);
+      img.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          fire();
+        }
+      });
+    });
+
+    /* 只有当前可见面板里的图才进 Tab 序列。
+       否则按 Tab 会在整页里"路过"一串看不见的图片 —— 焦点莫名其妙消失，
+       键盘用户完全不知道发生了什么。切换 tab 后重新同步一次。 */
+    function syncTabindex() {
+      imgs.forEach(function (img) {
+        img.setAttribute("tabindex", img.getClientRects().length ? "0" : "-1");
+      });
+    }
+    syncTabindex();
+
+    doc.addEventListener("click", function (e) {
+      if (e.target.closest && e.target.closest("[data-tab]")) {
+        setTimeout(syncTabindex, 80);
+      }
+    }, true);
+  }
+
   /* ============================================================== 启动 */
   function boot() {
     try {
@@ -264,6 +358,7 @@
       enhanceHeadings();
       enhanceLinks();
       enhanceImages();
+      enhanceImageZoom();
     } catch (e) {
       // 增强失败不能影响正文阅读
       if (window.console) console.warn("[enhance]", e);

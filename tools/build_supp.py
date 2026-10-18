@@ -596,6 +596,36 @@ def clean_lesson01_demos() -> int:
     return n_attrs
 
 
+RE_TH_NO_SCOPE = re.compile(r"<th(?![^>]*\bscope=)([^>]*)>")
+
+
+def fix_demo_a11y() -> tuple[int, int]:
+    """第 1 章 5 个独立实验页的无障碍补齐。
+
+    这批页面来自原站、自成一体（每页有自己的样式和脚本），不走内容管道，
+    所以 build.py 里的表格 scope 与标题层级修正在它们身上不生效。
+    审计把它们单独报了出来：13 个 <th> 缺 scope，1 页 h1 后面直接 h3。
+
+    标题的处理是「整页没有 h2 时，把 h3 提为 h2」—— 只在确实跳级时才动，
+    否则会把本来正确的三级标题也一起抬上来。
+    """
+    n_th = n_page = 0
+    for p in sorted(DEMO01.rglob("index.html")):
+        txt = read(p)
+        orig = txt
+        txt = RE_TH_NO_SCOPE.sub(r'<th scope="col"\1>', txt)
+        if "<h2" not in txt and "<h3" in txt:
+            txt = re.sub(r"<h3(\s|>)", r"<h2\1", txt)
+            txt = txt.replace("</h3>", "</h2>")
+        if txt != orig:
+            write(p, txt)
+            n_page += 1
+            n_th += len(RE_TH_NO_SCOPE.findall(orig))
+    if n_page:
+        print(f"  · lesson-01/demo：{n_page} 个页面补齐表头 scope 与标题层级")
+    return n_page, n_th
+
+
 def demobar_lesson01() -> int:
     """给独立演示加回站浮标。层级是 lesson-01/demo/XX/ 或 lesson-01/demo/。"""
     n = 0
@@ -644,6 +674,7 @@ def main() -> None:
         print("  · regression.html：重建（原本算完回归却没画，是张白页）")
 
     clean_lesson01_demos()
+    fix_demo_a11y()
     demobar_lesson01()
     demobar_supplementary()
 

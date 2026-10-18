@@ -330,6 +330,47 @@
 
 .howto-card li + li { margin-top: var(--sp-2); }
 
+/* ------------------------------------------------------------ 关于这门课
+   原站把「理论来源 / 设计原则 / 技术栈 / 数据集」放在页脚上方的一段文字里，
+   重构时整段丢了。它其实是学生最常问的四件事（这个结论出自哪、为什么这样讲、
+   能不能跑起来、数据从哪来），所以补回来，用 dl 表达「名词—解释」这层语义。 */
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--sp-4);
+  margin: 0;
+}
+
+.about-grid > div {
+  padding: var(--sp-5);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-lg);
+}
+
+.about-grid dt {
+  margin-bottom: var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  color: var(--brand-text);
+}
+
+.about-grid dd {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+  color: var(--text-2);
+}
+
+.about-grid code {
+  padding: 0.1em 0.35em;
+  font-size: 0.92em;
+  background: var(--bg-code);
+  border: 1px solid var(--border-1);
+  border-radius: 4px;
+}
+
 /* ======================================================== 补充 demo 集合 */
 .supp-note {
   padding: var(--sp-4) var(--sp-5);
@@ -509,12 +550,17 @@
   margin-bottom: var(--sp-3);
 }
 
-.term-card__head h3 {
+/* 词条标题是 h2：术语表的结构是「h1 术语表 → 每个词条一级」，
+   原先写成 h3 会让大纲从 1 直接跳到 3，读屏软件的标题导航因此断档。
+   视觉上仍按原来的字号排，不因语义修正而变大。 */
+.term-card__head h2 {
   display: flex;
   align-items: baseline;
   gap: var(--sp-2);
   margin: 0;
   font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
 }
 
 .term-card__en {

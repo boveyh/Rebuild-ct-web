@@ -70,6 +70,18 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
 纯内联 SVG、构建期写死 —— 不发额外请求、不依赖 JS，禁用脚本时图形依然在；
 取色走 `--viz-*` 令牌，**切主题时图形自动跟着换**；整体 `aria-hidden`，不干扰读屏。
 
+### 5. 保底体验：脚本没跑、图看不清、页被分享
+
+- **禁用 JS 也能读完正文**：三个 tab 的面板在脚本未接管时全部展开、tab 条隐藏。
+  实测单章可见正文从 1208 字恢复到 3782 字。`data-tabs` 只在 tab 真正绑好后才会写到
+  `<html>`，所以「脚本加载了但中途出错」也走兜底。
+- **图片点开看大图**：原生 `<dialog>` + `showModal()`，ESC 关闭、焦点陷阱、`::backdrop`
+  都由浏览器提供，不引第三方灯箱。视口外的懒加载图不会被误判成图标。
+- **首页「关于这门课」**：理论来源（Card / Mackinlay / van Wijk / Munzner）、设计原则、
+  技术栈、数据集出处，中英双语。
+- **分享与索引**：12 个页面补齐 `canonical` / `og:*` / `twitter:card`，并生成 1200×630
+  `assets/og-cover.png`（用真实渲染截图，不是拼的）。
+
 ---
 
 ## 工程结构
@@ -88,7 +100,8 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
 │   ├── css/                    tokens / base / shell / content / portal
 │   ├── js/                     shell / enhance / conceptmap / lesson / portal
 │   │                           + demos/ch0X.js（按需动态 import）
-│   └── search-index.json
+│   ├── search-index.json
+│   └── og-cover.png            分享封面 1200×630（由真实渲染截图生成）
 └── tools/                      ※ 不参与部署，但请保留
     ├── build.py                内容管道：从原站快照抽取内容 + 统一外壳装配
     ├── build_supp.py           补充 Demo 修复与统一
@@ -105,8 +118,8 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
 
 ```bash
 python tools/build.py          # 重建全站（可重复执行，结果确定）
-python tools/audit.py          # 静态审计：断链 / 绝对路径 / 残留 / a11y / 内容完整性
-node  tools/verify_render.mjs  # 本地浏览器跑 35 个页面 + 6 项交互断言
+python tools/audit.py          # 静态审计：断链 / 绝对路径 / 残留 / a11y / 内容完整性 / 文档结构
+node  tools/verify_render.mjs  # 本地浏览器跑 35 个页面 + 12 项交互与布局断言
 node  tools/verify_render.mjs --shots   # 同时输出截图到 tools/screenshots/
 node  tools/verify_live.mjs    # 部署后验证线上 404 页（子路径下样式是否正常）
 python tools/package.py        # 打交付压缩包到 deliverables/
@@ -116,10 +129,16 @@ python tools/package.py        # 打交付压缩包到 deliverables/
 > 前者默认连 `http://127.0.0.1:8099`，后者默认连线上地址，可用环境变量覆盖：
 > `BASE=http://127.0.0.1:9000 node tools/verify_render.mjs`、`PROXY=http://127.0.0.1:7890 node tools/verify_live.mjs`。
 
-`verify_render.mjs` 依赖 `puppeteer-core` 和本机的 Chrome / Edge，通过 `NODE_PATH`
-指向工作区的 `node_modules` 即可（不需要在项目里装依赖）。
+`puppeteer-core` 通过 `NODE_PATH` 指向工作区的 `node_modules` 即可，
+不需要在项目里装依赖：
 
-**当前状态：静态审计无问题；35/35 页面在真实浏览器中零报错、零失败请求；交互断言 6/6 通过。**
+```bash
+NODE_PATH=C:/Users/<you>/.workbuddy/binaries/node/workspace/node_modules \
+  node tools/verify_render.mjs
+```
+
+**当前状态：静态审计 0 问题；35/35 页面在真实浏览器中零报错、零失败请求；
+交互与布局断言 12/12 通过；5 类页面 × 3 档窄屏共 15 个组合零横向溢出。**
 
 ---
 

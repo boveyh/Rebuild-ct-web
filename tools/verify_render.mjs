@@ -52,7 +52,7 @@ const PAGES = [
     name: `第 ${c} 章`,
     expect: {
       sel: [{ q: "section.section", min: 4 }, { q: "[data-tab]", min: 3 }],
-      has: ["#concept-map", "#sidebar", ".topbar", "#tour-play", "#tour-bar"],
+      has: ["#concept-map", "#sidebar", ".topbar", "[data-tour-start]", "#tour-bar"],
     },
   })),
   ...CHAPTERS.map(c => ({ url: `/lesson-${c}/lecture.html`, name: `第 ${c} 章讲义`, expect: {} })),
@@ -61,7 +61,7 @@ const PAGES = [
   // 404 页的探测脚本会故意去请求几个不存在的路径来找站点根，
   // 那些 404 是设计的一部分，不算故障（下面 allowFail 放行）。
   { url: "/404.html", name: "404 页", allowFail: /\/404\.html\/assets\//,
-    expect: { has: ["[data-root-link]", "#tour-play, .topbar"] } },
+    expect: { has: ["[data-root-link]", "[data-tour-start], .topbar"] } },
   { url: "/lesson-01/demo/", name: "第 1 章实验目录",
     expect: { has: ["a[href*='01-data-loader']"], sel: [{ q: "a[href$='index.html']", min: 5 }] } },
   // 这 5 个实验里有的是纯表格/文本演示，不一定会画 SVG，
@@ -333,6 +333,63 @@ try {
   interact.push(["阅读进度写入 localStorage", ok.ok, JSON.stringify(ok)]);
 } catch (e) { interact.push(["进度", false, String(e.message)]); }
 
+// 7. 首次访问时，每一节都必须有一个可见面板
+//
+// 这一条专门补一个「自己撞不见」的 bug：原来的逻辑是「有 tab 记忆才恢复选择」，
+// 于是第一次来的读者（localStorage 里没有 wb.tab）一个面板都没被选中，
+// 而 CSS 里 .tab-panel 默认 display:none —— 整章 24 个面板全部不可见，
+// 页面只剩一行行小节标题，正文从约 2 万字掉到 1208 字。
+// 我们自己的测试一直是绿的，因为前面几步点过 tab、留下了记忆。
+// 所以这里必须清掉记忆再新开一个页面，模拟真正的首访。
+try {
+  const fresh = await browser.newPage();
+  const fErr = [];
+  fresh.on("pageerror", e => fErr.push(String(e.message).split("\n")[0]));
+  await fresh.setViewport({ width: 1440, height: 900 });
+  await fresh.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2" });
+  await fresh.evaluate(() => localStorage.removeItem("wb.tab"));
+  await fresh.reload({ waitUntil: "networkidle2" });
+  await new Promise(r => setTimeout(r, 700));
+  const ok = await fresh.evaluate(() => {
+    const secs = [...document.querySelectorAll("section.section")];
+    const empty = secs.filter(s =>
+      ![...s.querySelectorAll(".tab-panel")].some(p => p.getClientRects().length));
+    const chars = document.body.innerText.replace(/\s+/g, " ").trim().length;
+    return {
+      ok: secs.length > 0 && empty.length === 0 && chars > 3000,
+      secs: secs.length, empty: empty.map(s => s.getAttribute("data-section-id")), chars,
+    };
+  });
+  if (fErr.length) ok.ok = false;
+  interact.push(["首访每节都有可见面板", ok.ok, JSON.stringify(ok)]);
+  await fresh.close();
+} catch (e) { interact.push(["首访可见性", false, String(e.message)]); }
+
+// 8. 图片点击放大
+//    课程里不少图本身就是内容（第 2 章那张 Mackinlay 通道排序图 1205×779，
+//    正文里最宽 920px）。放大层要能开、要大过正文、要有关闭途径。
+try {
+  await ipage.goto(BASE + "/lesson-02/", { waitUntil: "networkidle2", timeout: 30000 });
+  const ok = await ipage.evaluate(async () => {
+    const img = [...document.querySelectorAll(".content img.is-zoomable")].find(i => i.getClientRects().length);
+    if (!img) return { ok: false, why: "没有可放大的图" };
+    const before = img.getBoundingClientRect().width;
+    img.click();
+    await new Promise(r => setTimeout(r, 900));
+    const d = document.querySelector("dialog.img-zoom");
+    const big = d?.querySelector("img");
+    const after = big?.getBoundingClientRect().width || 0;
+    const open = !!d?.open;
+    d?.close();
+    await new Promise(r => setTimeout(r, 200));
+    const closed = !document.querySelector("dialog.img-zoom")?.open;
+    return { ok: open && after > before && closed,
+             before: Math.round(before), after: Math.round(after), open, closed };
+  });
+  interact.push(["图片可点击放大", ok.ok, JSON.stringify(ok)]);
+} catch (e) { interact.push(["图片放大", false, String(e.message)]); }
+await ipage.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2", timeout: 30000 });
+
 for (const [name, ok, detail] of interact) {
   if (!ok) hardFail += 1;
   log((ok ? "✅ " : "❌ ") + name.padEnd(34, " ") + detail);
@@ -403,25 +460,67 @@ const mpage = await browser.newPage();
 const mErr = [];
 mpage.on("pageerror", e => mErr.push(String(e.message).split("\n")[0]));
 
+/* 只量一个页面是不够的。第一版只量了 /lesson-01/，于是讲义页那个「表格往右多出 4px」
+   的横向滚动条一直没被发现 —— 讲义页的版式和章节页不同（没有 tab、正文更长、
+   表格更多），要逐类页面各量一次才算数。 */
+const NARROW_PAGES = ["/", "/lesson-01/", "/lesson-02/lecture.html", "/glossary.html", "/supplementary/"];
+const NARROW_WIDTHS = [390, 360, 320];
+
+const narrowBad = [];
+for (const np of NARROW_PAGES) {
+  for (const w of NARROW_WIDTHS) {
+    await mpage.setViewport({ width: w, height: 844, isMobile: true, hasTouch: true });
+    await mpage.goto(BASE + np, { waitUntil: "networkidle2" });
+    await new Promise(r => setTimeout(r, 500));
+    const r = await mpage.evaluate(() => {
+      const de = document.documentElement;
+      return {
+        overflow: de.scrollWidth - de.clientWidth,
+        culprit: (() => {
+          // 找不到是谁撑出去的，等于没说 —— 顺手把最右边那个元素也带出来
+          const vw = de.clientWidth;
+          let worst = null;
+          document.querySelectorAll("body *").forEach(el => {
+            const b = el.getBoundingClientRect();
+            if (!b.width || !b.height) return;
+            if (getComputedStyle(el).position === "fixed") return;
+            if (el.closest(".sidebar")) return;         // 收起的侧栏是负坐标，不算溢出
+            if (b.right <= vw + 0.5) return;
+            if (!worst || b.right > worst.right) {
+              worst = { right: Math.round(b.right),
+                        tag: el.tagName.toLowerCase() + "." + String(el.className || "").slice(0, 40) };
+            }
+          });
+          return worst ? worst.tag + " 右边缘 " + worst.right : "";
+        })(),
+      };
+    });
+    if (r.overflow > 0) narrowBad.push(`${np}@${w} +${r.overflow}px (${r.culprit})`);
+  }
+}
+
+/* 阈值必须卡在 0。原来写 <= 4 是想容忍亚像素舍入，结果正好把上面那个真 bug
+   （每边多 4px）一并容掉了 —— 有容差的断言等于没有断言。 */
+if (narrowBad.length) { hardFail += 1; log("❌ 窄屏出现横向滚动  " + narrowBad.join(" | ")); }
+else log("✅ 五种页面 × 三档窄屏均无横向滚动  " + NARROW_PAGES.length + "×" + NARROW_WIDTHS.length + " 组合");
+
+/* 汉堡按钮与侧栏状态在章节页上验收 */
 await mpage.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
 await mpage.goto(BASE + "/lesson-01/", { waitUntil: "networkidle2" });
 await new Promise(r => setTimeout(r, 700));
 
 const narrow = await mpage.evaluate(() => {
-  const de = document.documentElement;
-  const overflow = de.scrollWidth - de.clientWidth;
   const toggle = document.querySelector("#sidebar-toggle");
   const tRect = toggle?.getBoundingClientRect();
   return {
-    overflow,
     toggleBox: tRect ? Math.round(tRect.width) + "x" + Math.round(tRect.height) : "缺失",
     toggleVisible: !!tRect && tRect.width >= 38 && tRect.height >= 38,
     sidebarHidden: document.querySelector("#sidebar")?.getAttribute("data-open") !== "true",
   };
 });
-const narrowOk = narrow.overflow <= 4 && narrow.toggleVisible && narrow.sidebarHidden;
+const narrowOk = narrow.toggleVisible && narrow.sidebarHidden;
 if (!narrowOk) hardFail += 1;
-log((narrowOk ? "✅ " : "❌ ") + "无横向溢出 / 汉堡按钮可点 / 侧栏默认收起  " + JSON.stringify(narrow));
+log((narrowOk ? "✅ " : "❌ ") + "汉堡按钮可点 / 侧栏默认收起  " + JSON.stringify(narrow));
 
 await mpage.emulateMediaType("print");
 const printOk = await mpage.evaluate(() => {

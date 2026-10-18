@@ -10,6 +10,14 @@
   <meta property="og:title" content="第 2 章 数据可视化流程 · 《可视化导论》" />
   <meta property="og:description" content="把「拿到一张表」到「画出一张图」之间那段平时看不见的路，用 Card 的四阶段模型摊开：原数据 → 数据表 → 视觉结构 → 视图。" />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://boveyh.github.io/Rebuild-ct-web/lesson-02/" />
+  <meta property="og:site_name" content="《可视化导论》" />
+  <meta property="og:image" content="https://boveyh.github.io/Rebuild-ct-web/assets/og-cover.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://boveyh.github.io/Rebuild-ct-web/lesson-02/" />
   <link rel="stylesheet" href="../assets/css/tokens.css" />
   <link rel="stylesheet" href="../assets/css/base.css" />
   <link rel="stylesheet" href="../assets/css/shell.css" />
@@ -249,8 +257,8 @@
                       <h3 data-lang="zh">嵌入理论：可视化流程的三个经典模型</h3>
                       <h3 data-lang="en">Embedded Theory: Three Classic Models of the Visualization Pipeline</h3>
                       <table data-lang="zh" class="theory-table">
-                        <thead>
-                          <tr><th>模型</th><th>作者 / 年份</th><th>核心思想</th></tr>
+                        <th scope="col"ead>
+                          <tr><th scope="col">模型</th><th scope="col">作者 / 年份</th><th scope="col">核心思想</th></tr>
                         </thead>
                         <tbody>
                           <tr>
@@ -271,8 +279,8 @@
                         </tbody>
                       </table>
                       <table data-lang="en" class="theory-table">
-                        <thead>
-                          <tr><th>Model</th><th>Author / Year</th><th>Core Idea</th></tr>
+                        <th scope="col"ead>
+                          <tr><th scope="col">Model</th><th scope="col">Author / Year</th><th scope="col">Core Idea</th></tr>
                         </thead>
                         <tbody>
                           <tr>
@@ -431,7 +439,7 @@
                         Going from &ldquo;raw data&rdquo; to a &ldquo;data table,&rdquo; the D layer performs four kinds of operations:
                       </p>
                       <table data-lang="zh" class="theory-table">
-                        <thead><tr><th>操作</th><th>做什么</th><th>D3 实现</th></tr></thead>
+                        <th scope="col"ead><tr><th scope="col">操作</th><th scope="col">做什么</th><th scope="col">D3 实现</th></tr></thead>
                         <tbody>
                           <tr><td><strong>清洗 / 过滤</strong> (clean / filter)</td><td>去缺失、去异常、筛选满足条件的行</td><td><code>.filter()</code>、<code>d3.csv(row)</code> 回调</td></tr>
                           <tr><td><strong>聚合 / 汇总</strong> (aggregate)</td><td>按 key 分组，把同组归约为一个值</td><td><code>d3.rollup()</code>、<code>d3.group()</code></td></tr>
@@ -440,7 +448,7 @@
                         </tbody>
                       </table>
                       <table data-lang="en" class="theory-table">
-                        <thead><tr><th>Operation</th><th>What it does</th><th>D3 implementation</th></tr></thead>
+                        <th scope="col"ead><tr><th scope="col">Operation</th><th scope="col">What it does</th><th scope="col">D3 implementation</th></tr></thead>
                         <tbody>
                           <tr><td><strong>Clean / filter</strong></td><td>Remove missing/outliers; keep rows matching a condition</td><td><code>.filter()</code>, <code>d3.csv(row)</code> callback</td></tr>
                           <tr><td><strong>Aggregate</strong></td><td>Group by key, reduce each group to a single value</td><td><code>d3.rollup()</code>, <code>d3.group()</code></td></tr>
@@ -649,11 +657,11 @@
                         of each channel differs. That is the figure below.
                       </p>
                       <figure class="theory-figure" data-lang="zh">
-                        <img src="./img/01-mackinlay-ranking.png" alt="Mackinlay 1986 视觉通道排名" />
+                        <img src="./img/01-mackinlay-ranking.png" alt="Mackinlay 1986 视觉通道排名" width="1205" height="779" loading="lazy" decoding="async" />
                         <figcaption>图 1 · Mackinlay 1986 通道排名：对 Quantitative（定量）/ Ordinal（有序）/ Nominal（名义）三类数据，各通道的量化精确度排序。位置（Position）永远最准。</figcaption>
                       </figure>
                       <figure class="theory-figure" data-lang="en">
-                        <img src="./img/01-mackinlay-ranking.png" alt="Mackinlay 1986 visual channel ranking" />
+                        <img src="./img/01-mackinlay-ranking.png" alt="Mackinlay 1986 visual channel ranking" width="1205" height="779" loading="lazy" decoding="async" />
                         <figcaption>Figure 1 &middot; Mackinlay (1986) channel ranking: for Quantitative / Ordinal / Nominal data, the quantitative-accuracy ordering of each channel. Position is always the most accurate.</figcaption>
                       </figure>
                       <ul>
@@ -678,19 +686,19 @@
                         The next two figures break this apart.
                       </p>
                       <figure class="theory-figure" data-lang="zh">
-                        <img src="./img/02-marks-points-lines-areas.png" alt="图元：点/线/面" />
+                        <img src="./img/02-marks-points-lines-areas.png" alt="图元：点/线/面" width="901" height="174" loading="lazy" decoding="async" />
                         <figcaption>图 2 · 图元（marks）三族：点（Points）、线（Lines）、面（Areas）。图元决定"一份数据长什么样"，是视觉结构的骨架。</figcaption>
                       </figure>
                       <figure class="theory-figure" data-lang="en">
-                        <img src="./img/02-marks-points-lines-areas.png" alt="Marks: Points / Lines / Areas" />
+                        <img src="./img/02-marks-points-lines-areas.png" alt="Marks: Points / Lines / Areas" width="901" height="174" loading="lazy" decoding="async" />
                         <figcaption>Figure 2 &middot; Three families of marks: Points, Lines, Areas. Marks determine &ldquo;what a datum looks like&rdquo; &mdash; the skeleton of the visual structure.</figcaption>
                       </figure>
                       <figure class="theory-figure" data-lang="zh">
-                        <img src="./img/03-channels-position-color-shape.png" alt="视觉通道：位置/颜色/形状/倾斜/大小" />
+                        <img src="./img/03-channels-position-color-shape.png" alt="视觉通道：位置/颜色/形状/倾斜/大小" width="901" height="629" loading="lazy" decoding="async" />
                         <figcaption>图 3 · 常用视觉通道族：位置（Position，含水平/垂直/两者）、颜色（Color）、形状（Shape）、倾斜（Tilt）、大小（Size，含长度/面积/体积）。</figcaption>
                       </figure>
                       <figure class="theory-figure" data-lang="en">
-                        <img src="./img/03-channels-position-color-shape.png" alt="Visual channels: Position / Color / Shape / Tilt / Size" />
+                        <img src="./img/03-channels-position-color-shape.png" alt="Visual channels: Position / Color / Shape / Tilt / Size" width="901" height="629" loading="lazy" decoding="async" />
                         <figcaption>Figure 3 &middot; Common visual-channel families: Position (horizontal / vertical / both), Color, Shape, Tilt, Size (length / area / volume).</figcaption>
                       </figure>
 
@@ -707,19 +715,19 @@
                         Picking the wrong class misleads readers.
                       </p>
                       <figure class="theory-figure" data-lang="zh">
-                        <img src="./img/04-magnitude-channels.png" alt="幅度通道：有序属性" />
+                        <img src="./img/04-magnitude-channels.png" alt="幅度通道：有序属性" width="621" height="814" loading="lazy" decoding="async" />
                         <figcaption>图 4 · 幅度通道（Magnitude Channels）：表达"有序属性"。按精确度排序 —— 共用尺度位置最准，长度/倾斜/面积次之，颜色亮度、饱和度和体积最弱（都标 "Same" 即排序有歧义）。</figcaption>
                       </figure>
                       <figure class="theory-figure" data-lang="en">
-                        <img src="./img/04-magnitude-channels.png" alt="Magnitude Channels: Ordered Attributes" />
+                        <img src="./img/04-magnitude-channels.png" alt="Magnitude Channels: Ordered Attributes" width="621" height="814" loading="lazy" decoding="async" />
                         <figcaption>Figure 4 &middot; Magnitude Channels: express &ldquo;ordered attributes.&rdquo; Ordered by accuracy &mdash; position on a common scale is best; length / tilt / area next; color luminance, saturation, and volume are weakest (all marked &ldquo;Same&rdquo; &mdash; ambiguous ordering).</figcaption>
                       </figure>
                       <figure class="theory-figure" data-lang="zh">
-                        <img src="./img/05-identity-channels.png" alt="标识通道：类别属性" />
+                        <img src="./img/05-identity-channels.png" alt="标识通道：类别属性" width="557" height="340" loading="lazy" decoding="async" />
                         <figcaption>图 5 · 标识通道（Identity Channels）：表达"类别属性" —— 空间区域、色调（hue）、运动（motion）、形状（shape）。它们能区分"不同类"，但分不出"谁多谁少"。</figcaption>
                       </figure>
                       <figure class="theory-figure" data-lang="en">
-                        <img src="./img/05-identity-channels.png" alt="Identity Channels: Categorical Attributes" />
+                        <img src="./img/05-identity-channels.png" alt="Identity Channels: Categorical Attributes" width="557" height="340" loading="lazy" decoding="async" />
                         <figcaption>Figure 5 &middot; Identity Channels: express &ldquo;categorical attributes&rdquo; &mdash; spatial region, hue, motion, shape. They distinguish different categories but cannot rank &ldquo;more vs less.&rdquo;</figcaption>
                       </figure>
                       <p data-lang="zh">
@@ -1104,7 +1112,7 @@
   <script type="application/json" id="tour-data">[{"title":"这一章补的是「中间那段路」","say":"上一章讲了数据，这一章讲从数据到图中间那段平时看不见的路。Card 在 1999 年提出的这个四阶段模型，是整门课的骨架。","top":true,"hold":6500},{"title":"四阶段模型","say":"原数据 → 数据表 → 视觉结构 → 视图。注意最后还有一个从视图回到数据的反馈箭头，这就是交互。","section":"ch-2-1","tab":"explain","hold":7500},{"title":"清洗、聚合、连接、派生","say":"2.2 节把「数据变换」这一阶段拆成四类操作。真实项目里这一步往往占掉一半以上的工作量，而它恰恰是最不容易被看见的。","section":"ch-2-2","tab":"explain","hold":7500},{"title":"从平表到树","say":"2.3 节用 d3.rollup 把一张平表聚合成层次数据，再用 Reingold-Tilford 布局画成树。切到演示标签页可以看到完整链路。","section":"ch-2-3","tab":"demo","hold":7500},{"title":"事件委托","say":"2.4 节讲渲染之后的交互。事件委托用一个监听器接管所有子节点的事件，节点数量再多也不会线性变慢。","section":"ch-2-4","tab":"explain","hold":7000}]</script>
 
   <div class="tour-bar" id="tour-bar" data-open="false" role="region" aria-label="自动导览">
-    <button class="tour-bar__trigger" type="button" id="tour-play">
+    <button class="tour-bar__trigger" type="button" data-tour-start>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg>
       <span data-i18n="tour.play">自动导览本章</span>
       <span class="tour-bar__steps" id="tour-total"></span>

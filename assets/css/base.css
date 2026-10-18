@@ -185,7 +185,10 @@ table { border-collapse: collapse; }
 @media print {
   :root { --topbar-h: 0px; }
 
-  .topbar, .sidebar, .search-layer, .sidebar-toggle,
+  /* .skip-link 必须一起藏。它平时是靠 transform 移出视口上方的，
+     打印媒体下没有视口概念，transform 被忽略后它会以 display:block
+     正常排版 —— 于是每张纸顶部都多出一行「跳到主要内容」。 */
+  .topbar, .sidebar, .search-layer, .sidebar-toggle, .skip-link,
   .lesson-pager, .tabs, .tab-rail, .tour-bar { display: none !important; }
 
   body { background: #fff; color: #000; }

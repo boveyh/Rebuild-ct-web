@@ -119,7 +119,30 @@
   stroke-linejoin: round;
 }
 
+/* ---------------------------------------------------------------- 显隐
+   默认隐藏，由 JS 给当前面板加 data-active。
+
+   但这里必须有一条兜底：如果脚本没跑起来（用户禁用 JS、网络把 shell.js
+   拦掉、CDN 抖动），`.tab-panel` 全是 display:none——整章正文会一个字都
+   看不到，只剩导航和标题。实测：lesson-03 在 shell.js 被拦后可见文字从
+   约 2 万字掉到 1201 字。
+
+   做法是让 lesson.js 成功接管 tab 切换后，给 <html> 打 data-tabs；CSS 只在
+   「已接管」时才隐藏面板。JS 没到 = 全部展开，读者至少能从头读到尾；
+   tab 按钮则隐藏，因为没有 JS 点了也不会切。
+
+   为什么用 data-tabs 而不是 data-js：外壳（shell.js）和 tab 切换
+   （lesson.js）是两个模块，前者正常、后者坏掉的情况一样会出现。
+   谁负责隐藏，就由谁负责声明。 */
 .tab-panel { display: none; }
+
+html:not([data-tabs]) .tab-panel { display: block; }
+html:not([data-tabs]) .tab-panel + .tab-panel {
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-6);
+  border-top: 1px dashed var(--border-2);
+}
+html:not([data-tabs]) .tabs { display: none; }
 
 .tab-panel[data-active="true"],
 .tab-panel.active {
@@ -178,6 +201,96 @@
   border: 1px solid var(--border-2);
   border-radius: var(--radius-md);
   margin-block: var(--sp-5);
+}
+
+/* -------------------------------------------------------- 图片点击放大 */
+.content img.is-zoomable,
+.topic img.is-zoomable {
+  cursor: zoom-in;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.content img.is-zoomable:hover,
+.topic img.is-zoomable:hover {
+  border-color: var(--brand-border);
+}
+
+/* 放大层铺满视口，图片在里面居中。
+   不要只让 dialog 的尺寸等于图片：那样它会被 UA 样式顶到左上角（实测拿到
+   left=0/top=0），四周留白处既不是图片也不是 dialog，点上去关不掉，视觉上
+   也偏在一边。铺满 + grid 居中之后，「点四周空白关闭」才是真的成立。 */
+.img-zoom {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: var(--sp-6);
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+}
+
+/* dialog 关闭后 UA 用 display:none 藏起来，上面那条 display:grid 会把它覆盖掉，
+   所以必须显式补回来 —— 少了这一行，关掉的图还留在屏幕上。 */
+.img-zoom:not([open]) { display: none; }
+
+.img-zoom::backdrop {
+  background: rgba(6, 10, 16, 0.86);
+}
+
+.img-zoom__body {
+  margin: 0;
+  max-width: 94vw;
+  text-align: center;
+}
+
+.img-zoom__body img {
+  display: block;
+  max-width: 94vw;
+  max-height: 86vh;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-md);
+}
+
+.img-zoom__body figcaption {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.img-zoom__close {
+  position: absolute;
+  top: var(--sp-3);
+  right: var(--sp-3);
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.img-zoom__close:hover { background: rgba(255, 255, 255, 0.2); }
+
+.img-zoom__close svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 
 /* ---------------------------------------------------------- 行内代码 */
@@ -832,7 +945,12 @@ h3:hover > .heading-anchor,
 
 /* ==================================================== 窄屏补充规则 */
 @media (max-width: 640px) {
-  .table-scroll { margin-inline: calc(var(--sp-4) * -1); padding-inline: var(--sp-4); }
+  /* 通栏跟随 .shell 的 --gutter，不要在这里另写一个值 —— 两边对不上就是横向滚动条。
+     --sp-4 只作为兜底（万一这块被放到没有 .shell 的页面里）。 */
+  .table-scroll {
+    margin-inline: calc(var(--gutter, var(--sp-4)) * -1);
+    padding-inline: var(--gutter, var(--sp-4));
+  }
   .heading-anchor { display: none; }
 }
 /* ==================================================== 响应式：表格转卡片 */
@@ -939,13 +1057,16 @@ h3:hover > .heading-anchor,
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   color: var(--text-inverse);
-  background: var(--brand);
+  /* 用 brand-solid 而不是 brand：后者在深色主题下是 #8794ff 这种亮蓝，
+     配白字只有 2.7:1。统一到 --brand-solid 后，这块底色与 .btn--primary
+     一致，两套主题下白字都达标（7.7:1 / 5.1:1）。 */
+  background: var(--brand-solid);
   border-radius: var(--radius-full);
   text-decoration: none;
   transition: background var(--dur-fast) var(--ease-out);
 }
 
-.lab-callout__cta:hover { background: var(--brand-solid); filter: brightness(0.92); }
+.lab-callout__cta:hover { filter: brightness(1.08); }
 
 .lab-callout__cta svg {
   width: 16px;

@@ -166,7 +166,10 @@ html[data-theme="dark"] .toast { background: var(--n-100); color: var(--n-950); 
 
 .tour-bar__actions button:hover { color: var(--text-1); border-color: var(--border-3); }
 
-#tour-play { margin-left: auto; }
+/* 首页 hero 的三个按钮紧凑排列。
+   原先第三个「自动导览」被 margin-left:auto 推到最右，中间空出一大片，
+   看起来像是和另外两个没关系的一组 —— 但它只是同一个入口区的第三种做法
+   （从头开始 / 检索 / 跟着导览走）。 */
 
 /* 导览进行中：弱化外壳，把注意力交还给内容 */
 body.tour-on .sidebar,
@@ -459,12 +462,19 @@ body.tour-on .site-footer { opacity: 0.35; transition: opacity var(--dur-slow) v
 
 /* ================================================================== 骨架 */
 .shell {
+  /* 左右留白单独抽成 --gutter，因为正文里有些元素要做「通栏」——
+     表格滚动容器在窄屏会往外拉一个 gutter、再用等量 padding 把内容推回来，
+     这样表格可以横向滚动到屏幕边缘，而表头文字仍与正文对齐。
+     两边必须用同一个值：早先 .shell 在 ≤720px 收到 --sp-3，
+     而 .table-scroll 还按 --sp-4 往外拉，多出来的 4px 直接把页面撑出了横向滚动条。 */
+  --gutter: var(--sp-5);
+
   display: grid;
   grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
   gap: var(--sp-10);
   max-width: var(--page-max);
   margin-inline: auto;
-  padding: var(--sp-8) var(--sp-5) var(--sp-16);
+  padding: var(--sp-8) var(--gutter) var(--sp-16);
   align-items: start;
 }
 
@@ -936,7 +946,8 @@ body.tour-on .site-footer { opacity: 0.35; transition: opacity var(--dur-slow) v
 @media (max-width: 1080px) {
   :root { --sidebar-w: 240px; }
 
-  .shell { gap: var(--sp-6); padding-inline: var(--sp-4); }
+  /* 只改 --gutter 就够了，padding 已经在基样式里引用了它 */
+  .shell { --gutter: var(--sp-4); gap: var(--sp-6); }
 }
 
 @media (max-width: 900px) {
@@ -997,7 +1008,7 @@ body.tour-on .site-footer { opacity: 0.35; transition: opacity var(--dur-slow) v
   .search-trigger__label { display: none; }
   .search-trigger { padding: 0 var(--sp-2); }
 
-  .shell { padding-inline: var(--sp-3); }
+  .shell { --gutter: var(--sp-3); }
 }
 
 @media (max-width: 480px) {

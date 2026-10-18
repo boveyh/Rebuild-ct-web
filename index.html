@@ -10,6 +10,14 @@
   <meta property="og:title" content="《可视化导论》· 课程门户" />
   <meta property="og:description" content="中国石油大学（华东）《可视化导论》课程：案例驱动，零依赖，浏览器打开即用。" />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://boveyh.github.io/Rebuild-ct-web/" />
+  <meta property="og:site_name" content="《可视化导论》" />
+  <meta property="og:image" content="https://boveyh.github.io/Rebuild-ct-web/assets/og-cover.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://boveyh.github.io/Rebuild-ct-web/" />
   <link rel="stylesheet" href="assets/css/tokens.css" />
   <link rel="stylesheet" href="assets/css/base.css" />
   <link rel="stylesheet" href="assets/css/shell.css" />
@@ -124,7 +132,7 @@
           <span data-lang="zh">检索知识点</span><span data-lang="en">Search concepts</span>
           <kbd>Ctrl K</kbd>
         </button>
-        <button class="btn" type="button" id="tour-play">
+        <button class="btn" type="button" data-tour-start>
           <span data-lang="zh">自动导览</span><span data-lang="en">Guided tour</span>
         </button>
       </div>
@@ -312,6 +320,62 @@
         </article>
       </div>
     </section>
+
+    <section class="portal-section" aria-labelledby="about-title">
+      <h2 class="portal-section__title" id="about-title">
+        <span data-lang="zh">关于这门课</span><span data-lang="en">About</span>
+      </h2>
+      <p class="portal-section__lead">
+        <span data-lang="zh">教材依据、内容取舍与实现方式。想知道某个结论出自哪篇论文，或者想把站子拿去改，看这里。</span>
+        <span data-lang="en">Where the material comes from, what it is built on, and how to reuse it.</span>
+      </p>
+      <dl class="about-grid">
+        <div>
+          <dt><span data-lang="zh">理论来源</span><span data-lang="en">References</span></dt>
+          <dd>
+            <span data-lang="zh">陈为《可视化导论》。单点结论分别出自 Mackinlay 1986（视觉通道量化排序）、
+            Stevens 1946（测量尺度）、Cleveland &amp; McGill 1985（图形感知）、
+            Card 1999（数据流模型）、van Wijk 2005（交互反馈模型）、
+            Bostock 的 D3 官方文档。</span>
+            <span data-lang="en">Chen Wei, <i>Introduction to Visualization</i>. Individual claims come from
+            Mackinlay 1986 (ranked visual channels), Stevens 1946 (scales of measurement),
+            Cleveland &amp; McGill 1985 (graphical perception), Card 1999 (data-flow model),
+            van Wijk 2005 (interaction loop), and Bostock's D3 documentation.</span>
+          </dd>
+        </div>
+        <div>
+          <dt><span data-lang="zh">设计原则</span><span data-lang="en">Approach</span></dt>
+          <dd>
+            <span data-lang="zh">以案例为中心，不以理论为中心。每个知识点都嵌在一个具体案例里讲，
+            再配 <span class="star">⭐</span> 标出的关键代码与可直接改参数的演示 ——
+            先看到东西动起来，再回头说它为什么这样动。</span>
+            <span data-lang="en">Case-first, not theory-first. Every idea is introduced inside a concrete
+            example, followed by a <span class="star">⭐</span> key-code block and a demo you can retune —
+            see it move first, then explain why it moves that way.</span>
+          </dd>
+        </div>
+        <div>
+          <dt><span data-lang="zh">技术栈</span><span data-lang="en">Stack</span></dt>
+          <dd>
+            <span data-lang="zh">零依赖、零构建：纯 HTML + CSS + ES Modules，D3.js v7 走 CDN。
+            <code>python -m http.server</code> 一条命令起站，不需要 npm。
+            禁用 JavaScript 时正文仍然完整可读。</span>
+            <span data-lang="en">No dependencies, no build step: plain HTML + CSS + ES Modules, with D3.js v7
+            from a CDN. One <code>python -m http.server</code> is enough; no npm.
+            The text stays fully readable with JavaScript disabled.</span>
+          </dd>
+        </div>
+        <div>
+          <dt><span data-lang="zh">数据集</span><span data-lang="en">Datasets</span></dt>
+          <dd>
+            <span data-lang="zh">新生数据、Crime 数据等已随仓库打包，浏览器直接 <code>fetch</code> 加载。
+            除 D3 之外不请求任何外部资源，断网也能跑完全部章节。</span>
+            <span data-lang="en">The freshman and crime datasets ship with the repository and are loaded with
+            <code>fetch</code>. Apart from D3 nothing is requested externally, so every chapter works offline.</span>
+          </dd>
+        </div>
+      </dl>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -337,7 +401,7 @@
   <script type="application/json" id="tour-data">[{"title": "这是一门什么样的课", "say": "《可视化导论》，中国石油大学（华东），案例驱动，零依赖，浏览器打开就能跑。重构的重点不是换配色，而是让内容的层级和检索路径更清楚。", "selector": ".portal-hero", "hold": 7500}, {"title": "课程主线", "say": "五章不是并列的，而是一条有依赖的路径：先用数据把地基打好，再用流程把整条链路串起来，然后单独用一章讲颜色，最后用低维和时序两类数据做实战。", "selector": ".roadmap", "hold": 8000}, {"title": "每个知识点都落到代码上", "say": "每章都是同样的结构：讲解、关键代码、可运行演示三个标签页。关键代码里用星号标出的就是必须掌握的编程点。", "selector": ".chapter-grid", "hold": 7500}]</script>
 
   <div class="tour-bar" id="tour-bar" data-open="false" role="region" aria-label="自动导览">
-    <button class="tour-bar__trigger" type="button" id="tour-play">
+    <button class="tour-bar__trigger" type="button" data-tour-start>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg>
       <span data-i18n="tour.play">自动导览本章</span>
       <span class="tour-bar__steps" id="tour-total"></span>

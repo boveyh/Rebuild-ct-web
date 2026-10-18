@@ -37,6 +37,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
+# 站点自身的公开地址（与 tools/build.py 的 SITE_URL 保持一致）。
+#
+# canonical / og:url / og:image 里写的是绝对地址，它们指向的就是本站。
+# 如果不排除，审计会把这些 URL 当成「外部资源」去 HEAD，然后拿当前线上
+# 版本的响应当结论 —— 本地已经改好、还没部署时，会稳定报一条「外链 404」，
+# 指的是自己。
+OWN_PREFIXES = ("https://boveyh.github.io/Rebuild-ct-web",)
+
 # 审计时跳过的目录：不是站点产物，或体积大且与渲染无关。
 # .tmp 与 deliverables 是本机的工作目录，里面的脚本会写 Node 内置模块名
 # （node:module 之类），混进来会被误判成断链。
@@ -337,7 +345,8 @@ def check_references(files: list[Path], rep: Report) -> None:
             if not ref or ref.startswith("#"):
                 continue
             if is_external(ref):
-                external.add(ref.split("?")[0].split("#")[0])
+                if not ref.startswith(OWN_PREFIXES):
+                    external.add(ref.split("?")[0].split("#")[0])
                 continue
 
             # L2：站点根绝对路径在 GitHub Pages 子路径下会 404
@@ -463,6 +472,105 @@ def check_a11y(files: list[Path], rep: Report) -> None:
     rep.stats["图片总数"] = tot_img
     rep.stats["缺 alt 图片"] = tot_noalt
     rep.stats["aria-* 属性总数"] = tot_aria
+
+
+# ---------------------------------------------------------------------------
+# L9 —— 结构与无障碍回归
+#
+# 这一组全部是「上一轮排查里真出过问题、而且不报错也不影响加载」的类别。
+# 它们有个共同点：页面能打开、控制台干净、元素都在，但东西是错的或残缺的 ——
+# 所以既有的断链检查、渲染检查都看不见。
+# ---------------------------------------------------------------------------
+
+# 只认真正的 id 属性。'data-section-id="x"' / 'aria-labelledby' 里的 "id"
+# 前面是连字符，早期写成 \bid= 会把它们一起匹配进来，凭空报出一堆重复 id。
+RE_ID = re.compile(r'\sid="([^"]+)"')
+RE_HX = re.compile(r"<h([1-6])\b[^>]*>", re.I)
+RE_TABLE = re.compile(r"<table\b[\s\S]*?</table>", re.I)
+RE_TH_TAG = re.compile(r"<th\b([^>]*)>", re.I)
+RE_PRE = re.compile(r"<pre\b[^>]*>([\s\S]*?)</pre>", re.I)
+# <pre> 里允许出现的「真标签」：语法高亮与强调用的包裹
+PRE_ALLOWED = {"code", "span", "b", "i", "em", "strong", "mark", "br", "a"}
+
+
+def check_structure(files: list[Path], rep: Report) -> None:
+    counts = defaultdict(int)
+
+    for f in files:
+        if f.suffix.lower() not in (".html", ".htm"):
+            continue
+        rel = str(f.relative_to(ROOT)).replace("\\", "/")
+        text = f.read_text(encoding="utf-8", errors="replace")
+
+        # 1. 重复 id。直接后果是 getElementById 只返回第一个，第二个元素
+        #    上的脚本与 label 关联全部失效 —— 页面上完全看不出来。
+        ids = RE_ID.findall(text)
+        dups = sorted({x for x in ids if ids.count(x) > 1})
+        if dups:
+            rep.add("L9", "重复 id", rel, ", ".join(dups[:5]))
+            counts["重复 id"] += 1
+
+        # 2. 标题层级跳跃（h1 -> h3）。影响读屏软件的标题导航。
+        levels = [int(m.group(1)) for m in RE_HX.finditer(text)]
+        prev, jumps = 0, []
+        for lv in levels:
+            if prev and lv > prev + 1:
+                jumps.append(f"{prev}→{lv}")
+            prev = lv
+        if jumps:
+            rep.add("L9", "标题层级跳跃", rel, ", ".join(jumps[:5]))
+            counts["标题层级跳跃"] += 1
+
+        # 3. 表头缺 scope。读屏软件靠它把单元格关联到列。
+        unscoped = 0
+        for tb in RE_TABLE.finditer(text):
+            for th in RE_TH_TAG.finditer(tb.group(0)):
+                if "scope=" not in th.group(1):
+                    unscoped += 1
+        if unscoped:
+            rep.add("L9", "表头缺 scope", rel, f"{unscoped} 个 <th> 未声明 scope")
+            counts["表头缺 scope"] += unscoped
+
+        # 4. <pre> 里混进了会被浏览器当标签解析的东西。
+        #    代码示例写 <defs> / <input> 是常态，没转义的话浏览器会真的建一个
+        #    元素：<defs> 直接消失，<input> 会变成代码块里的一个输入框。
+        stray = []
+        for m in RE_PRE.finditer(text):
+            for tm in re.finditer(r"<\s*([a-zA-Z][a-zA-Z0-9-]*)", m.group(1)):
+                name = tm.group(1).lower()
+                if name not in PRE_ALLOWED:
+                    stray.append(name)
+                    break
+        if stray:
+            rep.add("L9", "代码块未转义", rel,
+                    f"{len(stray)} 个 <pre> 含裸标签（如 {stray[0]}）")
+            counts["代码块未转义"] += len(stray)
+
+        # 5. 图片缺 width/height。浏览器在下载完成前不知道要留多高，图到了再
+        #    撑开 —— 这就是 CLS。
+        nodim = sum(
+            1 for m in RE_IMG.finditer(text)
+            if not (re.search(r"\bwidth=", m.group(0)) and re.search(r"\bheight=", m.group(0)))
+        )
+        if nodim:
+            rep.add("L9", "图片缺尺寸", rel, f"{nodim} 个 <img> 无 width/height")
+            counts["图片缺尺寸"] += nodim
+
+        # 6. canonical / og:image。只查管道生成的主要页面，跳过 demo 子页 ——
+        #    那些是原站遗留的独立实验，不该为它们补整站元信息。
+        main_page = rel in ("index.html", "glossary.html", "404.html", "supplementary/index.html") or (
+            re.fullmatch(r"lesson-0\d/(index|lecture)\.html", rel) is not None
+        )
+        if main_page and not rel.endswith("404.html"):   # 404 页故意不设 canonical
+            if 'rel="canonical"' not in text:
+                rep.add("L9", "缺少 canonical", rel, "绝对地址类元信息缺失")
+                counts["缺少 canonical"] += 1
+            if 'property="og:image"' not in text:
+                rep.add("L9", "缺少 og:image", rel, "分享时没有缩略图")
+                counts["缺少 og:image"] += 1
+
+    if counts:
+        rep.stats["结构检查明细"] = dict(counts)
 
 
 # ---------------------------------------------------------------------------
@@ -672,6 +780,7 @@ def main() -> int:
     check_external(rep, args.offline)
     check_leftovers(files, rep)
     check_a11y(files, rep)
+    check_structure(files, rep)
     check_content(rep)
     check_css_coverage(rep)
     check_demo_wiring(files, rep)
@@ -688,6 +797,13 @@ def main() -> int:
         "非法 HTML",
         "脚本加载方式",
         "图片缺少 alt",
+        "重复 id",
+        "代码块未转义",
+        "表头缺 scope",
+        "标题层级跳跃",
+        "图片缺尺寸",
+        "缺少 canonical",
+        "缺少 og:image",
         "小节数不符",
         "章节页缺失",
     ]
@@ -705,7 +821,8 @@ def main() -> int:
             continue
         mark = (
             "❌"
-            if k in ("断链", "运行时资源缺失", "章节页缺失", "样式未加载", "演示接线错误")
+            if k in ("断链", "运行时资源缺失", "章节页缺失", "样式未加载",
+                     "演示接线错误", "重复 id", "代码块未转义")
             else "⚠️"
         )
         print(f"{mark} {k}（{len(items)}）")

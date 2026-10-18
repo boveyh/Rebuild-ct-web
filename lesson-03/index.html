@@ -10,6 +10,14 @@
   <meta property="og:title" content="第 3 章 色彩专题 · 《可视化导论》" />
   <meta property="og:description" content="八节把配色一次讲透：颜色空间、colormap 选型、色系规则、科研经典色板、色觉缺陷检测。学完可以直接拿去做论文图。" />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://boveyh.github.io/Rebuild-ct-web/lesson-03/" />
+  <meta property="og:site_name" content="《可视化导论》" />
+  <meta property="og:image" content="https://boveyh.github.io/Rebuild-ct-web/assets/og-cover.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://boveyh.github.io/Rebuild-ct-web/lesson-03/" />
   <link rel="stylesheet" href="../assets/css/tokens.css" />
   <link rel="stylesheet" href="../assets/css/base.css" />
   <link rel="stylesheet" href="../assets/css/shell.css" />
@@ -1009,7 +1017,7 @@
   <script type="application/json" id="tour-data">[{"title":"为什么把颜色单列一章","say":"颜色是唯一一个「用错了没人提醒、但读者会直接读错」的通道。所以这门课把它从低维可视化里拆出来，单独讲八节。","top":true,"hold":6500},{"title":"四种颜色空间","say":"RGB 面向屏幕，HSL 面向人的直觉，Lab 和 HCL 才是感知均匀、适合做数据映射的。这个区别是整章的地基。","section":"ch-3-1","tab":"explain","hold":7500},{"title":"选错 colormap 的代价","say":"顺序型、发散型、定性型。把发散型用在没有中间值的数据上，读者会凭空读出一个「中心」；把彩虹色用在定量数据上，会出现并不存在的边界。","section":"ch-3-2","tab":"demo","hold":8000},{"title":"直接抄顶标的配色","say":"3.5 节给了 Wong、Paul Tol、Okabe-Ito 三套经过色觉缺陷检验的色板。做论文图不需要自己凑颜色，直接用这些。","section":"ch-3-5","tab":"explain","hold":7500},{"title":"对错案例","say":"3.6 节是四张图里挑出唯一一张对的，可以现场让学生投票，这个交互很有效。","section":"ch-3-6","tab":"demo","hold":7500},{"title":"自己生成一套配色","say":"3.7 节把「鲜艳 + 低饱和」这个经验规则做成了生成器：颜色数量控制在七个以内，鲜艳的颜色同时压低饱和度。","section":"ch-3-7","tab":"demo","hold":8000}]</script>
 
   <div class="tour-bar" id="tour-bar" data-open="false" role="region" aria-label="自动导览">
-    <button class="tour-bar__trigger" type="button" id="tour-play">
+    <button class="tour-bar__trigger" type="button" data-tour-start>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg>
       <span data-i18n="tour.play">自动导览本章</span>
       <span class="tour-bar__steps" id="tour-total"></span>

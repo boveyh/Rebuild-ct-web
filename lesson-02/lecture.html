@@ -10,6 +10,14 @@
   <meta property="og:title" content="第 2 章 讲义 · 《可视化导论》" />
   <meta property="og:description" content="把「拿到一张表」到「画出一张图」之间那段平时看不见的路，用 Card 的四阶段模型摊开：原数据 → 数据表 → 视觉结构 → 视图。" />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://boveyh.github.io/Rebuild-ct-web/lesson-02/lecture.html" />
+  <meta property="og:site_name" content="《可视化导论》" />
+  <meta property="og:image" content="https://boveyh.github.io/Rebuild-ct-web/assets/og-cover.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://boveyh.github.io/Rebuild-ct-web/lesson-02/lecture.html" />
   <link rel="stylesheet" href="../assets/css/tokens.css" />
   <link rel="stylesheet" href="../assets/css/base.css" />
   <link rel="stylesheet" href="../assets/css/shell.css" />
@@ -125,7 +133,7 @@
         <blockquote class="note">对应你的飞书文档：<strong>4. 数据可视化流程.docx</strong>  源码 + 演示：见 <code>lesson/index.html</code>（讲解 ⇄ 代码 ⇄ 演示 三 tab 集成页面）</blockquote>
         <p>本章用 4 个章节把可视化完整链路拆给你看：<strong>流程模型 → 数据聚合 → 树布局 → 列表渲染</strong>。 陈为教材中的 Card、Mackinlay、van Wijk 三个理论模型，D3.hierarchy 模块，DOM 事件机制，都会嵌在案例的"为什么这么做"位置。</p>
         <hr />
-        <h2 id="2-1-数据可视化流程-card-mackinlay-van-wijk">2.1 数据可视化流程（Card · Mackinlay · van Wijk）</h2>
+        <h2 id="ch-2-1">2.1 数据可视化流程（Card · Mackinlay · van Wijk）</h2>
         <h3 id="你的原案例">你的原案例</h3>
         <p>3 个可视化流程模型：</p>
         <ol><li>参考 Card 1999 模型绘制流程图（Box Flowcharts）</li><li>Mackinlay 自动化准则</li><li>van Wijk 模型（含交互反馈）</li></ol>
@@ -142,54 +150,54 @@
         <div class="code-block"><pre><code class="lang-text">View ⇆ Filter ⇆ Param ⇆ Other Views</code></pre></div>
         <h3 id="关键代码-①-svg-流程图节点">关键代码 ① SVG 流程图节点</h3>
         <p><span class="star">⭐</span> <strong>标记要点</strong>：SVG <code>&lt;marker&gt;</code> + <code>marker-end</code> 定义箭头；D3 classed() 做状态切换。</p>
-        <div class="code-block"><pre><code class="lang-js">// 1. 用 <defs> + <marker> 定义箭头
-        svg.append("defs").append("marker")
-           .attr("id", "arrowhead")
-           .attr("refX", 8)            // 箭头位置校准
-           .attr("orient", "auto")      // 跟随线方向旋转
-           .append("path").attr("d", "M0,-5L10,0L0,5");
+        <div class="code-block"><pre><code class="lang-js">// 1. 用 &lt;defs&gt; + &lt;marker&gt; 定义箭头
+        svg.append(&quot;defs&quot;).append(&quot;marker&quot;)
+           .attr(&quot;id&quot;, &quot;arrowhead&quot;)
+           .attr(&quot;refX&quot;, 8)            // 箭头位置校准
+           .attr(&quot;orient&quot;, &quot;auto&quot;)      // 跟随线方向旋转
+           .append(&quot;path&quot;).attr(&quot;d&quot;, &quot;M0,-5L10,0L0,5&quot;);
 
         // 2. 用 marker-end 引用箭头
-        svg.append("line")
-           .attr("marker-end", "url(#arrowhead)")  // 把箭头"装"到线段末端
-           .attr("x1", x1).attr("y1", y)
-           .attr("x2", x2).attr("y2", y);
+        svg.append(&quot;line&quot;)
+           .attr(&quot;marker-end&quot;, &quot;url(#arrowhead)&quot;)  // 把箭头&quot;装&quot;到线段末端
+           .attr(&quot;x1&quot;, x1).attr(&quot;y1&quot;, y)
+           .attr(&quot;x2&quot;, x2).attr(&quot;y2&quot;, y);
 
         // 3. classed 状态管理（关键）
-        svg.selectAll(".node").classed("selected", n => n.id === d.id);</code></pre></div>
+        svg.selectAll(&quot;.node&quot;).classed(&quot;selected&quot;, n =&gt; n.id === d.id);</code></pre></div>
         <p><strong>关键点解释</strong>：</p>
         <ul><li><code>marker-end="url(#arrowhead)"</code> 是 SVG 引用的方式 —— 用 URL 引用 <code>&lt;defs&gt;</code> 里定义的形状。</li><li><code>classed("selected", predicate)</code> 接收布尔函数，一次性切换所有节点状态，<strong>比手动 forEach 简洁</strong>。</li></ul>
         <h3 id="教学要点">教学要点</h3>
         <ul><li><strong>三个模型描述同一件事的不同侧面</strong></li><li>Card 给"管道"、Mackinlay 给"自动决策"、van Wijk 给"反馈环"</li><li>&lt;strong&gt;是叠加关系，不是冲突关系&lt;/strong&gt;</li></ul>
         <hr />
-        <h2 id="2-2-数据变换-原数据-数据表-d3-rollup-聚合">2.2 数据变换：原数据 → 数据表（d3.rollup 聚合）</h2>
+        <h2 id="ch-2-2">2.2 数据变换：原数据 → 数据表（d3.rollup 聚合）</h2>
         <blockquote class="note"><strong>在流程中的位置</strong>：Card 1999 数据流模型第一段箭头「原始数据 → 数据表」。这是 <strong>数据变换（Data Transformation）</strong>。</blockquote>
-        <h3 id="你的原案例">你的原案例</h3>
+        <h3 id="你的原案例-2">你的原案例</h3>
         <p>用新生数据按"专业 / 班级"做 <strong>rollup 分桶聚合</strong>。 你演示的核心是 d3.rollup 的链式调用 —— 一个函数完成多维度分组。</p>
-        <h3 id="嵌入的理论">嵌入的理论</h3>
+        <h3 id="嵌入的理论-2">嵌入的理论</h3>
         <p><strong>理论补丁：数据变换的四大操作（Card 1999 D 层）</strong></p>
         <p>从「原始数据」到「数据表」，D 层做四类操作：</p>
-        <table class="theory-table"><thead><tr><th>操作</th><th>做什么</th><th>D3 实现</th></tr></thead><tbody><tr><td data-label="操作">清洗 / 过滤</td><td data-label="做什么">去缺失、去异常、筛选满足条件的行</td><td data-label="D3 实现"><code>.filter()</code>、<code>d3.csv(row)</code> 回调</td></tr><tr><td data-label="操作">聚合 / 汇总</td><td data-label="做什么">按 key 分组，把同组归约为一个值</td><td data-label="D3 实现"><code>d3.rollup()</code>、<code>d3.group()</code></td></tr><tr><td data-label="操作">连接 / 关联</td><td data-label="做什么">按键把两张表拼起来</td><td data-label="D3 实现"><code>d3.map</code> + 手动索引</td></tr><tr><td data-label="操作">派生 / 衍生</td><td data-label="做什么">由已有列算出新列（如"班级"→"专业"）</td><td data-label="D3 实现">row 回调里算一个新字段</td></tr></tbody></table>
+        <table class="theory-table"><thead><tr><th scope="col">操作</th><th scope="col">做什么</th><th scope="col">D3 实现</th></tr></thead><tbody><tr><td data-label="操作">清洗 / 过滤</td><td data-label="做什么">去缺失、去异常、筛选满足条件的行</td><td data-label="D3 实现"><code>.filter()</code>、<code>d3.csv(row)</code> 回调</td></tr><tr><td data-label="操作">聚合 / 汇总</td><td data-label="做什么">按 key 分组，把同组归约为一个值</td><td data-label="D3 实现"><code>d3.rollup()</code>、<code>d3.group()</code></td></tr><tr><td data-label="操作">连接 / 关联</td><td data-label="做什么">按键把两张表拼起来</td><td data-label="D3 实现"><code>d3.map</code> + 手动索引</td></tr><tr><td data-label="操作">派生 / 衍生</td><td data-label="做什么">由已有列算出新列（如"班级"→"专业"）</td><td data-label="D3 实现">row 回调里算一个新字段</td></tr></tbody></table>
         <p><strong>本节演示的 rollup 聚合属于"聚合"这一行</strong>。读懂这张表，你才知道数据变换是整个流水线的"第一公里"。</p>
         <p><strong>d3.rollup 是"按 key 分桶、再 reduce 一次"的函数式组合</strong>：</p>
         <div class="code-block"><pre><code class="lang-js">const result = d3.rollup(
           data,                    // 输入数组
-          v => v.length,           // reducer
-          d => d.major,            // key1（外层）
-          d => d.class             // key2（内层）
+          v =&gt; v.length,           // reducer
+          d =&gt; d.major,            // key1（外层）
+          d =&gt; d.class             // key2（内层）
         );</code></pre></div>
         <p>它返回 <strong><code>Map</code></strong>（不是数组、不是对象）：</p>
         <ul><li>遍历用 <code>for ([k, v] of m)</code> 或 <code>m.entries()</code></li><li>嵌套 rollup 出嵌套 Map</li><li>与 <code>d3.group</code> 的差别：rollup 把组内数据归约成<strong>一个值</strong>，group 保留<strong>原数组</strong></li></ul>
         <p><strong>OLAP 切片/切块/钻取</strong>（Codd 1993）</p>
-        <table class="theory-table"><thead><tr><th>OLAP 操作</th><th>实际对应</th></tr></thead><tbody><tr><td data-label="OLAP 操作">切片 (Slice)</td><td data-label="实际对应"><code>.filter()</code> 后 rollup</td></tr><tr><td data-label="OLAP 操作">切块 (Dice)</td><td data-label="实际对应">多 key rollup</td></tr><tr><td data-label="OLAP 操作">钻取 (Drill)</td><td data-label="实际对应">嵌套 rollup + 递归展开</td></tr></tbody></table>
+        <table class="theory-table"><thead><tr><th scope="col">OLAP 操作</th><th scope="col">实际对应</th></tr></thead><tbody><tr><td data-label="OLAP 操作">切片 (Slice)</td><td data-label="实际对应"><code>.filter()</code> 后 rollup</td></tr><tr><td data-label="OLAP 操作">切块 (Dice)</td><td data-label="实际对应">多 key rollup</td></tr><tr><td data-label="OLAP 操作">钻取 (Drill)</td><td data-label="实际对应">嵌套 rollup + 递归展开</td></tr></tbody></table>
         <p><strong>教学要点</strong>：可视化系统的"下钻交互"通常背后就是 rollup + hierarchy 的组合。</p>
         <h3 id="关键代码-①-双层-rollup">关键代码 ① 双层 rollup</h3>
         <p><span class="star">⭐</span> <strong>标记要点</strong>：d3.rollup 的 keys 参数是 rest 参数（...keys）。</p>
         <div class="code-block"><pre><code class="lang-js">const nested = d3.rollup(
           students,
-          v => v.length,           // 每组聚合为单一值（这里是 count）
-          d => d.major,            // 外层 key
-          d => d.class             // 内层 key（rest 参数，可继续加）
+          v =&gt; v.length,           // 每组聚合为单一值（这里是 count）
+          d =&gt; d.major,            // 外层 key
+          d =&gt; d.class             // 内层 key（rest 参数，可继续加）
         );
 
         for (const [major, inner] of nested) {
@@ -199,24 +207,24 @@
         }</code></pre></div>
         <h3 id="关键代码-②-用正则提取专业">关键代码 ② 用正则提取专业</h3>
         <p><span class="star">⭐</span> <strong>标记要点</strong>：正则 <code>/^(.+?)(\d+班)$/</code> —— <code>.+?</code> 是<strong>非贪婪</strong>匹配。</p>
-        <div class="code-block"><pre><code class="lang-js">const data = await d3.csv("./data/newstudent.csv", d => {
-          const cls = d["班级"].trim();
-          const m = cls.match(/^(.+?)(\d+班)$/);  // 中间非贪婪 + 末尾"数字+班"
+        <div class="code-block"><pre><code class="lang-js">const data = await d3.csv(&quot;./data/newstudent.csv&quot;, d =&gt; {
+          const cls = d[&quot;班级&quot;].trim();
+          const m = cls.match(/^(.+?)(\d+班)$/);  // 中间非贪婪 + 末尾&quot;数字+班&quot;
           return {
-            id:    +d["序号"],
-            name:  d["姓名"].trim(),
+            id:    +d[&quot;序号&quot;],
+            name:  d[&quot;姓名&quot;].trim(),
             class: cls,
-            major: m ? m[1] : cls,  // "软件工程1班" → "软件工程"
+            major: m ? m[1] : cls,  // &quot;软件工程1班&quot; → &quot;软件工程&quot;
           };
         });</code></pre></div>
         <p><strong>关键点解释</strong>：</p>
         <ul><li><code>.+?</code> 是<strong>非贪婪</strong>匹配 —— 让中间尽可能短、末尾留给 <code>\d+班</code></li><li>没这个非贪婪：<code>.+</code> 会把整串都匹配走，<code>m[1]</code> 就是 undefined</li><li><strong>这类正则坑学生常踩，必须掌握</strong></li></ul>
         <hr />
-        <h2 id="2-3-视觉映射-数据表-视觉结构-reingold-tilford-通道理论">2.3 视觉映射：数据表 → 视觉结构（Reingold-Tilford + 通道理论）</h2>
+        <h2 id="ch-2-3">2.3 视觉映射：数据表 → 视觉结构（Reingold-Tilford + 通道理论）</h2>
         <blockquote class="note"><strong>在流程中的位置</strong>：接上节 2.2，我们有了"数据表"。这是第二段箭头「数据表 → 视觉结构」，即 <strong>视觉映射（Visual Mapping）</strong>。</blockquote>
-        <h3 id="你的原案例">你的原案例</h3>
+        <h3 id="你的原案例-3">你的原案例</h3>
         <p>你的 4.2 节提到"树形结构可视化"。本节展开<strong>树布局算法</strong>原理 —— 拿到层级数据后，怎么把节点摆到屏幕上不打架？本质上是用「位置通道」做视觉映射。</p>
-        <h3 id="嵌入的理论">嵌入的理论</h3>
+        <h3 id="嵌入的理论-3">嵌入的理论</h3>
         <p><strong>理论核心：什么是视觉通道？Mackinlay 的排名（图 1）</strong></p>
         <p>视觉通道是"把数据编码到视觉元素上"的载体：位置、长度、面积、角度、颜色、形状、纹理。<strong>Mackinlay 1986</strong> 给出经典排名：对<em>不同数据类型</em>，各通道的量化精确度不同。</p>
         <blockquote class="note">📷 <strong>图 1 · Mackinlay 1986 通道排名</strong>（网页见 <code>img/01-mackinlay-ranking.png</code>） 对 Quantitative / Ordinal / Nominal 三类数据，各通道量化精确度排序。位置（Position）永远最准。</blockquote>
@@ -234,7 +242,7 @@
         <ol><li><strong>第一遍（自底向上）：</strong>对每个父节点，计算其左右子树"占用多少横向空间"</li><li><strong>第二遍（自顶向下）：</strong>给每个节点分配<strong>绝对 x 坐标</strong>（保证兄弟节点紧贴父节点中线且不重叠）</li><li><strong>第三遍：</strong>处理"线程"（threads）—— 修复子节点跨父中线时的对齐</li></ol>
         <p>复杂度：<strong>O(n)</strong> 时间。</p>
         <p><strong>d3-hierarchy 模块全家桶：</strong></p>
-        <table class="theory-table"><thead><tr><th>API</th><th>用途</th></tr></thead><tbody><tr><td data-label="API"><code>hierarchy(data)</code></td><td data-label="用途">嵌套 data → 计算 parent/children/depth</td></tr><tr><td data-label="API"><code>tree().size([h, w])</code></td><td data-label="用途">Reingold-Tilford 算法，左右布局</td></tr><tr><td data-label="API"><code>cluster().size([h, w])</code></td><td data-label="用途">所有叶子对齐到同一深度</td></tr><tr><td data-label="API"><code>treemap().tile(...)</code></td><td data-label="用途">面积布局（slice-and-dice / squarified）</td></tr><tr><td data-label="API"><code>pack().radius(...)</code></td><td data-label="用途">circle packing</td></tr><tr><td data-label="API"><code>partition().size([h, w])</code></td><td data-label="用途">icicle / sunburst</td></tr></tbody></table>
+        <table class="theory-table"><thead><tr><th scope="col">API</th><th scope="col">用途</th></tr></thead><tbody><tr><td data-label="API"><code>hierarchy(data)</code></td><td data-label="用途">嵌套 data → 计算 parent/children/depth</td></tr><tr><td data-label="API"><code>tree().size([h, w])</code></td><td data-label="用途">Reingold-Tilford 算法，左右布局</td></tr><tr><td data-label="API"><code>cluster().size([h, w])</code></td><td data-label="用途">所有叶子对齐到同一深度</td></tr><tr><td data-label="API"><code>treemap().tile(...)</code></td><td data-label="用途">面积布局（slice-and-dice / squarified）</td></tr><tr><td data-label="API"><code>pack().radius(...)</code></td><td data-label="用途">circle packing</td></tr><tr><td data-label="API"><code>partition().size([h, w])</code></td><td data-label="用途">icicle / sunburst</td></tr></tbody></table>
         <h3 id="关键代码-①-hierarchy-tree-三步走">关键代码 ① hierarchy + tree 三步走</h3>
         <p><span class="star">⭐</span> <strong>标记要点</strong>：tree.x 是深度方向、tree.y 是水平方向 —— 横向树 swap 坐标轴。</p>
         <div class="code-block"><pre><code class="lang-js">// 1. hierarchy：嵌套 JSON → parent/children/depth
@@ -245,33 +253,33 @@
         const treeData = treeLayout(root);
 
         // 3. links：path 走 linkHorizontal
-        g.selectAll(".link").data(treeData.links()).join("path")
-          .attr("d", d3.linkHorizontal().x(d => d.y).y(d => d.x));  // ⭐ swap
+        g.selectAll(&quot;.link&quot;).data(treeData.links()).join(&quot;path&quot;)
+          .attr(&quot;d&quot;, d3.linkHorizontal().x(d =&gt; d.y).y(d =&gt; d.x));  // ⭐ swap
 
         // 4. nodes
-        const ng = g.selectAll(".node").data(treeData.descendants()).join("g")
-          .attr("transform", d => `translate(${d.y}, ${d.x})`);  // ⭐ swap
+        const ng = g.selectAll(&quot;.node&quot;).data(treeData.descendants()).join(&quot;g&quot;)
+          .attr(&quot;transform&quot;, d =&gt; `translate(${d.y}, ${d.x})`);  // ⭐ swap
 
-        ng.append("circle").attr("r", 5);
-        ng.append("text")
-          .attr("text-anchor", d => d.children ? "end" : "start")
-          .attr("x", d => d.children ? -8 : 8)
-          .text(d => d.data.name);</code></pre></div>
+        ng.append(&quot;circle&quot;).attr(&quot;r&quot;, 5);
+        ng.append(&quot;text&quot;)
+          .attr(&quot;text-anchor&quot;, d =&gt; d.children ? &quot;end&quot; : &quot;start&quot;)
+          .attr(&quot;x&quot;, d =&gt; d.children ? -8 : 8)
+          .text(d =&gt; d.data.name);</code></pre></div>
         <p><strong>关键点解释</strong>：</p>
         <ul><li><code>treeData.x</code> 是<strong>深度方向</strong>（垂直），<code>treeData.y</code> 是<strong>水平方向</strong></li><li>所以 <code>linkHorizontal</code> 用 <code>x=d.y, y=d.x</code> —— 横向 swap</li><li><strong>这种"x 轴走 y、y 轴走 x"的 swap 是横向树特有的</strong></li></ul>
         <h3 id="关键代码-②-separation">关键代码 ② separation</h3>
         <p><span class="star">⭐</span> <strong>标记要点</strong>：separation 接收函数，返回 <code>[node, parent]</code> 之间的间隔倍数。</p>
         <div class="code-block"><pre><code class="lang-js">const treeLayout = d3.tree()
           .size([360, 720])
-          .separation((a, b) => (a.parent === b.parent ? 1 : 2));
+          .separation((a, b) =&gt; (a.parent === b.parent ? 1 : 2));
                                       //   ↑ 兄弟节点紧贴        ↑ 非兄弟至少隔 2 倍</code></pre></div>
         <p><code>0.5</code> → 全部挤一起；<code>2.0</code> → 树变宽。Demo 里有 slider 实时调。</p>
         <hr />
-        <h2 id="2-4-视图渲染与用户交互-classed-事件委托-动画-transition">2.4 视图渲染与用户交互（classed + 事件委托 + 动画 transition）</h2>
+        <h2 id="ch-2-4">2.4 视图渲染与用户交互（classed + 事件委托 + 动画 transition）</h2>
         <blockquote class="note"><strong>在流程中的位置</strong>：接上节 2.3，我们有了"视觉结构"。本节是最后两段箭头「视觉结构 → 视图」（渲染）和「视图 ↔ 用户」（交互反馈）。Card 的 V 层 + van Wijk 的反馈环都落在这里。</blockquote>
-        <h3 id="你的原案例">你的原案例</h3>
+        <h3 id="你的原案例-4">你的原案例</h3>
         <p>原文档用了 <code>classed</code> 控制节点样式、用 <code>stopPropagation</code> 阻止冒泡。重点是<strong>把 D3 树布局输出变成可交互的 HTML 列表</strong>。</p>
-        <h3 id="嵌入的理论">嵌入的理论</h3>
+        <h3 id="嵌入的理论-4">嵌入的理论</h3>
         <p><strong>理论补丁：动画 —— 视图渲染的"时间维"</strong></p>
         <p>动画（transition）不是"花哨"，而是视图渲染在<em>时间维</em>上的展开。D3 用 <code>.transition().duration(ms)</code> 让属性从旧值平滑过渡到新值。教学价值在 <code>duration</code> 一个参数：</p>
         <ul><li><code>duration=0</code>：瞬间跳变，看不出"变化过程"</li><li><code>duration=500</code>：0.5 秒过渡，看到展开/收缩/位移的流畅过程</li><li><code>duration&gt;1500</code>：太慢，学生开始走神</li></ul>
@@ -280,24 +288,24 @@
         <ol><li><strong>捕获 (capturing)</strong>：window → document → ... → 目标元素（从外到内）</li><li><strong>目标 (target)</strong>：目标元素本身</li><li><strong>冒泡 (bubbling)</strong>：目标元素 → ... → document → window（从内到外）</li></ol>
         <p>默认监听的是冒泡阶段。<code>e.stopPropagation()</code> 截断冒泡，让上层不再触发。</p>
         <p><strong>事件委托（Event Delegation）</strong>：</p>
-        <table class="theory-table"><thead><tr><th>问题</th><th>解法</th></tr></thead><tbody><tr><td data-label="问题">列表 1000 个 li 各绑 click → 慢、内存大</td><td data-label="解法">给父元素（ul）绑 1 次 click</td></tr><tr><td data-label="问题">新增元素要重新绑</td><td data-label="解法">用 <code>e.target.closest('.label')</code> 找实际点击元素</td></tr></tbody></table>
+        <table class="theory-table"><thead><tr><th scope="col">问题</th><th scope="col">解法</th></tr></thead><tbody><tr><td data-label="问题">列表 1000 个 li 各绑 click → 慢、内存大</td><td data-label="解法">给父元素（ul）绑 1 次 click</td></tr><tr><td data-label="问题">新增元素要重新绑</td><td data-label="解法">用 <code>e.target.closest('.label')</code> 找实际点击元素</td></tr></tbody></table>
         <p><strong>优势</strong>：1 个监听器代替 N 个、未来新增元素自动支持。</p>
         <h3 id="关键代码-①-事件委托-toggle-vs-select">关键代码 ① 事件委托（toggle vs select）</h3>
         <p><span class="star">⭐</span> <strong>标记要点</strong>：toggle 按钮上 stopPropagation 阻止冒泡到 li 的 select 监听器。</p>
         <div class="code-block"><pre><code class="lang-js">function buildList(liSel, d) {
-          const label = liSel.append("span").attr("class", "label");
+          const label = liSel.append(&quot;span&quot;).attr(&quot;class&quot;, &quot;label&quot;);
 
-          label.on("click.toggle", (event) => {
-            // ⭐ 关键 ①：阻止冒泡 —— toggle 不该触发"选中"
+          label.on(&quot;click.toggle&quot;, (event) =&gt; {
+            // ⭐ 关键 ①：阻止冒泡 —— toggle 不该触发&quot;选中&quot;
             event.stopPropagation();
             d.data._collapsed = !d.data._collapsed;
             render();
           });
 
-          liSel.on("click.select", (event) => {
+          liSel.on(&quot;click.select&quot;, (event) =&gt; {
             // ⭐ 关键 ②：toggle click 已被 stopPropagation 阻断，不会到这里
-            document.querySelectorAll("li").forEach(li => li.classList.remove("selected"));
-            liSel.classed("selected", true);  // D3 class 切换
+            document.querySelectorAll(&quot;li&quot;).forEach(li =&gt; li.classList.remove(&quot;selected&quot;));
+            liSel.classed(&quot;selected&quot;, true);  // D3 class 切换
           });
         }</code></pre></div>
         <p><strong>关键点解释</strong>：</p>
@@ -305,9 +313,9 @@
         <h3 id="关键代码-②-嵌套递归-buildlist">关键代码 ② 嵌套递归 buildList</h3>
         <p><span class="star">⭐</span> <strong>标记要点</strong>：<code>selection.each()</code> + <code>d3.select(this)</code> 是 D3 与原生 DOM 互操作的关键模式。</p>
         <div class="code-block"><pre><code class="lang-js">function render() {
-          $tree.innerHTML = "";  // 全量重画（树结构变化没法增量更新）
-          const ul = d3.create("ul");
-          ul.selectAll("li").data([root]).join("li")
+          $tree.innerHTML = &quot;&quot;;  // 全量重画（树结构变化没法增量更新）
+          const ul = d3.create(&quot;ul&quot;);
+          ul.selectAll(&quot;li&quot;).data([root]).join(&quot;li&quot;)
             .each(function(d) { buildList(d3.select(this), d); });
           $tree.appendChild(ul.node());
         }</code></pre></div>
@@ -316,27 +324,27 @@
         <h3 id="关键代码-③-d3-过渡动画-transition-duration">关键代码 ③ D3 过渡动画（transition + duration）</h3>
         <p><span class="star">⭐</span> <strong>标记要点</strong>：<code>transition + duration</code> = 让属性随时间平滑变化。</p>
         <div class="code-block"><pre><code class="lang-js">// 关键：transition + duration = 让属性随时间平滑变化
-        svg.selectAll(".node")
+        svg.selectAll(&quot;.node&quot;)
           .transition()                    // 进入过渡状态
           .duration(DURATION)              // 时长（ms），滑块控制
-          .attr("transform", d => `translate(${d.y}, ${d.x})`)
-          .attr("opacity", 1);
+          .attr(&quot;transform&quot;, d =&gt; `translate(${d.y}, ${d.x})`)
+          .attr(&quot;opacity&quot;, 1);
 
         // 新节点进入时：先设 opacity=0，再过渡到 1 → 淡入效果
-        ng.attr("opacity", 0)
-          .transition().duration(DURATION).attr("opacity", 1);</code></pre></div>
+        ng.attr(&quot;opacity&quot;, 0)
+          .transition().duration(DURATION).attr(&quot;opacity&quot;, 1);</code></pre></div>
         <h3 id="关键代码-④-动画时长滑块-html-css-控制">关键代码 ④ 动画时长滑块（HTML/CSS 控制）</h3>
-        <div class="code-block"><pre><code class="lang-html"><!-- HTML 滑块：监听 input 事件即可改 DURATION -->
-        <input id="dur" type="range" min="0" max="1500" step="50" value="500">
+        <div class="code-block"><pre><code class="lang-html">&lt;!-- HTML 滑块：监听 input 事件即可改 DURATION --&gt;
+        &lt;input id=&quot;dur&quot; type=&quot;range&quot; min=&quot;0&quot; max=&quot;1500&quot; step=&quot;50&quot; value=&quot;500&quot;&gt;
 
-        <!-- JS：改变 DURATION 后重放动画 -->
-        document.getElementById("dur").addEventListener("input", e => {
+        &lt;!-- JS：改变 DURATION 后重放动画 --&gt;
+        document.getElementById(&quot;dur&quot;).addEventListener(&quot;input&quot;, e =&gt; {
           DURATION = +e.target.value;
           render();   // 用新时长重新做一次过渡
         });</code></pre></div>
         <hr />
         <h2 id="总结-本章覆盖到的陈为教材章节">🎯 总结：本章覆盖到的陈为教材章节</h2>
-        <table class="theory-table"><thead><tr><th>陈为教材</th><th>覆盖位置</th></tr></thead><tbody><tr><td data-label="陈为教材">Ch1.5 可视化过程模型（Card, Mackinlay, van Wijk）</td><td data-label="覆盖位置">2.1</td></tr><tr><td data-label="陈为教材">Ch3 数据变换（rollup / group / 数据表 D 层）</td><td data-label="覆盖位置">2.2</td></tr><tr><td data-label="陈为教材">Ch6 视觉映射与树/层次数据（hierarchy / tree / cluster）</td><td data-label="覆盖位置">2.3</td></tr><tr><td data-label="陈为教材">Ch7 交互（事件机制 / stopPropagation / 动画 transition）</td><td data-label="覆盖位置">2.4</td></tr></tbody></table>
+        <table class="theory-table"><thead><tr><th scope="col">陈为教材</th><th scope="col">覆盖位置</th></tr></thead><tbody><tr><td data-label="陈为教材">Ch1.5 可视化过程模型（Card, Mackinlay, van Wijk）</td><td data-label="覆盖位置">2.1</td></tr><tr><td data-label="陈为教材">Ch3 数据变换（rollup / group / 数据表 D 层）</td><td data-label="覆盖位置">2.2</td></tr><tr><td data-label="陈为教材">Ch6 视觉映射与树/层次数据（hierarchy / tree / cluster）</td><td data-label="覆盖位置">2.3</td></tr><tr><td data-label="陈为教材">Ch7 交互（事件机制 / stopPropagation / 动画 transition）</td><td data-label="覆盖位置">2.4</td></tr></tbody></table>
         <hr />
         <h2 id="课堂提问建议">❓ 课堂提问建议</h2>
         <ol><li><strong>(2.1)</strong> van Wijk 模型为什么强调"View ⇆ Filter"这个回路？没有反馈环会怎样？</li><li><strong>(2.2)</strong> <code>d3.rollup</code> 和 <code>d3.group</code> 在返回类型上有什么关键区别？数据变换四操作里，rollup 属于哪一个？</li><li><strong>(2.3)</strong> Masonlay 排名里为什么"位置"对三种数据类型都是第一？树布局怎么用"位置通道"编码层级关系？</li><li><strong>(2.4)</strong> 不 stopPropagation 的话，事件会冒泡到 document、window。<code>duration=0</code> 和 <code>duration=500</code> 对学生感知"变化过程"有什么本质区别？</li></ol>

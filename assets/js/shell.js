@@ -18,6 +18,12 @@
   var doc = document;
   var root = doc.documentElement;
 
+  /* 第一件事：给 <html> 打上 data-js，声明「脚本已接管」。
+     放在最前面、在任何可能抛异常的调用之前 —— 它是个纯标记，
+     供以后写「只在有 JS 时才生效」的样式用；本文件里 tab 面板的显隐
+     另由 data-tabs 控制（见 Lesson.init），因为那是另一个模块的责任。 */
+  root.setAttribute("data-js", "1");
+
   /* 站点根目录。以本模块自身的位置推算（assets/js/shell.js -> 上两级），
      因为页面可能位于 /、/lesson-0X/、/supplementary/ 等不同层级，
      而站点级资源（搜索索引等）只有一份。 */
@@ -737,12 +743,19 @@
 
       var self = this;
 
-      // 逐个守卫，而不是假设它们都在。
+      // 启动按钮可能在页面上出现两次（门户页 hero 里一个、底部导览条一个），
+      // 所以用属性选择器全绑一遍，而不是 getElementById —— 之前两处都写了
+      // id="tour-play"，重复 id 是非法的，而且 getElementById 只返回第一个，
+      // 底部那个按钮点击后毫无反应。
+      $$("[data-tour-start]").forEach(function (el) {
+        el.addEventListener("click", function () { self.start(); });
+      });
+
+      // 其余控制按钮每页最多一个，逐个守卫而不是假设它们都在：
       // 之前 #tour-play 漏在模板外，一行 null.addEventListener 就把整个 boot
       // 里排在后面的搜索、进度初始化全部中断了——而且不报 404，只是静默失效。
       // 绑定失败最多少一个按钮用，不该拖垮别的模块。
-      [["#tour-play", function () { self.start(); }],
-       ["#tour-prev", function () { self.go(self.i - 1); }],
+      [["#tour-prev", function () { self.go(self.i - 1); }],
        ["#tour-next", function () { self.go(self.i + 1); }],
        ["#tour-exit", function () { self.stop(); }],
        ["#tour-toggle", function () { self.playing ? self.pause() : self.resume(); }]
@@ -848,10 +861,13 @@
   var Lesson = {
     init: function () {
       var self = this;
+      var bound = 0;
+      var preferred = store("wb.tab");
 
       $$(".section").forEach(function (sec) {
         var tabs = $$(".tab-btn", sec);
         if (!tabs.length) return;
+        bound++;
 
         tabs.forEach(function (btn) {
           btn.addEventListener("click", function () { self.showTab(sec, btn.getAttribute("data-tab")); });
@@ -869,10 +885,26 @@
           });
         });
 
-        // 记忆：同一小节内切过一次后，其余小节跟随上次选择
-        var remembered = store("wb.tab");
-        if (remembered) self.showTab(sec, remembered, true);
+        /* 每一节都必须选中一个面板 —— 这是「首访读者看到空白页」那个 bug 的修法。
+           原逻辑是「有记忆才恢复」，于是第一次来的读者（localStorage 里没有
+           wb.tab）一个面板都没选中：CSS 里 .tab-panel 默认 display:none，
+           整章 24 个面板全部不可见，页面只剩一行行小节标题，正文 1208 字。
+           老读者因为点过一次 tab、留下了记忆，反而是正常的 —— 所以这个 bug
+           在本机很难被发现，是把 localStorage 清掉才复现出来的。
+
+           优先级：上次选择 → explain → 该节第一个 tab。最后一步兜底的是
+           万一记忆里的 tab 在当前节不存在（比如某节没有演示）。 */
+        var names = tabs.map(function (b) { return b.getAttribute("data-tab"); });
+        var pick = (preferred && names.indexOf(preferred) >= 0) ? preferred
+                 : (names.indexOf("explain") >= 0 ? "explain" : names[0]);
+        self.showTab(sec, pick, true);
       });
+
+      /* 确实绑上了才声明「tab 已接管」。CSS 里
+         `html:not([data-tabs]) .tab-panel { display: block }` 靠这个标记决定
+         要不要隐藏非活动面板 —— 万一本模块没跑起来（脚本被拦、解析失败），
+         读者看到的是三栏全部展开的完整正文，而不是一片空白。 */
+      if (bound) root.setAttribute("data-tabs", "1");
     },
 
     showTab: function (sec, name, silent) {

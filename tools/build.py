@@ -28,13 +28,24 @@ build.py —— 课程网站内容管道
 """
 
 import json
+import os
 import re
+import struct
 import sys
+from html import escape as html_escape
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 ORIGIN = ROOT / "tools" / "origin"
 DATA = ROOT / "tools" / "data"
+
+# 站点对外地址。canonical / og:url 要用绝对地址，而构建时并不联网，
+# 只能从配置里取。换部署位置时改这一处，或用环境变量覆盖。
+# 注意 GitHub Pages 是子路径部署，末尾不要带斜杠。
+SITE_URL = (
+    os.environ.get("WB_SITE_URL")
+    or "https://boveyh.github.io/Rebuild-ct-web"
+).rstrip("/")
 
 CHECK_ONLY = "--check" in sys.argv
 
@@ -326,14 +337,31 @@ TAB_LABEL_EN = {"explain": "Explain", "code": "Key code", "demo": "Demo"}
 
 # ============================================================ 页面外壳片段
 
-def head(title, desc, depth, extra_css=(), extra_js=(), theme_color="#3d4bc0", root_probe=False):
+def head(title, desc, depth, extra_css=(), extra_js=(), theme_color="#3d4bc0",
+         root_probe=False, path=""):
     """depth = 相对站点根目录的层级，'../' 或 ''
 
     root_probe=True 只有 404 页用：把「站点根探测」脚本插到 head 最前面，
     这样紧跟其后的 favicon / CSS / JS 这些相对地址才会按正确基准解析。
+
+    path = 本站内该页的绝对路径（'/lesson-03/'、'/glossary.html'）。
+    用来拼 canonical 与 og:url。传 None 表示不输出 canonical ——
+    404 页就属于这种：它是个错误页，让搜索引擎收录反而添乱。
     """
     probe = (ROOT_SCRIPT + "\n") if root_probe else ""
     up = depth
+
+    # 绝对地址类的元信息。之前只有一个 og:title / og:description，
+    # 分享到群里没有缩略图也没有规范地址，搜索引擎只能自己猜哪一版是正文。
+    url = f"{SITE_URL}{path}" if path is not None else ""
+    canonical = f'\n  <link rel="canonical" href="{url}" />' if url else ""
+    og_url = (f'\n  <meta property="og:url" content="{url}" />'
+              f'\n  <meta property="og:site_name" content="《可视化导论》" />'
+              f'\n  <meta property="og:image" content="{SITE_URL}/assets/og-cover.png" />'
+              f'\n  <meta property="og:image:width" content="1200" />'
+              f'\n  <meta property="og:image:height" content="630" />'
+              f'\n  <meta property="og:locale" content="zh_CN" />'
+              f'\n  <meta name="twitter:card" content="summary_large_image" />') if url else ""
     css = "\n".join(
         f'  <link rel="stylesheet" href="{up}assets/css/{n}.css" />'
         for n in ("tokens", "base", "shell", "content")
@@ -356,7 +384,7 @@ def head(title, desc, depth, extra_css=(), extra_js=(), theme_color="#3d4bc0", r
   <link rel="icon" href="{up}favicon.svg" type="image/svg+xml" />
   <meta property="og:title" content="{title}" />
   <meta property="og:description" content="{desc}" />
-  <meta property="og:type" content="website" />
+  <meta property="og:type" content="website" />{og_url}{canonical}
 {css}
   <script>
     /* 主题要在首次绘制前定好，否则深色模式会闪一下白 */
@@ -579,7 +607,7 @@ def close_page(extra_js="", tour=False):
     if tour:
         tour_bar = """
   <div class="tour-bar" id="tour-bar" data-open="false" role="region" aria-label="自动导览">
-    <button class="tour-bar__trigger" type="button" id="tour-play">
+    <button class="tour-bar__trigger" type="button" data-tour-start>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg>
       <span data-i18n="tour.play">自动导览本章</span>
       <span class="tour-bar__steps" id="tour-total"></span>
@@ -622,6 +650,95 @@ RE_OLD_PLACEHOLDER = re.compile(
     re.MULTILINE)
 
 
+RE_TH_UNSCOPED = re.compile(r"<th(?![^>]*\bscope=)([^>]*)>")
+
+
+def image_size(path):
+    """读图片像素尺寸。只认 PNG / GIF / JPEG —— 站点里用到的就这三种。"""
+    try:
+        with open(path, "rb") as f:
+            head = f.read(32)
+    except OSError:
+        return None
+
+    if head[:8] == b"\x89PNG\r\n\x1a\n":
+        return struct.unpack(">II", head[16:24])
+    if head[:6] in (b"GIF87a", b"GIF89a"):
+        return struct.unpack("<HH", head[6:10])
+    if head[:2] == b"\xff\xd8":  # JPEG：一路找 SOF 段
+        try:
+            with open(path, "rb") as f:
+                f.read(2)
+                while True:
+                    marker = f.read(2)
+                    if len(marker) < 2 or marker[0] != 0xFF:
+                        return None
+                    if marker[1] in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6,
+                                     0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                        f.read(3)
+                        h, w = struct.unpack(">HH", f.read(4))
+                        return w, h
+                    seg_len = struct.unpack(">H", f.read(2))[0]
+                    f.seek(seg_len - 2, 1)
+        except (OSError, struct.error):
+            return None
+    return None
+
+
+RE_IMG = re.compile(r"<img\b([^>]*?)\s*/?>")
+
+
+def add_img_dims(html: str, base_dir: Path) -> str:
+    """给 <img> 补 width / height / loading。
+
+    为什么值得做：没有尺寸时，浏览器在图片下载完之前不知道它要占多高，
+    于是先按 0 高度排版、图到了再撑开 —— 这就是 CLS（布局偏移）。
+    第 2 章有 5 张图、其中一张 444 KB，读着读着整段文字被顶下去会很烦。
+
+    尺寸从文件头里读，不写死。CSS 里已有 `img { max-width:100%; height:auto }`，
+    所以宽高属性只用于「占位」，不会被当成固定渲染尺寸，小屏依然自适应。
+    """
+    def one(m):
+        attrs = m.group(1)
+        if re.search(r"\bwidth=", attrs) and re.search(r"\bheight=", attrs):
+            return m.group(0)
+        src = re.search(r'\bsrc="([^"]+)"', attrs)
+        if not src:
+            return m.group(0)
+        rel = src.group(1)
+        if rel.startswith(("http:", "https:", "//", "data:")):
+            return m.group(0)
+        target = (base_dir / rel.lstrip("./")).resolve()
+        dim = image_size(target) if target.is_file() else None
+        if not dim:
+            return m.group(0)
+        w, h = dim
+        extra = f' width="{w}" height="{h}"'
+        if not re.search(r"\bloading=", attrs):
+            extra += ' loading="lazy" decoding="async"'
+        return f"<img{attrs.rstrip('/ ')}{extra} />"
+
+    return RE_IMG.sub(one, html)
+
+
+def fix_table_scope(html: str) -> str:
+    """给表头补 scope="col"。
+
+    读屏软件靠 scope 把单元格关联到表头；缺了它，一张 4 列表格会被从头
+    念成一串「层 原文 回答的问题 数据 原始 离散的观察结果 …」，听的人无法
+    知道某个值属于哪一列。HTML 规范里 th 的默认 scope 是 auto，浏览器能猜，
+    但辅助技术未必跟着猜。
+
+    原站这 14 张 theory-table 的 th 全部在 thead 内（是列标题，不是行标题），
+    所以统一按 col 处理。
+    """
+    return re.sub(
+        r"<table[\s\S]*?</table>",
+        lambda m: RE_TH_UNSCOPED.sub(r'<th scope="col"\1>', m.group(0)),
+        html,
+    )
+
+
 def panel_html(section, name):
     sid = section["id"]
     pid = f"p-{sid}-{name}"
@@ -642,7 +759,7 @@ def panel_html(section, name):
                      '独立示例。</p>')
     return (f'        <div class="tab-panel" id="{pid}" data-panel="{name}" role="tabpanel"\n'
             f'             aria-labelledby="t-{sid}-{name}" data-active="false">\n'
-            f'{indent(inner, 10)}\n        </div>')
+            f'{indent(fix_table_scope(inner), 10)}\n        </div>')
 
 
 def section_html(section, first):
@@ -774,7 +891,8 @@ def build_lesson(ch):
                   f'<span class="lesson-pager__label" data-i18n="nav.next">下一节</span>'
                   f'<span class="lesson-pager__title">第 {next_ch["num"]} 章 {next_ch["title"]["zh"]}</span></a>')
 
-    html = f"""{head(title, desc, "../", extra_js=("conceptmap", "lesson"))}
+    html = f"""{head(title, desc, "../", extra_js=("conceptmap", "lesson"),
+                     path=f"/{ch['slug']}/")}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 
@@ -832,7 +950,7 @@ def build_lesson(ch):
   <script type="application/json" id="tour-data">{tour}</script>
 {close_page(tour=True)}"""
 
-    write(ROOT / slug / "index.html", html)
+    write(ROOT / slug / "index.html", add_img_dims(html, ROOT / slug))
 
     # 讲义：把 markdown 渲染成 HTML，取代原来「下载一个 .md」的做法
     md = ROOT / slug / "lecture.md"
@@ -843,14 +961,15 @@ def build_lesson(ch):
 
 def build_lecture(ch, md_text, sections):
     """讲义页：完整 markdown 版正文，供打印与离线阅读。"""
-    body = markdown(md_text)
+    body = markdown(md_text, {s["num"]: s["id"] for s in sections})
     toc = "\n".join(
         f'          <li><a class="sidebar__link" href="#{s["id"]}">'
         f'<span class="sidebar__num">{s["num"]}</span>'
         f'<span class="sidebar__text">{s["title"]["zh"]}</span></a></li>'
         for s in sections
     )
-    html = f"""{head(f"第 {ch['num']} 章 讲义 · 《可视化导论》", re.sub(r"\\s+", " ", ch['lead']['zh'])[:110], "../")}
+    html = f"""{head(f"第 {ch['num']} 章 讲义 · 《可视化导论》", re.sub(r"\\s+", " ", ch['lead']['zh'])[:110], "../",
+                     path=f"/{ch['slug']}/lecture.html")}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 
@@ -902,11 +1021,35 @@ def md_inline(s: str) -> str:
     return s
 
 
-def markdown(text: str) -> str:
+def markdown(text: str, id_map: dict = None) -> str:
+    """极简 markdown → HTML。
+
+    id_map 用于给 h2 指定确定的锚点：{小节号: id}，例如 {"2.1": "ch-2-1"}。
+    讲义页的侧栏目录是按小节 id 生成的，而锚点原本是从标题文字推导的
+    （`2-1-数据可视化流程-card-mackinlay-van-wijk`），两边对不上 ——
+    27 个目录项点了全都没反应。传了 id_map 就以它为准。
+
+    同名标题也会自动去重（`你的原案例` → `你的原案例-2` …）。讲义里
+    「你的原案例」「嵌入的理论」这种标题每小节都出现一次，不去重就是
+    一串重复 id，页面内链接永远只能跳到第一个。
+    """
     lines = text.split("\n")
     out = []
     i = 0
     n = len(lines)
+    used: dict[str, int] = {}
+
+    def make_anchor(txt: str, level: int) -> str:
+        if id_map and level == 2:
+            for num, sid in id_map.items():
+                if txt.startswith(num + " "):
+                    return sid
+        base = re.sub(r"[^\w\u4e00-\u9fff]+", "-", txt).strip("-").lower()
+        if not base:
+            base = "section"
+        seen = used.get(base, 0) + 1
+        used[base] = seen
+        return base if seen == 1 else f"{base}-{seen}"
 
     while i < n:
         line = lines[i]
@@ -921,14 +1064,19 @@ def markdown(text: str) -> str:
                 i += 1
             i += 1
             code = "\n".join(buf)
+            # 必须转义。代码示例里出现 <defs> / <marker> / <input> 是常态
+            # （第 2 章讲 SVG 流程图、讲滑块交互都用得到），不转义的话浏览器
+            # 会把它们当成真实标签：<defs> <marker> 直接消失，代码里那一行
+            # 变成「// 1. 用  +  定义箭头」；<input> 更糟，真的在代码块里
+            # 渲染出一个滑块。
             out.append(f'<div class="code-block"><pre><code class="lang-{lang}">'
-                       f'{code}</code></pre></div>')
+                       f'{html_escape(code)}</code></pre></div>')
             continue
 
         if re.match(r"^#{1,6}\s", line):
             level = len(line) - len(line.lstrip("#"))
             txt = line[level:].strip()
-            anchor = re.sub(r"[^\w\u4e00-\u9fff]+", "-", txt).strip("-").lower()
+            anchor = make_anchor(txt, level)
             out.append(f'<h{level} id="{anchor}">{md_inline(txt)}</h{level}>')
             i += 1
             continue
@@ -954,7 +1102,7 @@ def markdown(text: str) -> str:
             while i < n and "|" in lines[i] and lines[i].strip():
                 rows.append([c.strip() for c in lines[i].strip().strip("|").split("|")])
                 i += 1
-            th = "".join(f"<th>{md_inline(c)}</th>" for c in head)
+            th = "".join(f'<th scope="col">{md_inline(c)}</th>' for c in head)
             trs = "".join(
                 "<tr>" + "".join(f'<td data-label="{head[k] if k < len(head) else ""}">'
                                  f"{md_inline(c)}</td>" for k, c in enumerate(r)) + "</tr>"
@@ -1299,7 +1447,8 @@ def build_portal(all_sections, demo_counts):
 
     html = f"""{head("《可视化导论》· 课程门户",
                "中国石油大学（华东）《可视化导论》课程：案例驱动，零依赖，浏览器打开即用。",
-               "", extra_css=("portal",), extra_js=("conceptmap", "portal"))}
+               "", extra_css=("portal",), extra_js=("conceptmap", "portal"),
+               path="/")}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 
@@ -1325,7 +1474,7 @@ def build_portal(all_sections, demo_counts):
           <span data-lang="zh">检索知识点</span><span data-lang="en">Search concepts</span>
           <kbd>Ctrl K</kbd>
         </button>
-        <button class="btn" type="button" id="tour-play">
+        <button class="btn" type="button" data-tour-start>
           <span data-lang="zh">自动导览</span><span data-lang="en">Guided tour</span>
         </button>
       </div>
@@ -1408,6 +1557,62 @@ def build_portal(all_sections, demo_counts):
           </ol>
         </article>
       </div>
+    </section>
+
+    <section class="portal-section" aria-labelledby="about-title">
+      <h2 class="portal-section__title" id="about-title">
+        <span data-lang="zh">关于这门课</span><span data-lang="en">About</span>
+      </h2>
+      <p class="portal-section__lead">
+        <span data-lang="zh">教材依据、内容取舍与实现方式。想知道某个结论出自哪篇论文，或者想把站子拿去改，看这里。</span>
+        <span data-lang="en">Where the material comes from, what it is built on, and how to reuse it.</span>
+      </p>
+      <dl class="about-grid">
+        <div>
+          <dt><span data-lang="zh">理论来源</span><span data-lang="en">References</span></dt>
+          <dd>
+            <span data-lang="zh">陈为《可视化导论》。单点结论分别出自 Mackinlay 1986（视觉通道量化排序）、
+            Stevens 1946（测量尺度）、Cleveland &amp; McGill 1985（图形感知）、
+            Card 1999（数据流模型）、van Wijk 2005（交互反馈模型）、
+            Bostock 的 D3 官方文档。</span>
+            <span data-lang="en">Chen Wei, <i>Introduction to Visualization</i>. Individual claims come from
+            Mackinlay 1986 (ranked visual channels), Stevens 1946 (scales of measurement),
+            Cleveland &amp; McGill 1985 (graphical perception), Card 1999 (data-flow model),
+            van Wijk 2005 (interaction loop), and Bostock's D3 documentation.</span>
+          </dd>
+        </div>
+        <div>
+          <dt><span data-lang="zh">设计原则</span><span data-lang="en">Approach</span></dt>
+          <dd>
+            <span data-lang="zh">以案例为中心，不以理论为中心。每个知识点都嵌在一个具体案例里讲，
+            再配 <span class="star">⭐</span> 标出的关键代码与可直接改参数的演示 ——
+            先看到东西动起来，再回头说它为什么这样动。</span>
+            <span data-lang="en">Case-first, not theory-first. Every idea is introduced inside a concrete
+            example, followed by a <span class="star">⭐</span> key-code block and a demo you can retune —
+            see it move first, then explain why it moves that way.</span>
+          </dd>
+        </div>
+        <div>
+          <dt><span data-lang="zh">技术栈</span><span data-lang="en">Stack</span></dt>
+          <dd>
+            <span data-lang="zh">零依赖、零构建：纯 HTML + CSS + ES Modules，D3.js v7 走 CDN。
+            <code>python -m http.server</code> 一条命令起站，不需要 npm。
+            禁用 JavaScript 时正文仍然完整可读。</span>
+            <span data-lang="en">No dependencies, no build step: plain HTML + CSS + ES Modules, with D3.js v7
+            from a CDN. One <code>python -m http.server</code> is enough; no npm.
+            The text stays fully readable with JavaScript disabled.</span>
+          </dd>
+        </div>
+        <div>
+          <dt><span data-lang="zh">数据集</span><span data-lang="en">Datasets</span></dt>
+          <dd>
+            <span data-lang="zh">新生数据、Crime 数据等已随仓库打包，浏览器直接 <code>fetch</code> 加载。
+            除 D3 之外不请求任何外部资源，断网也能跑完全部章节。</span>
+            <span data-lang="en">The freshman and crime datasets ship with the repository and are loaded with
+            <code>fetch</code>. Apart from D3 nothing is requested externally, so every chapter works offline.</span>
+          </dd>
+        </div>
+      </dl>
     </section>
   </main>
 
@@ -1532,7 +1737,7 @@ def build_supplementary():
 
     html = f"""{head("补充 Demo 集合 · 《可视化导论》",
                "与《可视化导论》各章配合的独立可运行示例，含表格、树形列表、回归拟合、等值线与时间日历。",
-               "../", extra_css=("portal",))}
+               "../", extra_css=("portal",), path="/supplementary/")}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 
@@ -1653,7 +1858,7 @@ def build_404():
     )
     html = f"""{head("页面不存在 · 《可视化导论》",
                "没有找到这个页面。下面是可以去的地方。", "",
-               extra_css=("portal",), root_probe=True)}
+               extra_css=("portal",), root_probe=True, path=None)}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 {topbar("@", [("课程门户", None)], "")}
@@ -1699,7 +1904,7 @@ def build_glossary(all_sections):
         ch = next(c for c in CHAPTERS if c["id"] == term["ch"])
         items.append(f"""        <li class="term-card" data-term-ch="{term['ch']}">
           <div class="term-card__head">
-            <h3>{term['zh']}<span class="term-card__en">{term['en']}</span></h3>
+            <h2>{term['zh']}<span class="term-card__en">{term['en']}</span></h2>
             <a class="term-card__src" href="{ch['slug']}/">第 {ch['num']} 章 {ch['title']['zh']}</a>
           </div>
           <p class="term-card__def">
@@ -1714,7 +1919,7 @@ def build_glossary(all_sections):
 
     html = f"""{head("术语表 · 《可视化导论》",
                "《可视化导论》全课程术语表：每个名词给出定义，并说明它为什么重要、容易在哪儿搞错。",
-               "", extra_css=("portal",))}
+               "", extra_css=("portal",), path="/glossary.html")}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 

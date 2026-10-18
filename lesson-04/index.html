@@ -10,6 +10,14 @@
   <meta property="og:title" content="第 4 章 低维数据可视化 · 《可视化导论》" />
   <meta property="og:description" content="以 Crime 数据为主线，讲坐标变换的三层职责、十种曲线拟合的手感差异、Cleveland 的 45° 黄金角，以及等值线提取算法。" />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://boveyh.github.io/Rebuild-ct-web/lesson-04/" />
+  <meta property="og:site_name" content="《可视化导论》" />
+  <meta property="og:image" content="https://boveyh.github.io/Rebuild-ct-web/assets/og-cover.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://boveyh.github.io/Rebuild-ct-web/lesson-04/" />
   <link rel="stylesheet" href="../assets/css/tokens.css" />
   <link rel="stylesheet" href="../assets/css/base.css" />
   <link rel="stylesheet" href="../assets/css/shell.css" />
@@ -756,7 +764,7 @@
   <script type="application/json" id="tour-data">[{"title":"低维数据在讲什么","say":"低维数据就是没有空间坐标的那类数据。这一章处理的是它们的坐标系怎么建、线怎么连、面怎么画。","top":true,"hold":6500},{"title":"先解决格式问题","say":"4.1 节先把宽格式的 Crime 数据转成长格式。这一步在真实项目里经常被跳过，然后所有后续代码都别扭。","section":"ch-4-1","tab":"explain","hold":7000},{"title":"三层坐标系","say":"4.2 节把坐标变换拆成三层，每一层只管一件事。数据空间描述语义，坐标系空间描述几何，屏幕空间描述像素。分开之后比例尺就不再神秘了。","section":"ch-4-2","tab":"demo","hold":8000},{"title":"四十五度为什么是黄金角","say":"4.4 节是这一章最有意思的一点：人眼估计斜率不是线性的。四十五度附近感知最准，所以重要的对比关系应该安排在四十五度附近。","section":"ch-4-4","tab":"demo","hold":8000},{"title":"从标量场到等值线","say":"4.5 节讲 Marching Squares 算法。它把连续的标量场变成一条条等值线，是热力图和地形图的底层算法。","section":"ch-4-5","tab":"demo","hold":7500}]</script>
 
   <div class="tour-bar" id="tour-bar" data-open="false" role="region" aria-label="自动导览">
-    <button class="tour-bar__trigger" type="button" id="tour-play">
+    <button class="tour-bar__trigger" type="button" data-tour-start>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg>
       <span data-i18n="tour.play">自动导览本章</span>
       <span class="tour-bar__steps" id="tour-total"></span>

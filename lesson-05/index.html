@@ -10,6 +10,14 @@
   <meta property="og:title" content="第 5 章 时序数据可视化 · 《可视化导论》" />
   <meta property="og:description" content="时间的 5 个属性决定了它需要用哪些非标准布局来画：折线之外，还有日历热图、阿基米德螺旋，以及能表现多角色叙事的 Storyline。" />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://boveyh.github.io/Rebuild-ct-web/lesson-05/" />
+  <meta property="og:site_name" content="《可视化导论》" />
+  <meta property="og:image" content="https://boveyh.github.io/Rebuild-ct-web/assets/og-cover.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://boveyh.github.io/Rebuild-ct-web/lesson-05/" />
   <link rel="stylesheet" href="../assets/css/tokens.css" />
   <link rel="stylesheet" href="../assets/css/base.css" />
   <link rel="stylesheet" href="../assets/css/shell.css" />
@@ -875,7 +883,7 @@
   <script type="application/json" id="tour-data">[{"title":"时间为什么难画","say":"时间有五个属性，其中「独立于空间」这一条最关键：空间可视化里位置本身就带信息，而时间需要你替它决定怎么落在平面上。","top":true,"hold":7000},{"title":"五个属性","say":"有序、连续、周期、独立于空间、有结构。后面的四种布局，每一种都是在回应这里的某一个属性。","section":"ch-5-1","tab":"explain","hold":7500},{"title":"从折线图开始","say":"5.2 节是标准做法：x 轴是时间，y 轴是度量。但它有前提，一旦数据有周期性，折线图会把周期切成一段段，看不出重复。","section":"ch-5-2","tab":"demo","hold":7500},{"title":"把一年放进一张图","say":"5.3 节是 van Wijk 的日历热图，一年一行、一周一列。它牺牲了精确的数值比较，换来了整年的模式识别。","section":"ch-5-3","tab":"demo","hold":8000},{"title":"螺旋找周期","say":"5.4 节把时间沿圆周排布成阿基米德螺旋。周期性一旦存在，就会在螺旋上对齐成径向的一条条。","section":"ch-5-4","tab":"demo","hold":8000},{"title":"多角色叙事","say":"最后一节是 Storyline，用《侏罗纪公园》做案例。每个角色一条线，线的相交就是角色相遇，这是一种把叙事结构可视化的方法。","section":"ch-5-5","tab":"demo","hold":8000}]</script>
 
   <div class="tour-bar" id="tour-bar" data-open="false" role="region" aria-label="自动导览">
-    <button class="tour-bar__trigger" type="button" id="tour-play">
+    <button class="tour-bar__trigger" type="button" data-tour-start>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg>
       <span data-i18n="tour.play">自动导览本章</span>
       <span class="tour-bar__steps" id="tour-total"></span>
