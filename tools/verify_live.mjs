@@ -141,14 +141,18 @@ for (const cid of ["01", "02", "03", "04", "05"]) {
       document.querySelectorAll('button[data-tab="demo"]').forEach((b) => b.click());
       // 轮询到全部就绪（或明确报错）为止，不用固定 sleep：演示要等 d3 从 CDN
       // 下载、有的还要再取 CSV，固定等 3.5 秒在慢网络下会误报成「没渲染」。
-      const deadline = Date.now() + 25000;
+      // 条件里必须带上「已经画出东西」：data-ready 是在调用演示函数之前就置位的，
+      // 而第 2 章的演示是 async 的（先 await d3.csv 再写 DOM），只看 ready 会在
+      // 内容还没落地时就判定完成，于是误报「空挂载点」。
+      const deadline = Date.now() + 30000;
       let mounts = [...document.querySelectorAll(".demo-mount[data-demo]")];
       while (Date.now() < deadline) {
         mounts = [...document.querySelectorAll(".demo-mount[data-demo]")];
-        const done = mounts.filter((m) => {
-          const s = m.getAttribute("data-state");
-          return m.getAttribute("data-ready") === "1" || s === "error";
-        });
+        const done = mounts.filter(
+          (m) =>
+            m.getAttribute("data-state") === "error" ||
+            (m.getAttribute("data-ready") === "1" && m.children.length > 0)
+        );
         if (mounts.length > 0 && done.length === mounts.length) break;
         await new Promise((r) => setTimeout(r, 300));
       }

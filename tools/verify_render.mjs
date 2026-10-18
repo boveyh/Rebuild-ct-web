@@ -219,8 +219,20 @@ for (const cid of ["01", "02", "03", "04", "05"]) {
     await dp.goto(`${BASE}/lesson-${cid}/`, { waitUntil: "networkidle2", timeout: 30000 });
     const res = await dp.evaluate(async () => {
       document.querySelectorAll('button[data-tab="demo"]').forEach(b => b.click());
-      await new Promise(r => setTimeout(r, 3500));
-      const mounts = [...document.querySelectorAll(".demo-mount[data-demo]")];
+      // 轮询而不是固定 sleep：data-ready 在调用演示函数前就置位，而第 2 章
+      // 的演示是 async 的（先 await d3.csv 再写 DOM），只看 ready 会在内容
+      // 还没落地时就判定完成，误报「空挂载点」。
+      const deadline = Date.now() + 20000;
+      let mounts = [...document.querySelectorAll(".demo-mount[data-demo]")];
+      while (Date.now() < deadline) {
+        mounts = [...document.querySelectorAll(".demo-mount[data-demo]")];
+        const done = mounts.filter(
+          m => m.getAttribute("data-state") === "error" ||
+               (m.getAttribute("data-ready") === "1" && m.children.length > 0)
+        );
+        if (mounts.length > 0 && done.length === mounts.length) break;
+        await new Promise(r => setTimeout(r, 300));
+      }
       return {
         mounts: mounts.length,
         ready: mounts.filter(m => m.getAttribute("data-ready") === "1").length,
