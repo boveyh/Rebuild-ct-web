@@ -609,6 +609,53 @@ def check_css_coverage(rep: Report) -> None:
 
 
 # ---------------------------------------------------------------------------
+# 演示接线：页面写下的模块名与演示键，必须都能落到真实的东西上
+# ---------------------------------------------------------------------------
+# 又一条来自真实事故的规则：
+#   页面写 data-demo-chapter="1"，lesson.js 直接拼成 ./demos/ch1.js，
+#   而文件叫 ch01.js —— 5 章演示全部 404。报错文案还写着「可能是 CDN 不可达」，
+#   把排查方向带偏了。根因是「属性值」与「文件名」之间靠运行时补零对齐，
+#   谁都不知道这个约定；把它写成静态检查，约定就变成了约束。
+
+RE_DEMO_CH = re.compile(r'data-demo-chapter="([^"]*)"')
+RE_DEMO_KEY = re.compile(r'data-demo="([^"]*)"')
+
+
+def check_demo_wiring(files: list[Path], rep: Report) -> None:
+    demo_dir = ROOT / "assets" / "js" / "demos"
+    for f in files:
+        if f.suffix != ".html":
+            continue
+        text = f.read_text(encoding="utf-8", errors="replace")
+        rel = f.relative_to(ROOT).as_posix()
+
+        chaps = sorted(set(RE_DEMO_CH.findall(text)))
+        keys = sorted(set(RE_DEMO_KEY.findall(text)))
+        if not chaps and not keys:
+            continue
+        if not chaps or not keys:
+            rep.add("L8", "演示接线错误", rel,
+                    f"只有一半信息：data-demo-chapter={chaps or '无'}，data-demo={keys or '无'}")
+            continue
+
+        registered: set[str] = set()
+        for chap in chaps:
+            mod = demo_dir / f"ch{chap}.js"
+            if not mod.is_file():
+                have = ", ".join(sorted(p.name for p in demo_dir.glob("ch*.js")))
+                rep.add("L8", "演示接线错误", f"{rel} → assets/js/demos/ch{chap}.js",
+                        f"模块不存在（实际有：{have}）")
+                continue
+            js = mod.read_text(encoding="utf-8", errors="replace")
+            registered |= set(re.findall(r'^DEMOS\["([^"]+)"\]', js, re.MULTILINE))
+
+        for key in keys:
+            if registered and key not in registered:
+                rep.add("L8", "演示接线错误", f"{rel} → 演示键 {key}",
+                        "该键没有在对应的 demos 模块里注册")
+
+
+# ---------------------------------------------------------------------------
 # 主流程
 # ---------------------------------------------------------------------------
 
@@ -627,6 +674,7 @@ def main() -> int:
     check_a11y(files, rep)
     check_content(rep)
     check_css_coverage(rep)
+    check_demo_wiring(files, rep)
 
     kinds = rep.by_kind()
     order = [
@@ -635,6 +683,7 @@ def main() -> int:
         "站点根绝对路径",
         "样式未加载",
         "样式未引用",
+        "演示接线错误",
         "编辑器残留",
         "非法 HTML",
         "脚本加载方式",
@@ -656,7 +705,7 @@ def main() -> int:
             continue
         mark = (
             "❌"
-            if k in ("断链", "运行时资源缺失", "章节页缺失", "样式未加载")
+            if k in ("断链", "运行时资源缺失", "章节页缺失", "样式未加载", "演示接线错误")
             else "⚠️"
         )
         print(f"{mark} {k}（{len(items)}）")

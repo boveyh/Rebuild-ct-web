@@ -205,22 +205,41 @@ await new Promise(r => setTimeout(r, 800));
 
 const interact = [];
 
-// 1. 切到「演示」tab —— 演示是动态 import 的，只有这一步能验证按需加载真的通了
-try {
-  const ok = await ipage.evaluate(async () => {
-    const sec = document.querySelector("section.section");
-    if (!sec) return { ok: false, why: "没有 section.section" };
-    const demo = sec.querySelector('[data-tab="demo"]');
-    if (!demo) return { ok: false, why: "没找到演示 tab" };
-    demo.click();
-    await new Promise(r => setTimeout(r, 3000));
-    const panel = sec.querySelector('.tab-panel[data-panel="demo"]');
-    const mounted = sec.querySelectorAll(".demo-mount > *").length;
-    const svg = sec.querySelectorAll("svg").length;
-    return { ok: mounted > 0 || svg > 0, mounted, svg, panel: !!panel };
-  });
-  interact.push(["演示 tab 触发动态 import 并渲染 SVG", ok.ok, JSON.stringify(ok)]);
-} catch (e) { interact.push(["演示 tab", false, String(e.message)]); }
+// 1. 演示 tab —— 5 章逐章验证
+//    这条断言不能只看「有没有子元素」：加载中/失败时也会插入一个 .demo-state 的
+//    <p>，于是「挂载了 1 个元素」恒成立。第一版就是这么写的，结果演示模块 5 章
+//    全部 404，这条断言照样是绿的。现在只认 data-ready="1"、挂载点非空、无失败请求。
+//    另外必须逐章跑：第 2 章曾因「const DEMOS 重复声明」整章解析失败，而第 3 章
+//    是好的 —— 只抽查一章就会漏掉。
+for (const cid of ["01", "02", "03", "04", "05"]) {
+  const dp = await browser.newPage();
+  const fails = [];
+  dp.on("response", r => { if (r.status() >= 400) fails.push(`${r.status()} ${r.url()}`); });
+  try {
+    await dp.goto(`${BASE}/lesson-${cid}/`, { waitUntil: "networkidle2", timeout: 30000 });
+    const res = await dp.evaluate(async () => {
+      document.querySelectorAll('button[data-tab="demo"]').forEach(b => b.click());
+      await new Promise(r => setTimeout(r, 3500));
+      const mounts = [...document.querySelectorAll(".demo-mount[data-demo]")];
+      return {
+        mounts: mounts.length,
+        ready: mounts.filter(m => m.getAttribute("data-ready") === "1").length,
+        empty: mounts.filter(m => m.children.length === 0).map(m => m.dataset.demo),
+        svg: mounts.reduce((n, m) => n + m.querySelectorAll("svg").length, 0),
+        state: mounts.map(m => m.getAttribute("data-state") || "-").join(","),
+      };
+    });
+    const ok = res.mounts > 0 && res.ready === res.mounts && res.empty.length === 0 && fails.length === 0;
+    interact.push([
+      `第 ${cid} 章演示全部渲染（${res.mounts} 个）`,
+      ok,
+      JSON.stringify({ ...res, fails: fails.slice(0, 3) }),
+    ]);
+  } catch (e) {
+    interact.push([`第 ${cid} 章演示`, false, String(e.message)]);
+  }
+  await dp.close();
+}
 
 // 2. 命令面板搜索
 try {

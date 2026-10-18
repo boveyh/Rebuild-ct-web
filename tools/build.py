@@ -606,13 +606,36 @@ def close_page(extra_js="", tour=False):
 
 # ============================================================ 小节装配
 
+# 原站快照里带着两种「旧的演示占位」，现在都由 panel_html 生成的
+# 带 data-demo-chapter 的挂载点统一承载，旧的必须清掉：
+#   ① <div class="demo-mount" data-demo="d-4-1"></div>       （第 1、2 章）
+#      —— 没有 data-demo-chapter，runDemo() 直接 return，永远是个空框
+#   ② <div id="demo-mount-d-3-1" class="demo-mount">加载中…</div>（第 3~5 章）
+#      —— 演示内容现在写进新挂载点，它就永远停在「加载中…」
+# 行尾写 `(?:\n|$)` 而不是 `\n`：这两种占位常常正好是面板内容的最后一行，
+# 而 inner 先做过 .strip()，末行没有换行符，只认 \n 会整条漏掉。
+RE_OLD_MOUNT = re.compile(
+    r'^[ \t]*<div class="demo-mount" data-demo="[^"]*">\s*</div>[ \t]*(?:\n|$)',
+    re.MULTILINE)
+RE_OLD_PLACEHOLDER = re.compile(
+    r'^[ \t]*<div id="demo-mount-[^"]*"[^>]*>[^<]*</div>[ \t]*(?:\n|$)',
+    re.MULTILINE)
+
+
 def panel_html(section, name):
     sid = section["id"]
     pid = f"p-{sid}-{name}"
     inner = section["panels"].get(name, "").strip()
     if name == "demo":
+        inner = RE_OLD_MOUNT.sub("", inner)
+        inner = RE_OLD_PLACEHOLDER.sub("", inner)
         if section.get("demo"):
-            inner = (f'<div class="demo-mount" data-demo-chapter="{sid.split("-")[1]}" '
+            # 这里必须补零：演示模块的文件名是 ch01.js … ch05.js，
+            # 属性值会被 lesson.js 直接拼进 import 路径。原先写的是
+            # sid 里的裸数字（"1"），拼出 ./demos/ch1.js —— 5 章演示全 404。
+            # 属性值应当就是模块 id 本身，别让运行时去猜。
+            chap = f'{int(sid.split("-")[1]):02d}'
+            inner = (f'<div class="demo-mount" data-demo-chapter="{chap}" '
                      f'data-demo="{section["demo"]}"></div>\n' + inner)
         elif not inner:
             inner = ('<p class="demo-hint">本小节没有配套演示，请参考左侧「补充 demo 集合」里的'
@@ -1031,9 +1054,23 @@ def build_demos():
         src = re.sub(r"^\s*// 页面初始（module 加载后立即执行）\s*\n", "", src, flags=re.M)
         src = re.sub(r"^\s*// 延迟到下一个 microtask.*\n", "", src, flags=re.M)
         src = re.sub(r"^\s*// 如果 URL 带 hash，激活对应章节\s*\n", "", src, flags=re.M)
-        # 把全局注册表收进模块作用域，避免跨章同名冲突
-        src = re.sub(r"window\.DEMOS\s*=\s*window\.DEMOS\s*\|\|\s*\{\};", "const DEMOS = {};", src)
+        # 把全局注册表收进模块作用域，避免跨章同名冲突。
+        # 注意不能无脑替换成 `const DEMOS = {};`：第 2 章的原文件里本来就有一处
+        # `const DEMOS = {}`（第 110 行），再补一个就是重复声明 —— 整个模块在
+        # 语法解析阶段就抛 "Identifier 'DEMOS' has already been declared"，
+        # 演示区全部显示「加载失败」。这里先只把已知的那句去掉，再确认全文
+        # 恰好有一处声明。
+        src = re.sub(r"^[ \t]*window\.DEMOS\s*=\s*window\.DEMOS\s*\|\|\s*\{\};[ \t]*\n",
+                     "", src, flags=re.M)
         src = re.sub(r"(?:window|globalThis)\.DEMOS\s*\[\s*", "DEMOS[", src)
+        decl = re.findall(r"^[ \t]*(?:const|let|var)\s+DEMOS\s*=", src, flags=re.M)
+        if not decl:
+            # 没有自带声明时补一个，放在 d3 导入之后，保持 import 在前
+            src = re.sub(r'^(import \* as d3 from [^\n]+\n)',
+                         r'\1\nconst DEMOS = {};\n', src, count=1, flags=re.M)
+        elif len(decl) > 1:
+            raise SystemExit(f"第 {ch['num']} 章演示模块出现 {len(decl)} 处 DEMOS 声明，"
+                             f"抽取规则需要调整")
         # 删掉残留的「传给已删除函数」的调用
         src = re.sub(r"^[ \t]*const mount = .*__[a-zA-Z]+\(.*\);[ \t]*\n", "", src, flags=re.M)
         src = re.sub(r"\n{3,}", "\n\n", src)

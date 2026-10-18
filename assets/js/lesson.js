@@ -24,21 +24,31 @@
         "For offline use, host d3 locally and repoint the import in assets/js/demos."
   };
 
-  var modules = {};   // chapterId -> Promise<registry>
+  var modules = {};   // moduleId -> Promise<registry>
 
   function locale() {
     return (doc.documentElement.getAttribute("data-locale") || "zh") === "en" ? "en" : "zh";
   }
 
+  // 演示模块按两位编号命名（ch01.js … ch05.js），而页面上的
+  // data-demo-chapter 写的是 "1"。不补零就会拼出 ./demos/ch1.js ——
+  // 整个演示区一次都加载不出来，而且报的还是「CDN 不可达」，
+  // 把排查方向带偏。这里统一补零，两种写法都能命中。
+  function moduleId(chapterId) {
+    var s = String(chapterId || "").trim();
+    return s.length < 2 ? "0" + s : s;
+  }
+
   function loadChapter(chapterId) {
-    if (modules[chapterId]) return modules[chapterId];
-    var p = import("./demos/ch" + chapterId + ".js")
+    var id = moduleId(chapterId);
+    if (modules[id]) return modules[id];
+    var p = import("./demos/ch" + id + ".js")
       .then(function (m) { return m.default || {}; })
       .catch(function (err) {
-        delete modules[chapterId];   // 允许重试
+        delete modules[id];   // 允许重试
         throw err;
       });
-    modules[chapterId] = p;
+    modules[id] = p;
     return p;
   }
 
