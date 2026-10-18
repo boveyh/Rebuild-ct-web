@@ -145,11 +145,21 @@
 
 /* =========================================================== 课程主线图 */
 .roadmap {
+  /* 图是 svg，宽度由节点数决定（三层只占 553px）。不居中的话整块挤在
+     卡片左侧，右边空出一大片，看起来像没画完。
+     居中用子元素的自动外边距，而不是 justify-content: center ——
+     后者在窄屏（图比卡片宽）会把左侧一起推到可视区外，而且滚不回来。 */
+  display: flex;
   padding: var(--sp-6);
   background: var(--bg-surface);
   border: 1px solid var(--border-2);
   border-radius: var(--radius-lg);
   overflow-x: auto;
+}
+
+.roadmap > svg {
+  margin-inline: auto;   /* 有富余时居中；不够宽时自动归零，从左边开始滚 */
+  flex: 0 0 auto;
 }
 
 /* ============================================================ 章节卡片 */

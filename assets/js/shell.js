@@ -16,6 +16,7 @@
   "use strict";
 
   var doc = document;
+  var win = window;
   var root = doc.documentElement;
 
   /* 第一件事：给 <html> 打上 data-js，声明「脚本已接管」。
@@ -774,6 +775,37 @@
         if (e.key === "Escape") self.stop();
         if (e.key === "ArrowRight") self.go(self.i + 1);
         if (e.key === "ArrowLeft") self.go(self.i - 1);
+      });
+
+      /* 往下读的时候把胶囊收起来。
+         它固定在视口底部，390px 手机上正好压住一行正文 —— 而且一直压着：
+         普通滚动改变不了它的位置，除非滚到页面最底部（那里留了空白）。
+         做法和手机浏览器自己收地址栏一样：向下滚收起，向上滚或回到页顶再出现。
+         导览进行中（data-open="true"）不收起，否则解说条会一半消失。 */
+      var lastY = win.pageYOffset || 0;
+      var queued = false;
+      function syncBar() {
+        queued = false;
+        var y = win.pageYOffset || 0;
+        var open = self.bar.getAttribute("data-open") === "true";
+        if (open) {
+          self.bar.removeAttribute("data-hidden");
+        } else if (y > lastY + 6 && y > 240) {
+          self.bar.setAttribute("data-hidden", "true");
+        } else if (y < lastY - 6 || y < 240) {
+          self.bar.removeAttribute("data-hidden");
+        }
+        if (Math.abs(y - lastY) > 6) lastY = y;
+      }
+      win.addEventListener("scroll", function () {
+        if (queued) return;
+        queued = true;
+        win.requestAnimationFrame(syncBar);
+      }, { passive: true });
+
+      // 键盘 Tab 落到按钮上时必须能看见它
+      this.bar.addEventListener("focusin", function () {
+        self.bar.removeAttribute("data-hidden");
       });
     },
 

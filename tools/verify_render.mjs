@@ -447,6 +447,8 @@ const layout = await lpage.evaluate(() => {
   }
   const motif = document.querySelector(".chapter-card__motif");
   const r = motif?.getBoundingClientRect();
+  const rmNodes = [...document.querySelectorAll("#roadmap svg g")];
+  const rmCols = [...new Set(rmNodes.map(g => Math.round(g.getBoundingClientRect().left)))];
   return {
     chapterGrid: columns(".chapter-grid"),
     stats: columns(".portal-stats"),
@@ -456,6 +458,8 @@ const layout = await lpage.evaluate(() => {
       ".chapter-card__motif rect, .chapter-card__motif circle, .chapter-card__motif path"
     ).length,
     motifBox: r ? Math.round(r.width) + "x" + Math.round(r.height) : "缺失",
+    roadmapCols: rmCols.length,
+    roadmapNodes: rmNodes.length,
   };
 });
 
@@ -467,6 +471,16 @@ const layoutOk =
   layout.motifShapes >= 20;
 if (!layoutOk) hardFail += 1;
 log((layoutOk ? "✅ " : "❌ ") + "章节网格 / 统计条 / 使用说明真的排开了  " + JSON.stringify(layout));
+
+/* 主线图曾经是「一章一列」——五章排成一条直线，读者会以为必须按顺序一路学完，
+   而 03/04/05 其实是挂在 02 下面的并列支线。这里只要「列数少于节点数」就能
+   抓住退化成直线的情况，不必把 3 这个数字写死（章节数将来可能变）。 */
+const roadmapOk = layout.roadmapNodes >= 3 && layout.roadmapCols >= 2 &&
+                  layout.roadmapCols < layout.roadmapNodes;
+if (!roadmapOk) hardFail += 1;
+log((roadmapOk ? "✅ " : "❌ ") + "课程主线按依赖分层（不是一章一列）  " +
+    JSON.stringify({ cols: layout.roadmapCols, nodes: layout.roadmapNodes }));
+
 if (lErr.length) { hardFail += 1; log("❌ 门户页异常：" + lErr.join(" | ")); }
 
 /* ------------------------------------------------- 窄屏 + 打印媒体回归 */
@@ -481,7 +495,7 @@ mpage.on("pageerror", e => mErr.push(String(e.message).split("\n")[0]));
 /* 只量一个页面是不够的。第一版只量了 /lesson-01/，于是讲义页那个「表格往右多出 4px」
    的横向滚动条一直没被发现 —— 讲义页的版式和章节页不同（没有 tab、正文更长、
    表格更多），要逐类页面各量一次才算数。 */
-const NARROW_PAGES = ["/", "/lesson-01/", "/lesson-02/lecture.html", "/glossary.html", "/supplementary/"];
+const NARROW_PAGES = ["/", "/lesson-01/", "/lesson-02/", "/lesson-02/lecture.html", "/glossary.html", "/supplementary/"];
 const NARROW_WIDTHS = [390, 360, 320];
 
 const narrowBad = [];
@@ -494,6 +508,10 @@ for (const np of NARROW_PAGES) {
       const de = document.documentElement;
       return {
         overflow: de.scrollWidth - de.clientWidth,
+        // 概念图 / 主线图曾经在窄屏上要横向滚动才看得全，而横滚没有任何提示，
+        // 读者看到头两个节点就以为图到此为止。容器内滚动量必须为 0。
+        mapScroll: [...document.querySelectorAll("#roadmap, #concept-map")]
+          .map(h => Math.round(h.scrollWidth - h.clientWidth)),
         culprit: (() => {
           // 找不到是谁撑出去的，等于没说 —— 顺手把最右边那个元素也带出来
           const vw = de.clientWidth;
@@ -514,13 +532,16 @@ for (const np of NARROW_PAGES) {
       };
     });
     if (r.overflow > 0) narrowBad.push(`${np}@${w} +${r.overflow}px (${r.culprit})`);
+    if (r.mapScroll.some(v => v > 0)) {
+      narrowBad.push(`${np}@${w} 关系图容器内横滚 ${r.mapScroll.join("/")}px`);
+    }
   }
 }
 
 /* 阈值必须卡在 0。原来写 <= 4 是想容忍亚像素舍入，结果正好把上面那个真 bug
    （每边多 4px）一并容掉了 —— 有容差的断言等于没有断言。 */
 if (narrowBad.length) { hardFail += 1; log("❌ 窄屏出现横向滚动  " + narrowBad.join(" | ")); }
-else log("✅ 五种页面 × 三档窄屏均无横向滚动  " + NARROW_PAGES.length + "×" + NARROW_WIDTHS.length + " 组合");
+else log("✅ 六类页面 × 三档窄屏无横向滚动（含关系图容器内不横滚）  " + NARROW_PAGES.length + "×" + NARROW_WIDTHS.length + " 组合");
 
 /* 汉堡按钮与侧栏状态在章节页上验收 */
 await mpage.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });

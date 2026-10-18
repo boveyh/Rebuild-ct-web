@@ -57,6 +57,20 @@ html[data-theme="dark"] .toast { background: var(--n-100); color: var(--n-950); 
   justify-content: center;
   /* 容器本身不接收点击，否则折叠态那条看不见的宽盒子会挡住正文 */
   pointer-events: none;
+  transition: transform var(--dur-base) ease, opacity var(--dur-base) ease;
+}
+
+/* 向下阅读时收起（shell.js 根据滚动方向切换这个属性）。
+   收起用位移而不是 display:none，才能有过渡；pointer-events 一并关掉，
+   否则那个已经移出视口的按钮仍然能被点到。 */
+.tour-bar[data-hidden="true"] {
+  transform: translateX(-50%) translateY(calc(100% + var(--sp-8)));
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-bar { transition: none; }
 }
 
 /* 折叠态：一个「自动导览本章」的胶囊按钮。章节页默认停在这里。 */
