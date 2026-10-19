@@ -1169,6 +1169,9 @@ body.tour-on .site-footer { opacity: 0.35; transition: opacity var(--dur-slow) v
   .breadcrumb { display: none; }
 
   .search-trigger__label { display: none; }
+  /* 手机上没有实体键盘，「Ctrl K」是一条点了也做不到的提示，还占掉顶栏
+     三分之一宽度 —— 留个放大镜就够了。 */
+  .search-trigger kbd { display: none; }
   .search-trigger { padding: 0 var(--sp-2); }
 
   .shell { --gutter: var(--sp-3); }
