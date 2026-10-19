@@ -759,30 +759,85 @@ html[data-locale="en"] .term-card__why::before { content: "Why it matters · "; 
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ============================================ 首屏背景图形（矢量） */
-/* 参考站用一张 hero 大图压场。这里换成内联矢量：散点 + 趋势线 + 柱 + 色相弧，
-   四个元素正好是本课程的四类内容。好处是跟着主题变量换色、高 DPI 不糊、
-   不额外发一个几百 KB 的请求，离线也在。 */
+/* ============================================ 首屏「可视化工作台」 */
+/* 参考站用一张 hero 大图压场。这里换成内联矢量：三块叠放的面板分别是
+   散点+趋势（观测）、直方图（分布）、节点连线（关系），用流动虚线串成
+   一条数据流水线——正好是本课程要讲的几类图形。
+   矢量而不是图片：跟主题变量一起换色、高分屏不糊、不多一个请求、断网也在。 */
 .portal-hero > .portal-hero__art {
   position: absolute;
-  top: 44%;
-  right: clamp(-96px, -4vw, -20px);
-  width: min(42vw, 540px);
-  transform: translateY(-50%);
+  /* 顶端对齐 h1 上方的空白，底边必须停在统计条（约 415px）之前 ——
+     构图 640×368，按 600px 宽算高 345，62 + 345 ≈ 407，刚好让开。 */
+  top: 6px;
+  right: clamp(-56px, -2.6vw, -12px);
+  width: min(45vw, 600px);
   pointer-events: none;
   z-index: 0;
-  /* 径向蒙版把四周都吃掉：只做横向渐变的话，面积图的右边缘会在视口处
-     割出一条硬直线，看着像没加载完的色块。 */
-  -webkit-mask-image: radial-gradient(ellipse 64% 60% at 64% 46%, #000 26%, transparent 82%);
-  mask-image: radial-gradient(ellipse 64% 60% at 64% 46%, #000 26%, transparent 82%);
+  /* 只淡左右两边：上下留实边，面板才有「摆在桌上」的体积感 */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 16%, #000 96%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 16%, #000 96%, transparent 100%);
 }
 
-html[data-theme="dark"] .portal-hero__art { opacity: 0.62; }
+html[data-theme="dark"] .portal-hero__art { opacity: 0.95; }
 
-/* 窄屏右侧没有空间，图形会被正文压住，直接不画 */
-@media (max-width: 900px) {
-  .portal-hero__art { display: none; }
+/* 面板里的等宽小标签：只当质感用，不承载信息，所以压到 8.5px */
+.hero-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  fill: var(--text-2);
+  opacity: 0.72;
 }
+.hero-label--accent { fill: var(--viz-2); }
+
+/* 三块面板轻微浮动，相位错开，像各自悬在桌面上。
+   注意：CSS transform 会盖掉元素的 transform 属性，所以旋转写在父层、
+   浮动写在这层 <g> 上，不能挂在同一个节点。 */
+.hero-float { animation: hero-float 9s ease-in-out infinite; }
+.hero-float--b { animation-duration: 11s; animation-delay: -3.4s; }
+.hero-float--c { animation-duration: 10s; animation-delay: -6.2s; }
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* 连线上的光点：dasharray 5+11=16，走 -32 正好两圈 */
+.hero-flow {
+  stroke-dasharray: 5 11;
+  animation: hero-flow 2.2s linear infinite;
+}
+.hero-flow--trend { stroke-dasharray: 7 13; animation-duration: 3.4s; }
+@keyframes hero-flow { to { stroke-dashoffset: -32; } }
+
+/* P95 那个点的呼吸环 */
+.hero-pulse {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hero-pulse 3.2s ease-out infinite;
+}
+@keyframes hero-pulse {
+  0% { transform: scale(0.7); opacity: 0.85; }
+  70%, 100% { transform: scale(1.9); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-float, .hero-flow, .hero-pulse { animation: none; }
+  .hero-pulse { opacity: 0.5; }
+}
+
+/* 中窄屏不再往外出血，否则右边那块「关系」面板会被视口切掉一半 */
+@media (max-width: 1240px) {
+  .portal-hero > .portal-hero__art { right: 0; }
+}
+
+/* 再窄右侧没有空间，图形会被正文压住，直接不画 */
+@media (max-width: 1020px) {
+  .portal-hero > .portal-hero__art { display: none; }
+}
+
+@media print { .portal-hero > .portal-hero__art { display: none; } }
 
 /* ==================================================== 学习路径 */
 .route-grid {

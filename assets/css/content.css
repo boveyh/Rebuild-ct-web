@@ -878,7 +878,42 @@ html[data-theme="dark"] .analogy strong { color: var(--a-200); }
 .cm-node--dragging { cursor: grabbing; }
 .cm-node > rect:first-of-type { transition: stroke var(--dur-fast) ease; }
 .cm-node:hover > rect:first-of-type,
-.cm-node--dragging > rect:first-of-type { stroke: var(--brand); }
+.cm-node--dragging > rect:first-of-type { stroke: var(--cm-accent, var(--brand)); }
+
+/* 连线上的「流动虚线」：同形状的虚线叠在实线上，靠 dashoffset 匀速后退，
+   看上去是一串光点沿着箭头方向走。周期取 dasharray 的整数倍
+   （6+14=20，走 -40；5+9=14，走 -42），否则每圈结尾会跳一下。
+   只动虚线，箭头、节点、实线都不动 —— 满屏都在动会让人读不下去。 */
+.cm-flow {
+  stroke-dasharray: 6 14;
+  stroke-linecap: round;
+  opacity: 0.8;
+  animation: cm-flow 1.5s linear infinite;
+  transition: opacity var(--dur-fast) ease;
+}
+.cm-flow--loop {
+  stroke-dasharray: 5 9;
+  opacity: 0.85;
+  animation-name: cm-flow-loop;
+  animation-duration: 1.1s;
+}
+@keyframes cm-flow { to { stroke-dashoffset: -40; } }
+@keyframes cm-flow-loop { to { stroke-dashoffset: -42; } }
+
+/* 悬停聚焦：只留当前节点、它的直接上下游和它们之间的线 */
+.cm-node, .cm-edge { transition: opacity 0.18s ease; }
+.cm-node.is-dim { opacity: 0.28; }
+.cm-edge.is-dim { opacity: 0.1; }
+.cm-node.is-hi > rect:first-of-type { stroke: var(--cm-accent, var(--brand)); stroke-width: 1.6; }
+.cm-edge.is-hi .cm-edge__base { stroke: var(--cm-accent, var(--brand)); }
+.cm-edge.is-hi .cm-flow { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-flow { animation: none; }
+}
+@media print {
+  .cm-flow { animation: none; opacity: 0.5; }
+}
 
 /* 拖动时连 <text> 一起被刷蓝选中会很难看，拖的过程里禁掉选中 */
 .figure__frame[data-dragging],

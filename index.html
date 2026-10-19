@@ -116,35 +116,151 @@
 
   <main id="main">
     <section class="portal-hero">
-      <svg class="portal-hero__art" viewBox="0 0 520 380" aria-hidden="true" focusable="false">
+      
+      <svg class="portal-hero__art" viewBox="0 0 640 368" aria-hidden="true" focusable="false">
         <defs>
+          <pattern id="heroDots" width="22" height="22" patternUnits="userSpaceOnUse">
+            <circle cx="1.1" cy="1.1" r="1.1" fill="var(--border-3)" />
+          </pattern>
           <linearGradient id="heroArea" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="var(--viz-1)" stop-opacity=".15" />
+            <stop offset="0%" stop-color="var(--viz-1)" stop-opacity=".18" />
             <stop offset="100%" stop-color="var(--viz-1)" stop-opacity="0" />
           </linearGradient>
+          <linearGradient id="heroBar" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="var(--viz-1)" stop-opacity=".45" />
+            <stop offset="100%" stop-color="var(--viz-3)" stop-opacity=".95" />
+          </linearGradient>
+          <radialGradient id="heroGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="var(--viz-1)" stop-opacity=".16" />
+            <stop offset="58%" stop-color="var(--viz-3)" stop-opacity=".06" />
+            <stop offset="100%" stop-color="var(--viz-1)" stop-opacity="0" />
+          </radialGradient>
+          <clipPath id="heroClipA">
+            <rect x="10" y="34" width="352" height="300" rx="16" />
+          </clipPath>
+          <clipPath id="heroClipB">
+            <rect x="382" y="20" width="248" height="146" rx="14" />
+          </clipPath>
+          <clipPath id="heroClipC">
+            <rect x="382" y="186" width="248" height="162" rx="14" />
+          </clipPath>
         </defs>
-        <path d="M8 296 C64 282 96 214 148 198 S236 214 288 158 386 66 470 78 L520 82 L520 372 L8 372 Z"
-              fill="url(#heroArea)" />
-        <path d="M8 296 C64 282 96 214 148 198 S236 214 288 158 386 66 470 78"
-              fill="none" stroke="var(--viz-1)" stroke-width="2" stroke-linecap="round" opacity=".75" />
-        <g fill="var(--viz-2)" opacity=".8">
-          <circle cx="58" cy="268" r="4" /><circle cx="112" cy="240" r="5" />
-          <circle cx="188" cy="196" r="4" /><circle cx="246" cy="188" r="5" />
-          <circle cx="312" cy="140" r="4" /><circle cx="372" cy="104" r="5" />
-          <circle cx="428" cy="88" r="4" />
+
+        <!-- 底：点阵 + 一条参考圆 + 十字丝，只做「坐标纸」的暗示 -->
+        <rect x="0" y="0" width="640" height="368" fill="url(#heroDots)" opacity=".5" />
+        <ellipse cx="430" cy="192" rx="292" ry="188" fill="url(#heroGlow)" />
+        <circle cx="486" cy="176" r="168" fill="none" stroke="var(--border-2)"
+                stroke-dasharray="1 7" opacity=".75" />
+        <g stroke="var(--border-3)" stroke-width="1" opacity=".7">
+          <path d="M596 12h12M602 6v12" />
+          <path d="M408 352h12M414 346v12" />
+          <path d="M18 352h10M23 347v10" />
         </g>
-        <g fill="var(--viz-3)" opacity=".5">
-          <rect x="24" y="316" width="18" height="44" rx="3" />
-          <rect x="56" y="300" width="18" height="60" rx="3" />
-          <rect x="88" y="324" width="18" height="36" rx="3" />
-          <rect x="120" y="286" width="18" height="74" rx="3" />
-        </g>
-        <g fill="none" stroke-width="9" stroke-linecap="round" opacity=".45">
-          <path d="M470 214 A58 58 0 0 1 412 272" stroke="var(--viz-4)" />
-          <path d="M404 292 A58 58 0 0 1 352 330" stroke="var(--viz-6)" />
-          <path d="M340 300 A58 58 0 0 0 396 246" stroke="var(--viz-7)" />
+
+        <!-- 面板 A：散点 + 趋势 -->
+        <g transform="rotate(-1.5 186 184)"><g class="hero-float hero-float--a">
+          <rect x="10" y="42" width="352" height="300" rx="16" fill="#0b1220" opacity=".07" />
+          <rect x="10" y="34" width="352" height="300" rx="16"
+                fill="var(--bg-surface)" stroke="var(--border-2)" />
+          <g clip-path="url(#heroClipA)">
+            <g stroke="var(--border-1)" stroke-width=".8">
+              <path d="M34 78V286M78 78V286M122 78V286M166 78V286M210 78V286M254 78V286M298 78V286M342 78V286" />
+              <path d="M34 78H344M34 130H344M34 182H344M34 234H344M34 286H344" />
+            </g>
+            <path d="M36 278 C70 270 94 248 120 238 S176 212 208 186 S268 124 338 94
+                     L338 290 L36 290 Z" fill="url(#heroArea)" />
+            <path class="hero-flow hero-flow--trend"
+                  d="M36 278 C70 270 94 248 120 238 S176 212 208 186 S268 124 338 94"
+                  fill="none" stroke="var(--viz-1)" stroke-width="1.6" stroke-linecap="round" />
+            <g fill="var(--viz-1)" opacity=".85">
+              <circle cx="40" cy="276" r="3" /><circle cx="58" cy="268" r="3.4" />
+              <circle cx="72" cy="272" r="2.8" /><circle cx="88" cy="256" r="3.2" />
+              <circle cx="102" cy="262" r="3" /><circle cx="116" cy="244" r="3.4" />
+              <circle cx="130" cy="250" r="2.8" /><circle cx="144" cy="232" r="3.2" />
+              <circle cx="158" cy="238" r="3" /><circle cx="172" cy="218" r="3.4" />
+              <circle cx="186" cy="224" r="2.8" /><circle cx="200" cy="200" r="3.2" />
+              <circle cx="214" cy="208" r="3" /><circle cx="228" cy="184" r="3.4" />
+              <circle cx="256" cy="162" r="3" /><circle cx="272" cy="144" r="3.4" />
+              <circle cx="288" cy="132" r="3" /><circle cx="304" cy="120" r="3.4" />
+              <circle cx="320" cy="104" r="3" /><circle cx="334" cy="94" r="3.2" />
+            </g>
+            <g fill="var(--viz-2)">
+              <circle cx="242" cy="156" r="4.2" />
+              <circle cx="228" cy="184" r="3.2" />
+              <circle cx="256" cy="162" r="3.2" />
+            </g>
+            <circle class="hero-pulse" cx="242" cy="156" r="9"
+                    fill="none" stroke="var(--viz-2)" stroke-width="1.4" />
+            <path d="M248 150L272 136" stroke="var(--viz-2)" stroke-width="1" opacity=".7" />
+            <text class="hero-label hero-label--accent" x="276" y="133">P95</text>
+          </g>
+          <text class="hero-label" x="26" y="58">01 / OBSERVATION</text>
+          <text class="hero-label" x="346" y="58" text-anchor="end">r = 0.82</text>
+          <text class="hero-label" x="34" y="306">n = 128</text>
+          <text class="hero-label" x="344" y="306" text-anchor="end">x →</text>
+        </g></g>
+
+        <!-- 面板 B：分布 -->
+        <g transform="rotate(1.6 506 93)"><g class="hero-float hero-float--b">
+          <rect x="382" y="28" width="248" height="146" rx="14" fill="#0b1220" opacity=".07" />
+          <rect x="382" y="20" width="248" height="146" rx="14"
+                fill="var(--bg-surface)" stroke="var(--border-2)" />
+          <g clip-path="url(#heroClipB)">
+            <g fill="url(#heroBar)">
+              <rect x="398" y="126" width="14" height="20" rx="3" />
+              <rect x="422" y="114" width="14" height="32" rx="3" />
+              <rect x="446" y="100" width="14" height="46" rx="3" />
+              <rect x="470" y="86" width="14" height="60" rx="3" />
+              <rect x="494" y="72" width="14" height="74" rx="3" />
+              <rect x="518" y="88" width="14" height="58" rx="3" />
+              <rect x="542" y="104" width="14" height="42" rx="3" />
+              <rect x="566" y="118" width="14" height="28" rx="3" />
+            </g>
+            <rect x="494" y="72" width="14" height="74" rx="3" fill="var(--viz-2)" opacity=".85" />
+            <path d="M398 146H604" stroke="var(--border-2)" stroke-width="1" />
+          </g>
+          <text class="hero-label" x="400" y="44">02 / DISTRIBUTION</text>
+          <text class="hero-label" x="612" y="44" text-anchor="end">σ = 12.4</text>
+        </g></g>
+
+        <!-- 面板 C：节点关系（和站内知识图谱同一套语言） -->
+        <g transform="rotate(-2 506 267)"><g class="hero-float hero-float--c">
+          <rect x="382" y="194" width="248" height="162" rx="14" fill="#0b1220" opacity=".07" />
+          <rect x="382" y="186" width="248" height="162" rx="14"
+                fill="var(--bg-surface)" stroke="var(--border-2)" />
+          <g clip-path="url(#heroClipC)">
+            <g fill="none" stroke-width="1.3" stroke-linecap="round">
+              <path class="hero-flow" d="M410 250 Q432 226 452 232" stroke="var(--viz-1)" />
+              <path class="hero-flow" d="M452 232 Q486 228 516 246" stroke="var(--viz-2)" />
+              <path class="hero-flow" d="M410 250 Q404 280 436 300" stroke="var(--viz-3)" />
+              <path class="hero-flow" d="M436 300 Q464 318 500 312" stroke="var(--viz-3)" />
+              <path class="hero-flow" d="M516 246 Q508 284 500 312" stroke="var(--viz-4)" />
+              <path class="hero-flow" d="M516 246 Q544 258 566 292" stroke="var(--viz-1)" />
+              <path class="hero-flow" d="M500 312 Q540 312 566 292" stroke="var(--viz-2)" />
+              <path class="hero-flow" d="M452 232 Q474 274 500 312" stroke="var(--viz-1)" />
+            </g>
+            <g opacity=".16">
+              <circle cx="452" cy="232" r="14" fill="var(--viz-2)" />
+              <circle cx="566" cy="292" r="15" fill="var(--viz-1)" />
+            </g>
+            <circle cx="410" cy="250" r="4.5" fill="var(--viz-1)" />
+            <circle cx="452" cy="232" r="6" fill="var(--viz-2)" />
+            <circle cx="516" cy="246" r="5" fill="var(--viz-3)" />
+            <circle cx="436" cy="300" r="6" fill="var(--viz-3)" />
+            <circle cx="500" cy="312" r="4.5" fill="var(--viz-4)" />
+            <circle cx="566" cy="292" r="7" fill="var(--viz-1)" />
+          </g>
+          <text class="hero-label" x="400" y="210">03 / RELATIONS</text>
+          <text class="hero-label" x="612" y="210" text-anchor="end">|E| = 8</text>
+        </g></g>
+
+        <!-- 面板之间：数据往下游走的两条连线 -->
+        <g fill="none" stroke-width="1.4" stroke-linecap="round">
+          <path class="hero-flow" d="M366 112 C376 104 376 96 380 92" stroke="var(--viz-3)" />
+          <path class="hero-flow" d="M366 252 C376 256 376 254 380 258" stroke="var(--viz-1)" />
         </g>
       </svg>
+    
       <p class="page-head__eyebrow">VISUALIZATION · INTRODUCTION</p>
       <h1>
         <span data-lang="zh">《可视化导论》</span>

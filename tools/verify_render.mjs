@@ -317,14 +317,30 @@ try {
   interact.push(["中英双 DOM 切换正确", ok.ok, JSON.stringify(ok)]);
 } catch (e) { interact.push(["语言切换", false, String(e.message)]); }
 
-// 5. 概念图渲染
+// 5. 概念图渲染 + 每条边都有流动虚线 + 悬停能聚焦邻居
 try {
   const ok = await ipage.evaluate(() => {
-    const n = document.querySelectorAll("#concept-map svg").length;
-    const shapes = document.querySelectorAll("#concept-map svg rect, #concept-map svg g").length;
-    return { ok: n > 0 && shapes > 0, n, shapes };
+    const host = document.querySelector("#concept-map");
+    if (!host) return { ok: false, reason: "no host" };
+    const edges = host.querySelectorAll("g.cm-edge");
+    const flows = host.querySelectorAll(".cm-flow");
+    const bases = host.querySelectorAll("path[marker-end]");
+    const anim = flows[0] ? getComputedStyle(flows[0]).animationName : "";
+    const node = host.querySelector("g.cm-node");
+    node.dispatchEvent(new PointerEvent("pointerenter", { pointerType: "mouse" }));
+    const dim = host.querySelectorAll(".is-dim").length;
+    const hi = host.querySelectorAll(".is-hi").length;
+    node.dispatchEvent(new PointerEvent("pointerleave", { pointerType: "mouse" }));
+    const cleared = host.querySelectorAll(".is-dim, .is-hi").length;
+    return {
+      edges: edges.length, flows: flows.length, bases: bases.length,
+      anim, dim, hi, cleared,
+      ok: edges.length > 0 && edges.length === flows.length &&
+          edges.length === bases.length && anim === "cm-flow" &&
+          dim > 0 && hi > 0 && cleared === 0,
+    };
   });
-  interact.push(["概念依赖图渲染", ok.ok, JSON.stringify(ok)]);
+  interact.push(["概念图连线在流动、悬停能聚焦", ok.ok, JSON.stringify(ok)]);
 } catch (e) { interact.push(["概念图", false, String(e.message)]); }
 
 // 6. 进度记录：标记一节已读后刷新，看是否还在
@@ -611,6 +627,40 @@ try {
     JSON.stringify(routes),
   ]);
 } catch (e) { interact.push(["学习路径", false, String(e.message)]); }
+
+/*    首屏工作台：底边必须停在统计条上方 —— 数字浮在图表上会像排版事故；
+    右边缘不能伸出视口，1024 那档最容易把右侧「关系」面板切掉一半。
+    同时确认连线上的光点真的在动（animationName 被 CSS 覆盖掉就静了）。 */
+try {
+  const rows = [];
+  for (const w of [1440, 1200, 1024, 1000]) {
+    await ipage.setViewport({ width: w, height: 900 });
+    await ipage.goto(BASE + "/", { waitUntil: "networkidle2", timeout: 30000 });
+    const r = await ipage.evaluate(() => {
+      const art = document.querySelector(".portal-hero__art");
+      const stats = document.querySelector(".portal-stats");
+      const a = art.getBoundingClientRect();
+      const s = stats.getBoundingClientRect();
+      const flows = [...document.querySelectorAll(".hero-flow")];
+      return {
+        shown: a.width > 0,
+        right: Math.round(a.right), bottom: Math.round(a.bottom),
+        statsTop: Math.round(s.top), vw: innerWidth,
+        flows: flows.length,
+        anim: flows[0] ? getComputedStyle(flows[0]).animationName : "",
+      };
+    });
+    rows.push({ w, ...r });
+  }
+  await ipage.setViewport({ width: 1440, height: 900 });
+  const wide = rows.filter(r => r.w > 1020);
+  const narrow = rows.filter(r => r.w <= 1020);
+  const ok =
+    wide.every(r => r.shown && r.right <= r.vw && r.bottom <= r.statsTop &&
+                    r.flows >= 10 && r.anim === "hero-flow") &&
+    narrow.every(r => !r.shown);
+  interact.push(["首屏工作台不压统计条、不出视口、连线在流动", ok, JSON.stringify(rows)]);
+} catch (e) { interact.push(["首屏工作台", false, String(e.message)]); }
 
 /*    切英文之后正文里不该再留中文。
     这条是用户报的原始问题：首页点 EN「像没反应」—— 语言状态确实切了，

@@ -279,58 +279,89 @@
     defs.appendChild(marker);
     svg.appendChild(defs);
 
-    // 先画边，节点压在边上面
-    var links = [];      // {a, b, path, loop}，拖动时要跟着重算
+    /* 每条边画两层：
+         · 底层是实线 + 箭头，保证「谁指向谁」一眼看得清，也保证打印和在
+           旧浏览器上仍然是完整的图；
+         · 上层是一条同形状的虚线，靠 CSS 让 dashoffset 匀速后退，看上去
+           就是一串光点沿着连线往箭头方向流。
+       两层共用同一个 d，拖动时同步重算，所以拖完线不会歪。
+       只有虚线在动 —— 箭头和节点都是静止的，眼睛不会累。 */
+    var links = [];      // {a, b, base, flow, g, loop}，拖动时要跟着重算
+    function edgeD(a, b, loop) {
+      if (loop) return tree ? edgeTreeLoop(a, b) : edgePath(a, b, true);
+      return tree ? edgeTree(a, b) : edgePath(a, b);
+    }
+
     (data.edges || []).forEach(function (pair) {
       var a = L.byId[pair[0]], b = L.byId[pair[1]];
       if (!a || !b) return;
-      var path = el("path", {
-        d: tree ? edgeTree(placed(a), placed(b)) : edgePath(placed(a), placed(b)),
-        fill: "none", stroke: cLine,
-        "stroke-width": "1.5", "marker-end": "url(#cm-arrow)",
-        "stroke-linejoin": "round",
-        opacity: "0.9",
+      var accent = cssVar(palettes[a.d % palettes.length], cAccent);
+      var g = el("g", {
+        "class": "cm-edge",
+        "data-from": a.id, "data-to": b.id,
+        style: "--cm-accent:" + accent,
       });
-      svg.appendChild(path);
-      links.push({ a: a, b: b, path: path, loop: false });
+      var d = edgeD(placed(a), placed(b), false);
+      var base = el("path", {
+        d: d, fill: "none", stroke: cLine,
+        "stroke-width": "1.5", "marker-end": "url(#cm-arrow)",
+        "stroke-linejoin": "round", "class": "cm-edge__base",
+      });
+      var flow = el("path", {
+        d: d, fill: "none", stroke: accent,
+        "stroke-width": "1.8", "class": "cm-flow",
+      });
+      g.appendChild(base);
+      g.appendChild(flow);
+      svg.appendChild(g);
+      links.push({ a: a, b: b, base: base, flow: flow, g: g, loop: false });
     });
 
     if (data.loop) {
-      var a = L.byId[data.loop[0]], b = L.byId[data.loop[1]];
-      if (a && b) {
-        var loopPath = el("path", {
-          d: tree ? edgeTreeLoop(placed(a), placed(b)) : edgePath(placed(a), placed(b), true),
-          fill: "none", stroke: cAccent,
-          "stroke-width": "1.5", "stroke-dasharray": "5 4",
-          "marker-end": "url(#cm-arrow)", opacity: "0.85",
+      var la = L.byId[data.loop[0]], lb = L.byId[data.loop[1]];
+      if (la && lb) {
+        var lg = el("g", {
+          "class": "cm-edge cm-edge--loop",
+          "data-from": la.id, "data-to": lb.id,
+          style: "--cm-accent:" + cAccent,
         });
-        svg.appendChild(loopPath);
-        links.push({ a: a, b: b, path: loopPath, loop: true });
+        var ld = edgeD(placed(la), placed(lb), true);
+        var lbase = el("path", {
+          d: ld, fill: "none", stroke: cAccent,
+          "stroke-width": "1.5", "stroke-dasharray": "5 4",
+          "marker-end": "url(#cm-arrow)", "class": "cm-edge__base",
+        });
+        var lflow = el("path", {
+          d: ld, fill: "none", stroke: cAccent,
+          "stroke-width": "2", "class": "cm-flow cm-flow--loop",
+        });
+        lg.appendChild(lbase);
+        lg.appendChild(lflow);
+        svg.appendChild(lg);
+        links.push({ a: la, b: lb, base: lbase, flow: lflow, g: lg, loop: true });
       }
     }
 
     function syncLinks() {
       links.forEach(function (l) {
-        l.path.setAttribute(
-          "d",
-          l.loop
-            ? (tree ? edgeTreeLoop(placed(l.a), placed(l.b)) : edgePath(placed(l.a), placed(l.b), true))
-            : (tree ? edgeTree(placed(l.a), placed(l.b)) : edgePath(placed(l.a), placed(l.b)))
-        );
+        var d = edgeD(placed(l.a), placed(l.b), l.loop);
+        l.base.setAttribute("d", d);
+        l.flow.setAttribute("d", d);
       });
     }
 
     L.nodes.forEach(function (n, i) {
       // 节点内部坐标始终按布局算，位移挂在 group 的 transform 上：
       // 这样重绘时只要把偏移读出来写回去，不用改任何一处 x/y。
+      var accent = cssVar(palettes[n.d % palettes.length], cAccent);
       var g = el("g", {
         "class": "cm-node", "data-node": n.id,
         transform: "translate(" + n.ox + "," + n.oy + ")",
+        style: "--cm-accent:" + accent,
       });
-      var accent = cssVar(palettes[n.d % palettes.length], cAccent);
       var box = el("rect", {
         x: n.x, y: n.y, width: n.w, height: n.h, rx: 10,
-        fill: cSurface, stroke: cBorder, "stroke-width": "1",
+        fill: cSurface, stroke: cBorder, "stroke-width": "1", "class": "cm-node__box",
       });
       g.appendChild(box);
       // 左侧色条：用色相区分层级，而不是用整块底色（整块底色会压过文字）
@@ -363,6 +394,47 @@
       svg.appendChild(g);
     });
 
+    /* 悬停聚焦：鼠标停在一个节点上时，只留它自己、它的直接上下游和它们
+       之间的连线，其余淡出。图一共不到十个节点，看着不觉得乱；但一旦读者
+       想问「这个概念是从哪来的」，就需要把那条链单独拎出来。 */
+    var near = {};
+    function linkNear(a, b) {
+      (near[a] = near[a] || {})[b] = 1;
+      (near[b] = near[b] || {})[a] = 1;
+    }
+    (data.edges || []).forEach(function (p) { linkNear(p[0], p[1]); });
+    if (data.loop) linkNear(data.loop[0], data.loop[1]);
+
+    var nodeEls = svg.querySelectorAll("g.cm-node");
+    function focus(id) {
+      for (var i = 0; i < links.length; i++) {
+        var l = links[i];
+        if (!id) { l.g.classList.remove("is-hi", "is-dim"); continue; }
+        var on = l.a.id === id || l.b.id === id;
+        l.g.classList.toggle("is-hi", on);
+        l.g.classList.toggle("is-dim", !on);
+      }
+      for (var j = 0; j < nodeEls.length; j++) {
+        var g = nodeEls[j];
+        if (!id) { g.classList.remove("is-hi", "is-dim"); continue; }
+        var nid = g.getAttribute("data-node");
+        g.classList.toggle("is-hi", nid === id);
+        g.classList.toggle("is-dim", nid !== id && !(near[id] && near[id][nid]));
+      }
+    }
+    for (var ni = 0; ni < nodeEls.length; ni++) {
+      // 只给鼠标做悬停：触屏上的 pointerenter 在手指抬起后不会配对 pointerleave，
+      // 点一下节点整张图就一直是暗的，读者还以为坏了。
+      nodeEls[ni].addEventListener("pointerenter", function (e) {
+        if (e.pointerType && e.pointerType !== "mouse") return;
+        focus(this.getAttribute("data-node"));
+      });
+      nodeEls[ni].addEventListener("pointerleave", function (e) {
+        if (e.pointerType && e.pointerType !== "mouse") return;
+        focus(null);
+      });
+    }
+
     host.appendChild(svg);
     attachDrag(host, svg, L, links, syncLinks, data, opts);
 
@@ -371,18 +443,19 @@
        CSS 动画不会重放，而这里可以显式控制「只在第一次播」。
        动效可关，且不影响任何数据 —— 图本身在动画开始前就已完整。 */
     if (opts.animate && !reducedMotion() && svg.animate) {
-      var groups = svg.querySelectorAll("g");
+      // 先连线后节点：读者先看到「关系」，再看清「是谁」
+      var segs = svg.querySelectorAll("g.cm-edge");
+      for (var si = 0; si < segs.length; si++) {
+        segs[si].animate(
+          [{ opacity: 0 }, { opacity: 1 }],
+          { duration: 300, delay: si * 60, fill: "backwards" }
+        );
+      }
+      var groups = svg.querySelectorAll("g.cm-node");
       for (var gi = 0; gi < groups.length; gi++) {
         groups[gi].animate(
           [{ opacity: 0, transform: "translateY(5px)" }, { opacity: 1, transform: "none" }],
-          { duration: 340, delay: 40 + gi * 55, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }
-        );
-      }
-      var lines = svg.querySelectorAll("path[marker-end]");
-      for (var li = 0; li < lines.length; li++) {
-        lines[li].animate(
-          [{ opacity: 0 }, { opacity: 0.9 }],
-          { duration: 320, delay: li * 70, fill: "backwards" }
+          { duration: 340, delay: 120 + gi * 55, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }
         );
       }
     }

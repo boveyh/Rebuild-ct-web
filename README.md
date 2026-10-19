@@ -129,7 +129,7 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
 ```bash
 python tools/build.py          # 重建全站（可重复执行，结果确定）
 python tools/audit.py          # 静态审计：断链 / 绝对路径 / 残留 / a11y / 内容完整性 / 文档结构
-node  tools/verify_render.mjs  # 本地浏览器跑 35 个页面 + 15 项交互与布局断言
+node  tools/verify_render.mjs  # 本地浏览器跑 35 个页面 + 23 项交互与布局断言
 node  tools/verify_render.mjs --shots   # 同时输出截图到 tools/screenshots/
 node  tools/verify_live.mjs    # 部署后验证线上 404 页（子路径下样式是否正常）
 python tools/package.py        # 打交付压缩包到 deliverables/
@@ -148,7 +148,7 @@ NODE_PATH=C:/Users/<you>/.workbuddy/binaries/node/workspace/node_modules \
 ```
 
 **当前状态：静态审计 0 问题；35/35 页面在真实浏览器中零报错、零失败请求；
-交互与布局断言 22/22 通过；6 类页面 × 3 档窄屏共 18 个组合零横向溢出（含关系图容器内不横滚）。**
+交互与布局断言 23/23 通过；6 类页面 × 3 档窄屏共 18 个组合零横向溢出（含关系图容器内不横滚）。**
 
 ---
 
