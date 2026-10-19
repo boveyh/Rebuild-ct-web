@@ -54,13 +54,13 @@
       </button>
 
       <a class="topbar__brand" href="">
-        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text">可视化导论</span>
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text"><span data-lang="zh">可视化导论</span><span data-lang="en">Visualization</span></span>
       </a>
 
       <span class="topbar__divider" aria-hidden="true"></span>
 
       <nav class="breadcrumb" aria-label="面包屑导航">
-        <ol><li><span aria-current="page">课程门户</span></li></ol>
+        <ol><li><span aria-current="page"><span data-lang="zh">课程门户</span><span data-lang="en">Home</span></span></li></ol>
       </nav>
 
       <div class="topbar__actions">
@@ -116,13 +116,52 @@
 
   <main id="main">
     <section class="portal-hero">
+      <svg class="portal-hero__art" viewBox="0 0 520 380" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="heroArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--viz-1)" stop-opacity=".15" />
+            <stop offset="100%" stop-color="var(--viz-1)" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <path d="M8 296 C64 282 96 214 148 198 S236 214 288 158 386 66 470 78 L520 82 L520 372 L8 372 Z"
+              fill="url(#heroArea)" />
+        <path d="M8 296 C64 282 96 214 148 198 S236 214 288 158 386 66 470 78"
+              fill="none" stroke="var(--viz-1)" stroke-width="2" stroke-linecap="round" opacity=".75" />
+        <g fill="var(--viz-2)" opacity=".8">
+          <circle cx="58" cy="268" r="4" /><circle cx="112" cy="240" r="5" />
+          <circle cx="188" cy="196" r="4" /><circle cx="246" cy="188" r="5" />
+          <circle cx="312" cy="140" r="4" /><circle cx="372" cy="104" r="5" />
+          <circle cx="428" cy="88" r="4" />
+        </g>
+        <g fill="var(--viz-3)" opacity=".5">
+          <rect x="24" y="316" width="18" height="44" rx="3" />
+          <rect x="56" y="300" width="18" height="60" rx="3" />
+          <rect x="88" y="324" width="18" height="36" rx="3" />
+          <rect x="120" y="286" width="18" height="74" rx="3" />
+        </g>
+        <g fill="none" stroke-width="9" stroke-linecap="round" opacity=".45">
+          <path d="M470 214 A58 58 0 0 1 412 272" stroke="var(--viz-4)" />
+          <path d="M404 292 A58 58 0 0 1 352 330" stroke="var(--viz-6)" />
+          <path d="M340 300 A58 58 0 0 0 396 246" stroke="var(--viz-7)" />
+        </g>
+      </svg>
       <p class="page-head__eyebrow">VISUALIZATION · INTRODUCTION</p>
-      <h1>《可视化导论》</h1>
-      <p class="portal-hero__sub">从数据到图表：JavaScript + D3.js 实战课程</p>
+      <h1>
+        <span data-lang="zh">《可视化导论》</span>
+        <span data-lang="en">Introduction to Visualization</span>
+      </h1>
+      <p class="portal-hero__sub">
+        <span data-lang="zh">从数据到图表：JavaScript + D3.js 实战课程</span>
+        <span data-lang="en">From Data to Charts: A Hands-on Course in JavaScript + D3.js</span>
+      </p>
       <p class="portal-hero__meta">
-        中国石油大学（华东） · 授课教师
+        <span data-lang="zh">中国石油大学（华东）</span>
+        <span data-lang="en">China University of Petroleum (East China)</span> ·
+        <span data-lang="zh">授课教师</span><span data-lang="en">Instructor</span>
         <a href="https://cinger007.github.io" target="_blank" rel="noopener">李昕</a>
-        · 主要参考教材 陈为《可视化导论》
+        · <span data-lang="zh">主要参考教材</span><span data-lang="en">Main textbook</span>
+        <span data-lang="zh">陈为《可视化导论》</span>
+        <span data-lang="en">Chen Wei, Introduction to Visualization</span>
       </p>
       <div class="portal-hero__actions">
         <a class="btn btn--primary" href="lesson-01/">
@@ -137,11 +176,10 @@
         </button>
       </div>
       <dl class="portal-stats">
-        <div><dt>章节</dt><dd>5</dd></div>
-        <div><dt>小节</dt><dd>27</dd></div>
-        <div><dt>可运行演示</dt><dd>27</dd></div>
-        <div><dt>关键代码点</dt><dd>123</dd></div>
-        <div><dt>预计总时长</dt><dd>230 分</dd></div>
+        <div><dt><span data-lang="zh">章节</span><span data-lang="en">Chapters</span></dt><dd>5</dd></div>
+        <div><dt><span data-lang="zh">小节</span><span data-lang="en">Sections</span></dt><dd>27</dd></div>
+        <div><dt><span data-lang="zh">可运行演示</span><span data-lang="en">Live demos</span></dt><dd>27</dd></div>
+        <div><dt><span data-lang="zh">关键代码点</span><span data-lang="en">Key snippets</span></dt><dd>123</dd></div>
       </dl>
     </section>
 
@@ -157,6 +195,234 @@
         and time-series practice.</span>
       </p>
       <div class="roadmap" id="roadmap" role="img" aria-label="课程章节依赖关系图"></div>
+      <p class="portal-section__hint">
+        <span data-lang="zh">节点可以拖动：哪条箭头看不清楚，就把挡路的节点挪开；双击节点回到原位。</span>
+        <span data-lang="en">Drag a node out of the way if an arrow is hard to follow; double-click it to snap back.</span>
+      </p>
+    </section>
+
+    <section class="portal-section" aria-labelledby="routes-title">
+      <h2 id="routes-title" class="portal-section__title">
+        <span data-lang="zh">学习路径</span><span data-lang="en">Learning paths</span>
+      </h2>
+      <p class="portal-section__lead">
+        <span data-lang="zh">五章不必都从头读到尾。按你的目标挑一条，跳过的章随时能回来补。</span>
+        <span data-lang="en">You do not have to read all five in order. Pick the path that matches your goal; skipped chapters stay open.</span>
+      </p>
+      <div class="route-grid">
+        <article class="route" data-route="scratch">
+          <h3 class="route__title">
+            <span data-lang="zh">零基础，从头走一遍</span>
+            <span data-lang="en">From scratch, in order</span>
+          </h3>
+          <p class="route__why">
+            <span data-lang="zh">没写过 JavaScript 也能跟上。每章都先讲「为什么」，再落到代码。</span>
+            <span data-lang="en">No JavaScript needed. Each chapter explains the why before the code.</span>
+          </p>
+          <ol class="route__steps">
+            <li class="route__step" data-progress-scope="c01s"
+                data-progress-total="5">
+              <a class="route__link" href="lesson-01/">
+                <span class="route__num">01</span>
+                <span class="route__body">
+                  <span class="route__name">
+                    <span data-lang="zh">数据</span>
+                    <span data-lang="en">Data</span>
+                  </span>
+                  <span class="route__note">
+                    <span data-lang="zh">分清楚名义、序数、区间尺度 —— 后面每一次选图都靠这个判断</span>
+                    <span data-lang="en">Nominal, ordinal, interval: every later chart choice follows from this</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+            <li class="route__step" data-progress-scope="c02s"
+                data-progress-total="4">
+              <a class="route__link" href="lesson-02/">
+                <span class="route__num">02</span>
+                <span class="route__body">
+                  <span class="route__name">
+                    <span data-lang="zh">可视化流程</span>
+                    <span data-lang="en">Workflow</span>
+                  </span>
+                  <span class="route__note">
+                    <span data-lang="zh">把「数据 → 变换 → 映射 → 渲染」整条链路走通</span>
+                    <span data-lang="en">Walk the whole data → transform → map → render pipeline</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+            <li class="route__step" data-progress-scope="c03s"
+                data-progress-total="8">
+              <a class="route__link" href="lesson-03/">
+                <span class="route__num">03</span>
+                <span class="route__body">
+                  <span class="route__name">
+                    <span data-lang="zh">色彩</span>
+                    <span data-lang="en">Color</span>
+                  </span>
+                  <span class="route__note">
+                    <span data-lang="zh">颜色不只是好看：三类 colormap 用错就是误导</span>
+                    <span data-lang="en">Colour is not decoration: the wrong colormap misleads</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+            <li class="route__step" data-progress-scope="c04s"
+                data-progress-total="5">
+              <a class="route__link" href="lesson-04/">
+                <span class="route__num">04</span>
+                <span class="route__body">
+                  <span class="route__name">
+                    <span data-lang="zh">低维数据</span>
+                    <span data-lang="en">Low-dim data</span>
+                  </span>
+                  <span class="route__note">
+                    <span data-lang="zh">低维数据的取舍：散点、平行坐标、降维各自放弃了什么</span>
+                    <span data-lang="en">Low-dimensional trade-offs: what scatter, parallel coords and projection each give up</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+            <li class="route__step" data-progress-scope="c05s"
+                data-progress-total="5">
+              <a class="route__link" href="lesson-05/">
+                <span class="route__num">05</span>
+                <span class="route__body">
+                  <span class="route__name">
+                    <span data-lang="zh">时序数据</span>
+                    <span data-lang="en">Time series</span>
+                  </span>
+                  <span class="route__note">
+                    <span data-lang="zh">时间数据的三种形态：折线、日历热图、周期螺旋</span>
+                    <span data-lang="en">Three shapes of time: line, calendar heatmap, spiral</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+          </ol>
+        </article>
+        <article class="route" data-route="fast">
+          <h3 class="route__title">
+            <span data-lang="zh">会写 JS，想尽快出图</span>
+            <span data-lang="en">Know JS, want charts fast</span>
+          </h3>
+          <p class="route__why">
+            <span data-lang="zh">跳过色彩专题与时序，先把通用流程和低维图表拿下。缺的两块随时能回来补。</span>
+            <span data-lang="en">Skip colour and time for now; get the pipeline and low-dimensional charts first.</span>
+          </p>
+          <ol class="route__steps">
+            <li class="route__step" data-progress-scope="c01s"
+                data-progress-total="5">
+              <a class="route__link" href="lesson-01/">
+                <span class="route__num">01</span>
+                <span class="route__body">
+                  <span class="route__name">
+                    <span data-lang="zh">数据</span>
+                    <span data-lang="en">Data</span>
+                  </span>
+                  <span class="route__note">
+                    <span data-lang="zh">只需要看 1.3 数据属性，其余可略读</span>
+                    <span data-lang="en">Read 1.3 on attributes; skim the rest</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+            <li class="route__step" data-progress-scope="c02s"
+                data-progress-total="4">
+              <a class="route__link" href="lesson-02/">
+                <span class="route__num">02</span>
+                <span class="route__body">
+                  <span class="route__name">
+                    <span data-lang="zh">可视化流程</span>
+                    <span data-lang="en">Workflow</span>
+                  </span>
+                  <span class="route__note">
+                    <span data-lang="zh">整章必看，这是所有图共用的骨架</span>
+                    <span data-lang="en">Read all of it — this is the skeleton every chart shares</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+            <li class="route__step" data-progress-scope="c04s"
+                data-progress-total="5">
+              <a class="route__link" href="lesson-04/">
+                <span class="route__num">04</span>
+                <span class="route__body">
+                  <span class="route__name">
+                    <span data-lang="zh">低维数据</span>
+                    <span data-lang="en">Low-dim data</span>
+                  </span>
+                  <span class="route__note">
+                    <span data-lang="zh">散点与坐标变换是日常用得最多的两块</span>
+                    <span data-lang="en">Scatter and axis transforms are the two you will use daily</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+          </ol>
+        </article>
+        <article class="route" data-route="topic">
+          <h3 class="route__title">
+            <span data-lang="zh">只补色彩或时序</span>
+            <span data-lang="en">Just colour or time</span>
+          </h3>
+          <p class="route__why">
+            <span data-lang="zh">两个独立专题。先花二十分钟过第 1 章的数据尺度，再直接跳过去。</span>
+            <span data-lang="en">Two standalone topics. Spend twenty minutes on data scales in chapter 1 first.</span>
+          </p>
+          <ol class="route__steps">
+            <li class="route__step" data-progress-scope="c01s"
+                data-progress-total="5">
+              <a class="route__link" href="lesson-01/">
+                <span class="route__num">01</span>
+                <span class="route__body">
+                  <span class="route__name">
+                    <span data-lang="zh">数据</span>
+                    <span data-lang="en">Data</span>
+                  </span>
+                  <span class="route__note">
+                    <span data-lang="zh">只看 1.2 与 1.3，知道数据有哪几种尺度就够</span>
+                    <span data-lang="en">Only 1.2 and 1.3 — you just need the data scales</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+            <li class="route__step" data-progress-scope="c03s"
+                data-progress-total="8">
+              <a class="route__link" href="lesson-03/">
+                <span class="route__num">03</span>
+                <span class="route__body">
+                  <span class="route__name">
+                    <span data-lang="zh">色彩</span>
+                    <span data-lang="en">Color</span>
+                  </span>
+                  <span class="route__note">
+                    <span data-lang="zh">色彩专题：模型、colormap、搭配规则、色觉缺陷</span>
+                    <span data-lang="en">Colour: models, colormaps, palettes, colour-vision deficiency</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+            <li class="route__step" data-progress-scope="c05s"
+                data-progress-total="5">
+              <a class="route__link" href="lesson-05/">
+                <span class="route__num">05</span>
+                <span class="route__body">
+                  <span class="route__name">
+                    <span data-lang="zh">时序数据</span>
+                    <span data-lang="en">Time series</span>
+                  </span>
+                  <span class="route__note">
+                    <span data-lang="zh">时序专题：时间属性、日历热图、周期螺旋</span>
+                    <span data-lang="en">Time: properties, calendar heatmaps, periodic spirals</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+          </ol>
+        </article>
+      </div>
     </section>
 
     <section class="portal-section" aria-labelledby="chapters-title">
@@ -173,18 +439,26 @@
           <span class="chapter-card__glow" aria-hidden="true"></span>
           <svg class="chapter-card__motif" viewBox="0 0 330 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><rect x="5" y="9" width="71" height="12" rx="3" fill="var(--viz-2)"/><rect x="5" y="25" width="71" height="8" rx="2.5" fill="currentColor" opacity=".15"/><rect x="5" y="36" width="71" height="8" rx="2.5" fill="currentColor" opacity=".15"/><rect x="5" y="47" width="71" height="8" rx="2.5" fill="currentColor" opacity=".15"/><rect x="88" y="9" width="71" height="12" rx="3" fill="var(--viz-1)"/><rect x="88" y="25" width="71" height="8" rx="2.5" fill="currentColor" opacity=".15"/><rect x="88" y="36" width="71" height="8" rx="2.5" fill="currentColor" opacity=".15"/><rect x="88" y="47" width="71" height="8" rx="2.5" fill="currentColor" opacity=".15"/><rect x="171" y="9" width="71" height="12" rx="3" fill="var(--viz-3)"/><rect x="171" y="25" width="71" height="8" rx="2.5" fill="currentColor" opacity=".15"/><rect x="171" y="36" width="71" height="8" rx="2.5" fill="currentColor" opacity=".15"/><rect x="171" y="47" width="71" height="8" rx="2.5" fill="currentColor" opacity=".15"/><rect x="254" y="9" width="71" height="12" rx="3" fill="var(--viz-6)"/><rect x="254" y="25" width="71" height="8" rx="2.5" fill="currentColor" opacity=".15"/><rect x="254" y="36" width="71" height="8" rx="2.5" fill="currentColor" opacity=".15"/><rect x="254" y="47" width="71" height="8" rx="2.5" fill="currentColor" opacity=".15"/></svg>
           <span class="chapter-card__top">
-            <span class="chapter-card__num">第 1 章</span>
+            <span class="chapter-card__num"><span data-lang="zh">第 1 章</span><span data-lang="en">Chapter 1</span></span>
             <span class="chapter-card__progress" data-progress-out>0%</span>
           </span>
-          <span class="chapter-card__title">数据</span>
+          <span class="chapter-card__title">
+            <span data-lang="zh">数据</span>
+            <span data-lang="en">Data</span>
+          </span>
           <span class="chapter-card__lead">
             <span data-lang="zh">从 DeepSeek 合成的新生数据出发，把「数据是什么」拆成四件可操作的事：怎么装载、怎么定义、怎么分类、怎么变换。</span>
             <span data-lang="en">Starting from a DeepSeek-synthesized freshman dataset, breaking 'what is data' into four actionable tasks: loading, defining, classifying and transforming.</span>
           </span>
-          <ul class="chapter-card__tags"><li><span data-lang="zh">数据生成</span><span data-lang="en">数据生成</span></li><li><span data-lang="zh">数据定义</span><span data-lang="en">数据定义</span></li><li><span data-lang="zh">数据属性</span><span data-lang="en">数据属性</span></li><li><span data-lang="zh">数据变换</span><span data-lang="en">数据变换</span></li><li><span data-lang="zh">D3 数据选择器</span><span data-lang="en">D3 数据选择器</span></li></ul>
+          <ul class="chapter-card__tags"><li><span data-lang="zh">数据生成</span><span data-lang="en">Data Generation</span></li><li><span data-lang="zh">数据定义</span><span data-lang="en">Data Definition</span></li><li><span data-lang="zh">数据属性</span><span data-lang="en">Data Attributes</span></li><li><span data-lang="zh">数据变换</span><span data-lang="en">Data Transformation</span></li><li><span data-lang="zh">D3 数据选择器</span><span data-lang="en">D3 Selectors</span></li></ul>
           <span class="chapter-card__foot">
-            <span>5 小节 · 约 45 分钟</span>
-            <span class="chapter-card__cta">进入章节 →</span>
+            <span>
+              <span data-lang="zh">5 小节 · 5 个演示</span>
+              <span data-lang="en">5 sections · 5 demos</span>
+            </span>
+            <span class="chapter-card__cta">
+              <span data-lang="zh">进入章节 →</span><span data-lang="en">Open →</span>
+            </span>
           </span>
           <span class="chapter-card__bar" aria-hidden="true">
             <span class="chapter-card__barfill" data-progress-bar style="width:0%"></span>
@@ -194,18 +468,26 @@
           <span class="chapter-card__glow" aria-hidden="true"></span>
           <svg class="chapter-card__motif" viewBox="0 0 330 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><rect x="5" y="18" width="64" height="24" rx="7" fill="var(--viz-1)" fill-opacity=".16" stroke="var(--viz-1)" stroke-width="1.5"/><path d="M73 25 L81 30 L73 35 Z" fill="currentColor" opacity=".38"/><rect x="90" y="18" width="64" height="24" rx="7" fill="var(--viz-5)" fill-opacity=".16" stroke="var(--viz-5)" stroke-width="1.5"/><path d="M158 25 L166 30 L158 35 Z" fill="currentColor" opacity=".38"/><rect x="175" y="18" width="64" height="24" rx="7" fill="var(--viz-3)" fill-opacity=".16" stroke="var(--viz-3)" stroke-width="1.5"/><path d="M243 25 L251 30 L243 35 Z" fill="currentColor" opacity=".38"/><rect x="260" y="18" width="64" height="24" rx="7" fill="var(--viz-4)" fill-opacity=".16" stroke="var(--viz-4)" stroke-width="1.5"/></svg>
           <span class="chapter-card__top">
-            <span class="chapter-card__num">第 2 章</span>
+            <span class="chapter-card__num"><span data-lang="zh">第 2 章</span><span data-lang="en">Chapter 2</span></span>
             <span class="chapter-card__progress" data-progress-out>0%</span>
           </span>
-          <span class="chapter-card__title">数据可视化流程</span>
+          <span class="chapter-card__title">
+            <span data-lang="zh">数据可视化流程</span>
+            <span data-lang="en">Visualization Workflow</span>
+          </span>
           <span class="chapter-card__lead">
             <span data-lang="zh">把「拿到一张表」到「画出一张图」之间那段平时看不见的路，用 Card 的四阶段模型摊开：原数据 → 数据表 → 视觉结构 → 视图。</span>
             <span data-lang="en">Laying out the usually invisible path from 'a table' to 'a chart' with Card's four-stage model: raw data → data tables → visual structures → views.</span>
           </span>
-          <ul class="chapter-card__tags"><li><span data-lang="zh">数据可视化流程</span><span data-lang="en">数据可视化流程</span></li><li><span data-lang="zh">数据分类树（d3.rollup 多层聚合）</span><span data-lang="en">数据分类树（d3.rollup 多层聚合）</span></li><li><span data-lang="zh">树布局（Reingold-Tilford 算法）</span><span data-lang="en">树布局（Reingold-Tilford 算法）</span></li><li><span data-lang="zh">树形列表渲染（classed + 事件委托）</span><span data-lang="en">树形列表渲染（classed + 事件委托）</span></li></ul>
+          <ul class="chapter-card__tags"><li><span data-lang="zh">数据可视化流程</span><span data-lang="en">Visualization Workflow</span></li><li><span data-lang="zh">数据变换：原数据 → 数据表</span><span data-lang="en">Data Transformation: Raw → Data Table</span></li><li><span data-lang="zh">视觉映射：数据表 → 视觉结构</span><span data-lang="en">Visual Mapping: Data → Visual Structure</span></li><li><span data-lang="zh">视图渲染与用户交互</span><span data-lang="en">View Rendering & User Interaction</span></li></ul>
           <span class="chapter-card__foot">
-            <span>4 小节 · 约 40 分钟</span>
-            <span class="chapter-card__cta">进入章节 →</span>
+            <span>
+              <span data-lang="zh">4 小节 · 4 个演示</span>
+              <span data-lang="en">4 sections · 4 demos</span>
+            </span>
+            <span class="chapter-card__cta">
+              <span data-lang="zh">进入章节 →</span><span data-lang="en">Open →</span>
+            </span>
           </span>
           <span class="chapter-card__bar" aria-hidden="true">
             <span class="chapter-card__barfill" data-progress-bar style="width:0%"></span>
@@ -215,18 +497,26 @@
           <span class="chapter-card__glow" aria-hidden="true"></span>
           <svg class="chapter-card__motif" viewBox="0 0 330 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><rect x="5.0" y="9" width="53.4" height="19" fill="var(--viz-1)"/><rect x="58.3" y="9" width="53.4" height="19" fill="var(--viz-5)"/><rect x="111.6" y="9" width="53.4" height="19" fill="var(--viz-3)"/><rect x="164.9" y="9" width="53.4" height="19" fill="var(--viz-7)"/><rect x="218.2" y="9" width="53.4" height="19" fill="var(--viz-2)"/><rect x="271.5" y="9" width="53.4" height="19" fill="var(--viz-6)"/><defs><linearGradient id="motif-ch3-lum" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0b0e14"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs><rect x="5" y="34" width="320" height="15" rx="2.5" fill="url(#motif-ch3-lum)" opacity=".9"/></svg>
           <span class="chapter-card__top">
-            <span class="chapter-card__num">第 3 章</span>
+            <span class="chapter-card__num"><span data-lang="zh">第 3 章</span><span data-lang="en">Chapter 3</span></span>
             <span class="chapter-card__progress" data-progress-out>0%</span>
           </span>
-          <span class="chapter-card__title">色彩专题</span>
+          <span class="chapter-card__title">
+            <span data-lang="zh">色彩专题</span>
+            <span data-lang="en">Color</span>
+          </span>
           <span class="chapter-card__lead">
             <span data-lang="zh">八节把配色一次讲透：颜色空间、colormap 选型、色系规则、科研经典色板、色觉缺陷检测。学完可以直接拿去做论文图。</span>
             <span data-lang="en">Eight sections covering color end to end: color spaces, colormap choice, harmony rules, research-grade palettes and colour-vision-deficiency testing.</span>
           </span>
-          <ul class="chapter-card__tags"><li><span data-lang="zh">颜色模型基础</span><span data-lang="en">颜色模型基础</span></li><li><span data-lang="zh">colormap 三类选择</span><span data-lang="en">colormap 三类选择</span></li><li><span data-lang="zh">CIE Lab 色域图</span><span data-lang="en">CIE Lab 色域图</span></li><li><span data-lang="zh">色系搭配规则（5 大类）</span><span data-lang="en">色系搭配规则（5 大类）</span></li><li><span data-lang="zh">科研经典配色</span><span data-lang="en">科研经典配色</span></li><li><span data-lang="zh">对错案例对比</span><span data-lang="en">对错案例对比</span></li><li><span data-lang="zh">鲜艳 + 低饱和 哲学生成器</span><span data-lang="en">鲜艳 + 低饱和 哲学生成器</span></li><li><span data-lang="zh">CVD 论文图测</span><span data-lang="en">CVD 论文图测</span></li></ul>
+          <ul class="chapter-card__tags"><li><span data-lang="zh">颜色模型基础</span><span data-lang="en">Color Model Basics</span></li><li><span data-lang="zh">colormap 三类选择</span><span data-lang="en">Colormap: 3 Types</span></li><li><span data-lang="zh">CIE Lab 色域图</span><span data-lang="en">CIE Lab Gamut</span></li><li><span data-lang="zh">色系搭配规则（5 大类）</span><span data-lang="en">Color Harmony Rules (5 Types)</span></li><li><span data-lang="zh">科研经典配色</span><span data-lang="en">Classic Research Palettes</span></li><li><span data-lang="zh">对错案例对比</span><span data-lang="en">Right vs Wrong Comparison</span></li><li><span data-lang="zh">鲜艳 + 低饱和 哲学生成器</span><span data-lang="en">Vivid + Low-Sat Palette Generator</span></li><li><span data-lang="zh">CVD 论文图测</span><span data-lang="en">CVD Paper Figure Test</span></li></ul>
           <span class="chapter-card__foot">
-            <span>8 小节 · 约 55 分钟</span>
-            <span class="chapter-card__cta">进入章节 →</span>
+            <span>
+              <span data-lang="zh">8 小节 · 8 个演示</span>
+              <span data-lang="en">8 sections · 8 demos</span>
+            </span>
+            <span class="chapter-card__cta">
+              <span data-lang="zh">进入章节 →</span><span data-lang="en">Open →</span>
+            </span>
           </span>
           <span class="chapter-card__bar" aria-hidden="true">
             <span class="chapter-card__barfill" data-progress-bar style="width:0%"></span>
@@ -236,18 +526,26 @@
           <span class="chapter-card__glow" aria-hidden="true"></span>
           <svg class="chapter-card__motif" viewBox="0 0 330 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M14 7 V50 H322" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".28"/><circle cx="30" cy="44" r="3.2" fill="var(--viz-1)" opacity=".8"/><circle cx="46" cy="47" r="3.2" fill="var(--viz-1)" opacity=".8"/><circle cx="58" cy="40" r="3.2" fill="var(--viz-1)" opacity=".8"/><circle cx="72" cy="45" r="3.2" fill="var(--viz-1)" opacity=".8"/><circle cx="86" cy="38" r="3.2" fill="var(--viz-1)" opacity=".8"/><circle cx="40" cy="36" r="3.2" fill="var(--viz-1)" opacity=".8"/><circle cx="64" cy="33" r="3.2" fill="var(--viz-1)" opacity=".8"/><circle cx="198" cy="24" r="3.2" fill="var(--viz-2)" opacity=".8"/><circle cx="218" cy="18" r="3.2" fill="var(--viz-2)" opacity=".8"/><circle cx="238" cy="25" r="3.2" fill="var(--viz-2)" opacity=".8"/><circle cx="262" cy="15" r="3.2" fill="var(--viz-2)" opacity=".8"/><circle cx="284" cy="21" r="3.2" fill="var(--viz-2)" opacity=".8"/><circle cx="206" cy="30" r="3.2" fill="var(--viz-2)" opacity=".8"/><circle cx="250" cy="31" r="3.2" fill="var(--viz-2)" opacity=".8"/></svg>
           <span class="chapter-card__top">
-            <span class="chapter-card__num">第 4 章</span>
+            <span class="chapter-card__num"><span data-lang="zh">第 4 章</span><span data-lang="en">Chapter 4</span></span>
             <span class="chapter-card__progress" data-progress-out>0%</span>
           </span>
-          <span class="chapter-card__title">低维数据可视化</span>
+          <span class="chapter-card__title">
+            <span data-lang="zh">低维数据可视化</span>
+            <span data-lang="en">Low-Dimensional Data</span>
+          </span>
           <span class="chapter-card__lead">
             <span data-lang="zh">以 Crime 数据为主线，讲坐标变换的三层职责、十种曲线拟合的手感差异、Cleveland 的 45° 黄金角，以及等值线提取算法。</span>
             <span data-lang="en">Using the Crime dataset to cover the three layers of coordinate transforms, ten curve interpolations, Cleveland's 45° sweet spot and contour extraction.</span>
           </span>
-          <ul class="chapter-card__tags"><li><span data-lang="zh">数据转换</span><span data-lang="en">数据转换</span></li><li><span data-lang="zh">坐标轴变换</span><span data-lang="en">坐标轴变换</span></li><li><span data-lang="zh">曲线拟合</span><span data-lang="en">曲线拟合</span></li><li><span data-lang="zh">倾角感知（45° 黄金角）</span><span data-lang="en">倾角感知（45° 黄金角）</span></li><li><span data-lang="zh">等值线（Marching Squares）</span><span data-lang="en">等值线（Marching Squares）</span></li></ul>
+          <ul class="chapter-card__tags"><li><span data-lang="zh">数据转换</span><span data-lang="en">Data Transformation</span></li><li><span data-lang="zh">坐标轴变换</span><span data-lang="en">Axis Transformation</span></li><li><span data-lang="zh">曲线拟合</span><span data-lang="en">Curve Fitting</span></li><li><span data-lang="zh">倾角感知（45° 黄金角）</span><span data-lang="en">Slope Perception (45° Sweet Spot)</span></li><li><span data-lang="zh">等值线（Marching Squares）</span><span data-lang="en">Marching Squares (Contour Lines)</span></li></ul>
           <span class="chapter-card__foot">
-            <span>5 小节 · 约 45 分钟</span>
-            <span class="chapter-card__cta">进入章节 →</span>
+            <span>
+              <span data-lang="zh">5 小节 · 5 个演示</span>
+              <span data-lang="en">5 sections · 5 demos</span>
+            </span>
+            <span class="chapter-card__cta">
+              <span data-lang="zh">进入章节 →</span><span data-lang="en">Open →</span>
+            </span>
           </span>
           <span class="chapter-card__bar" aria-hidden="true">
             <span class="chapter-card__barfill" data-progress-bar style="width:0%"></span>
@@ -257,18 +555,26 @@
           <span class="chapter-card__glow" aria-hidden="true"></span>
           <svg class="chapter-card__motif" viewBox="0 0 330 60" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><path d="M14 43 L62 34 L110 39 L158 22 L206 29 L254 13 L322 20 L322 51 L14 51 Z" fill="var(--viz-1)" opacity=".14"/><path d="M14 43 L62 34 L110 39 L158 22 L206 29 L254 13 L322 20" fill="none" stroke="var(--viz-1)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/><path d="M14 51 H322" stroke="currentColor" stroke-width="1.5" opacity=".28"/></svg>
           <span class="chapter-card__top">
-            <span class="chapter-card__num">第 5 章</span>
+            <span class="chapter-card__num"><span data-lang="zh">第 5 章</span><span data-lang="en">Chapter 5</span></span>
             <span class="chapter-card__progress" data-progress-out>0%</span>
           </span>
-          <span class="chapter-card__title">时序数据可视化</span>
+          <span class="chapter-card__title">
+            <span data-lang="zh">时序数据可视化</span>
+            <span data-lang="en">Time-Series Data</span>
+          </span>
           <span class="chapter-card__lead">
             <span data-lang="zh">时间的 5 个属性决定了它需要用哪些非标准布局来画：折线之外，还有日历热图、阿基米德螺旋，以及能表现多角色叙事的 Storyline。</span>
             <span data-lang="en">The five attributes of time explain why it needs non-standard layouts: beyond line charts there are calendar heatmaps, Archimedean spirals and narrative storylines.</span>
           </span>
-          <ul class="chapter-card__tags"><li><span data-lang="zh">时间属性</span><span data-lang="en">时间属性</span></li><li><span data-lang="zh">标准时间可视化（折线图）</span><span data-lang="en">标准时间可视化（折线图）</span></li><li><span data-lang="zh">日历热图（van Wijk）</span><span data-lang="en">日历热图（van Wijk）</span></li><li><span data-lang="zh">周期时间可视化（阿基米德螺旋）</span><span data-lang="en">周期时间可视化（阿基米德螺旋）</span></li><li><span data-lang="zh">Storyline 时间线（侏罗纪公园）</span><span data-lang="en">Storyline 时间线（侏罗纪公园）</span></li></ul>
+          <ul class="chapter-card__tags"><li><span data-lang="zh">时间属性</span><span data-lang="en">Time Attributes</span></li><li><span data-lang="zh">标准时间可视化（折线图）</span><span data-lang="en">Standard Time Viz (Line Chart)</span></li><li><span data-lang="zh">日历热图（van Wijk）</span><span data-lang="en">Calendar Heatmap (van Wijk)</span></li><li><span data-lang="zh">周期时间可视化（阿基米德螺旋）</span><span data-lang="en">Cyclic Time Viz (Archimedean Spiral)</span></li><li><span data-lang="zh">Storyline 时间线（侏罗纪公园）</span><span data-lang="en">Storyline (Jurassic Park)</span></li></ul>
           <span class="chapter-card__foot">
-            <span>5 小节 · 约 45 分钟</span>
-            <span class="chapter-card__cta">进入章节 →</span>
+            <span>
+              <span data-lang="zh">5 小节 · 5 个演示</span>
+              <span data-lang="en">5 sections · 5 demos</span>
+            </span>
+            <span class="chapter-card__cta">
+              <span data-lang="zh">进入章节 →</span><span data-lang="en">Open →</span>
+            </span>
           </span>
           <span class="chapter-card__bar" aria-hidden="true">
             <span class="chapter-card__barfill" data-progress-bar style="width:0%"></span>
@@ -328,39 +634,39 @@
       </h2>
       <div class="howto-grid">
         <article class="howto-card">
-          <h3>学生在自学</h3>
+          <h3><span data-lang="zh">学生在自学</span><span data-lang="en">Studying on your own</span></h3>
           <ol>
-            <li>读章首的「学完这一章你应该能够」，先知道要往哪去</li>
-            <li>按小节顺序过一遍讲解，遇到看不懂的看概念依赖图找到前置</li>
-            <li>对照关键代码，注意 ⭐ 标出的写法和旁边写的坑</li>
-            <li>打开演示亲手改一改参数，看画面怎么变</li>
+            <li><span data-lang="zh">读章首的「学完这一章你应该能够」，先知道要往哪去</span><span data-lang="en">Read the objectives first — know where you are going</span></li>
+            <li><span data-lang="zh">按小节顺序过一遍讲解，遇到看不懂的看概念依赖图找到前置</span><span data-lang="en">Work through the sections in order; use the concept map to find prerequisites</span></li>
+            <li><span data-lang="zh">对照关键代码，注意 ⭐ 标出的写法和旁边写的坑</span><span data-lang="en">Compare with the key code, and read the pitfalls marked ⭐</span></li>
+            <li><span data-lang="zh">打开演示亲手改一改参数，看画面怎么变</span><span data-lang="en">Open the demo and change the parameters yourself</span></li>
           </ol>
         </article>
         <article class="howto-card">
-          <h3>教师在课堂</h3>
+          <h3><span data-lang="zh">教师在课堂</span><span data-lang="en">Teaching in class</span></h3>
           <ol>
-            <li>每章顶部有「自动导览」，可以按脚本把重点依次演一遍</li>
-            <li>讲解 / 关键代码 / 演示三个视图随时切换，不必切窗口</li>
-            <li>演示都支持实时调参，适合现场提问「如果改成这样会怎样」</li>
-            <li>按 <kbd>Ctrl</kbd>+<kbd>K</kbd> 可以直接跳到任意知识点</li>
+            <li><span data-lang="zh">每章顶部有「自动导览」，可以按脚本把重点依次演一遍</span><span data-lang="en">Each chapter has a guided tour that walks the highlights in order</span></li>
+            <li><span data-lang="zh">讲解 / 关键代码 / 演示三个视图随时切换，不必切窗口</span><span data-lang="en">Switch between explain, code and demo without leaving the page</span></li>
+            <li><span data-lang="zh">演示都支持实时调参，适合现场提问「如果改成这样会怎样」</span><span data-lang="en">Demos are live — perfect for "what happens if we change this?"</span></li>
+            <li><span data-lang="zh">按 <kbd>Ctrl</kbd>+<kbd>K</kbd> 可以直接跳到任意知识点</span><span data-lang="en">Press <kbd>Ctrl</kbd>+<kbd>K</kbd> to jump straight to any concept</span></li>
           </ol>
         </article>
         <article class="howto-card">
-          <h3>离线与局域网</h3>
+          <h3><span data-lang="zh">离线与局域网</span><span data-lang="en">Offline and LAN</span></h3>
           <ol>
-            <li>整个站点没有任何构建步骤，克隆下来就能跑</li>
-            <li><code>python -m http.server 8080</code> 起一个本地服务</li>
-            <li>同一 WiFi 下的设备用本机 IP 即可访问，适合机房环境</li>
-            <li>除 D3.js 走 CDN 之外没有外部依赖</li>
+            <li><span data-lang="zh">整个站点没有任何构建步骤，克隆下来就能跑</span><span data-lang="en">No build step at all — clone it and open it</span></li>
+            <li><span data-lang="zh"><code>python -m http.server 8080</code> 起一个本地服务</span><span data-lang="en">Serve it with <code>python -m http.server 8080</code></span></li>
+            <li><span data-lang="zh">同一 WiFi 下的设备用本机 IP 即可访问，适合机房环境</span><span data-lang="en">Other devices on the same Wi-Fi can use your local IP</span></li>
+            <li><span data-lang="zh">D3.js 已内置在仓库里，断网也能跑完全部演示</span><span data-lang="en">D3 is bundled in the repo — every demo runs offline</span></li>
           </ol>
         </article>
         <article class="howto-card">
-          <h3>配套资源</h3>
+          <h3><span data-lang="zh">配套资源</span><span data-lang="en">More material</span></h3>
           <ol>
-            <li><a href="supplementary/">补充 demo 集合</a>：与章节配合的独立示例</li>
-            <li><a href="glossary.html">术语表</a>：全课程名词的集中解释</li>
-            <li>每章都有完整讲义页，适合打印</li>
-            <li>源码结构与重构说明见仓库 README 与 docs/</li>
+            <li><span data-lang="zh"><a href="supplementary/">补充 demo 集合</a>：与章节配合的独立示例</span><span data-lang="en"><a href="supplementary/">Extra demos</a> — standalone examples that pair with the chapters</span></li>
+            <li><span data-lang="zh"><a href="glossary.html">术语表</a>：全课程名词的集中解释</span><span data-lang="en"><a href="glossary.html">Glossary</a> — every term in one place</span></li>
+            <li><span data-lang="zh">每章都有完整讲义页，适合打印</span><span data-lang="en">Each chapter has a printable handout page</span></li>
+            <li><span data-lang="zh">源码结构与重构说明见仓库 README 与 docs/</span><span data-lang="en">Structure and refactor notes live in README and docs/</span></li>
           </ol>
         </article>
       </div>

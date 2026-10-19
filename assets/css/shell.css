@@ -474,6 +474,14 @@ body.tour-on .site-footer { opacity: 0.35; transition: opacity var(--dur-slow) v
   box-shadow: var(--shadow-1);
 }
 
+/* 页面没有英文版时，EN 按钮置灰并保留在原位：直接删掉会让顶栏宽度跳一下，
+   读者会以为界面出错了。置灰 + title 说明才是「这一项不可用」。 */
+.lang-switch button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+.lang-switch button:disabled:hover { color: var(--text-3); }
+
 /* ================================================================== 骨架 */
 .shell {
   /* 左右留白单独抽成 --gutter，因为正文里有些元素要做「通栏」——

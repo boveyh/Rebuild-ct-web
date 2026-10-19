@@ -52,13 +52,13 @@
       </button>
 
       <a class="topbar__brand" href="">
-        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text">可视化导论</span>
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text"><span data-lang="zh">可视化导论</span><span data-lang="en">Visualization</span></span>
       </a>
 
       <span class="topbar__divider" aria-hidden="true"></span>
 
       <nav class="breadcrumb" aria-label="面包屑导航">
-        <ol><li><a href="./">课程门户</a></li><li><span aria-current="page">术语表</span></li></ol>
+        <ol><li><a href="./"><span data-lang="zh">课程门户</span><span data-lang="en">Home</span></a></li><li><span aria-current="page"><span data-lang="zh">术语表</span><span data-lang="en">Glossary</span></span></li></ol>
       </nav>
 
       <div class="topbar__actions">
@@ -116,23 +116,34 @@
     <main class="main" id="main">
       <div class="page-head">
         <p class="page-head__eyebrow">Glossary</p>
-        <h1>术语表</h1>
+        <h1>
+          <span data-lang="zh">术语表</span>
+          <span data-lang="en">Glossary</span>
+        </h1>
         <p class="page-head__lead">
-          按章节顺序排列。每个词条除了「是什么」，还写了「为什么重要」——
-          名词表最容易变成一份背了也没用的清单，加上后半句才有意义。
+          <span data-lang="zh">按章节顺序排列。每个词条除了「是什么」，还写了「为什么重要」——
+          名词表最容易变成一份背了也没用的清单，加上后半句才有意义。</span>
+          <span data-lang="en">Ordered by chapter. Each entry says what the term is and why it
+          matters — a bare list of definitions is something you memorise and forget.</span>
         </p>
       </div>
 
       <div class="term-filter" role="group" aria-label="按章节筛选">
-        <button type="button" data-term-filter="all" aria-pressed="true">全部 25</button>
-        <button type="button" data-term-filter="01" aria-pressed="false">第 1 章</button><button type="button" data-term-filter="02" aria-pressed="false">第 2 章</button><button type="button" data-term-filter="03" aria-pressed="false">第 3 章</button><button type="button" data-term-filter="04" aria-pressed="false">第 4 章</button><button type="button" data-term-filter="05" aria-pressed="false">第 5 章</button>
+        <button type="button" data-term-filter="all" aria-pressed="true">
+          <span data-lang="zh">全部 25</span>
+          <span data-lang="en">All 25</span>
+        </button>
+        <button type="button" data-term-filter="01" aria-pressed="false"><span data-lang="zh">第 1 章</span><span data-lang="en">Ch. 1</span></button><button type="button" data-term-filter="02" aria-pressed="false"><span data-lang="zh">第 2 章</span><span data-lang="en">Ch. 2</span></button><button type="button" data-term-filter="03" aria-pressed="false"><span data-lang="zh">第 3 章</span><span data-lang="en">Ch. 3</span></button><button type="button" data-term-filter="04" aria-pressed="false"><span data-lang="zh">第 4 章</span><span data-lang="en">Ch. 4</span></button><button type="button" data-term-filter="05" aria-pressed="false"><span data-lang="zh">第 5 章</span><span data-lang="en">Ch. 5</span></button>
       </div>
 
       <ul class="term-list">
         <li class="term-card" id="term-dikw" data-term-ch="01">
           <div class="term-card__head">
-            <h2>DIKW 金字塔<span class="term-card__en">DIKW pyramid</span></h2>
-            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+            <h2><span class="term-card__zh">DIKW 金字塔</span><span class="term-card__en">DIKW pyramid</span></h2>
+            <a class="term-card__src" href="lesson-01/">
+              <span data-lang="zh">第 1 章 数据</span>
+              <span data-lang="en">Ch. 1 Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">把「数据 → 信息 → 知识 → 智慧」四级串起来的层次模型。数据是原始观察，信息是组织过的数据，知识是从信息里提炼出的规律，智慧是据知识做判断。</span>
@@ -145,8 +156,11 @@
         </li>
         <li class="term-card" id="term-nominal" data-term-ch="01">
           <div class="term-card__head">
-            <h2>名义尺度<span class="term-card__en">Nominal scale</span></h2>
-            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+            <h2><span class="term-card__zh">名义尺度</span><span class="term-card__en">Nominal scale</span></h2>
+            <a class="term-card__src" href="lesson-01/">
+              <span data-lang="zh">第 1 章 数据</span>
+              <span data-lang="en">Ch. 1 Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">Stevens 四种测量尺度里最弱的一种：只允许判断相等或不等，没有任何顺序。姓名、性别都属于这一类。</span>
@@ -159,8 +173,11 @@
         </li>
         <li class="term-card" id="term-ordinal" data-term-ch="01">
           <div class="term-card__head">
-            <h2>序数尺度<span class="term-card__en">Ordinal scale</span></h2>
-            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+            <h2><span class="term-card__zh">序数尺度</span><span class="term-card__en">Ordinal scale</span></h2>
+            <a class="term-card__src" href="lesson-01/">
+              <span data-lang="zh">第 1 章 数据</span>
+              <span data-lang="en">Ch. 1 Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">值之间有顺序，但相邻两级的差不一定相等。学历（本科 / 硕士 / 博士）是典型例子。</span>
@@ -176,8 +193,11 @@
         </li>
         <li class="term-card" id="term-interval-ratio" data-term-ch="01">
           <div class="term-card__head">
-            <h2>区间尺度与比率尺度<span class="term-card__en">Interval vs. ratio scale</span></h2>
-            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+            <h2><span class="term-card__zh">区间尺度与比率尺度</span><span class="term-card__en">Interval vs. ratio scale</span></h2>
+            <a class="term-card__src" href="lesson-01/">
+              <span data-lang="zh">第 1 章 数据</span>
+              <span data-lang="en">Ch. 1 Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">区间尺度支持加减（摄氏温度），比率尺度还支持乘除（年龄、价格）。唯一的区别是有没有「真零点」。</span>
@@ -193,8 +213,11 @@
         </li>
         <li class="term-card" id="term-channel" data-term-ch="01">
           <div class="term-card__head">
-            <h2>视觉通道<span class="term-card__en">Visual channel</span></h2>
-            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+            <h2><span class="term-card__zh">视觉通道</span><span class="term-card__en">Visual channel</span></h2>
+            <a class="term-card__src" href="lesson-01/">
+              <span data-lang="zh">第 1 章 数据</span>
+              <span data-lang="en">Ch. 1 Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">承载数据变化的视觉属性，位置、长度、角度、面积、亮度、饱和度、色相、形状、纹理等。</span>
@@ -210,8 +233,11 @@
         </li>
         <li class="term-card" id="term-data-join" data-term-ch="01">
           <div class="term-card__head">
-            <h2>Data-Join 三态<span class="term-card__en">Data-join, three states</span></h2>
-            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+            <h2><span class="term-card__zh">Data-Join 三态</span><span class="term-card__en">Data-join, three states</span></h2>
+            <a class="term-card__src" href="lesson-01/">
+              <span data-lang="zh">第 1 章 数据</span>
+              <span data-lang="en">Ch. 1 Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">把数据数组绑定到 DOM 元素时出现的三种情况：元素不够是 enter，正好是 update，多了是 exit。</span>
@@ -227,8 +253,11 @@
         </li>
         <li class="term-card" id="term-key-function" data-term-ch="01">
           <div class="term-card__head">
-            <h2>key 函数<span class="term-card__en">Key function</span></h2>
-            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+            <h2><span class="term-card__zh">key 函数</span><span class="term-card__en">Key function</span></h2>
+            <a class="term-card__src" href="lesson-01/">
+              <span data-lang="zh">第 1 章 数据</span>
+              <span data-lang="en">Ch. 1 Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">在绑定数据时告诉 D3「哪个数据对应哪个元素」的函数，通常写成 d => d.id。</span>
@@ -244,8 +273,11 @@
         </li>
         <li class="term-card" id="term-card-model" data-term-ch="02">
           <div class="term-card__head">
-            <h2>Card 数据流模型<span class="term-card__en">Card's pipeline model</span></h2>
-            <a class="term-card__src" href="lesson-02/">第 2 章 数据可视化流程</a>
+            <h2><span class="term-card__zh">Card 数据流模型</span><span class="term-card__en">Card's pipeline model</span></h2>
+            <a class="term-card__src" href="lesson-02/">
+              <span data-lang="zh">第 2 章 数据可视化流程</span>
+              <span data-lang="en">Ch. 2 Visualization Workflow</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">把可视化拆成四步：原数据 → 数据表 → 视觉结构 → 视图。1999 年由 Stuart Card 提出。</span>
@@ -261,8 +293,11 @@
         </li>
         <li class="term-card" id="term-rollup" data-term-ch="02">
           <div class="term-card__head">
-            <h2>d3.rollup<span class="term-card__en">d3.rollup</span></h2>
-            <a class="term-card__src" href="lesson-02/">第 2 章 数据可视化流程</a>
+            <h2><span class="term-card__zh">d3.rollup</span><span class="term-card__en">d3.rollup</span></h2>
+            <a class="term-card__src" href="lesson-02/">
+              <span data-lang="zh">第 2 章 数据可视化流程</span>
+              <span data-lang="en">Ch. 2 Visualization Workflow</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">按给定键分组，并对每组算出一个聚合值，返回 Map。和 d3.group 的区别是它只留聚合结果。</span>
@@ -278,8 +313,11 @@
         </li>
         <li class="term-card" id="term-reingold-tilford" data-term-ch="02">
           <div class="term-card__head">
-            <h2>Reingold-Tilford 布局<span class="term-card__en">Reingold–Tilford layout</span></h2>
-            <a class="term-card__src" href="lesson-02/">第 2 章 数据可视化流程</a>
+            <h2><span class="term-card__zh">Reingold-Tilford 布局</span><span class="term-card__en">Reingold–Tilford layout</span></h2>
+            <a class="term-card__src" href="lesson-02/">
+              <span data-lang="zh">第 2 章 数据可视化流程</span>
+              <span data-lang="en">Ch. 2 Visualization Workflow</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">一种经典树状图布局算法，让同层节点均匀铺开，同时父节点尽量居中于其子节点之上。</span>
@@ -292,8 +330,11 @@
         </li>
         <li class="term-card" id="term-event-delegation" data-term-ch="02">
           <div class="term-card__head">
-            <h2>事件委托<span class="term-card__en">Event delegation</span></h2>
-            <a class="term-card__src" href="lesson-02/">第 2 章 数据可视化流程</a>
+            <h2><span class="term-card__zh">事件委托</span><span class="term-card__en">Event delegation</span></h2>
+            <a class="term-card__src" href="lesson-02/">
+              <span data-lang="zh">第 2 章 数据可视化流程</span>
+              <span data-lang="en">Ch. 2 Visualization Workflow</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">把监听器绑在父元素上，靠事件冒泡统一处理所有子元素的事件。</span>
@@ -309,8 +350,11 @@
         </li>
         <li class="term-card" id="term-color-space" data-term-ch="03">
           <div class="term-card__head">
-            <h2>颜色空间<span class="term-card__en">Color space</span></h2>
-            <a class="term-card__src" href="lesson-03/">第 3 章 色彩专题</a>
+            <h2><span class="term-card__zh">颜色空间</span><span class="term-card__en">Color space</span></h2>
+            <a class="term-card__src" href="lesson-03/">
+              <span data-lang="zh">第 3 章 色彩专题</span>
+              <span data-lang="en">Ch. 3 Color</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">描述颜色的坐标系。RGB 面向屏幕，HSL 面向直觉，Lab / HCL 面向感知。</span>
@@ -326,8 +370,11 @@
         </li>
         <li class="term-card" id="term-colormap-types" data-term-ch="03">
           <div class="term-card__head">
-            <h2>colormap 三类<span class="term-card__en">Three colormap types</span></h2>
-            <a class="term-card__src" href="lesson-03/">第 3 章 色彩专题</a>
+            <h2><span class="term-card__zh">colormap 三类</span><span class="term-card__en">Three colormap types</span></h2>
+            <a class="term-card__src" href="lesson-03/">
+              <span data-lang="zh">第 3 章 色彩专题</span>
+              <span data-lang="en">Ch. 3 Color</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">顺序型（数值单调变化）、发散型（有一个有意义的中间值）、定性型（类别之间无顺序）。</span>
@@ -343,8 +390,11 @@
         </li>
         <li class="term-card" id="term-cvd" data-term-ch="03">
           <div class="term-card__head">
-            <h2>色觉缺陷（CVD）<span class="term-card__en">Colour-vision deficiency</span></h2>
-            <a class="term-card__src" href="lesson-03/">第 3 章 色彩专题</a>
+            <h2><span class="term-card__zh">色觉缺陷（CVD）</span><span class="term-card__en">Colour-vision deficiency</span></h2>
+            <a class="term-card__src" href="lesson-03/">
+              <span data-lang="zh">第 3 章 色彩专题</span>
+              <span data-lang="en">Ch. 3 Color</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">红绿色盲、蓝黄色盲等色觉差异。男性中红绿色盲比例约为 8%。</span>
@@ -357,8 +407,11 @@
         </li>
         <li class="term-card" id="term-wong-palette" data-term-ch="03">
           <div class="term-card__head">
-            <h2>Wong 色板<span class="term-card__en">Wong palette</span></h2>
-            <a class="term-card__src" href="lesson-03/">第 3 章 色彩专题</a>
+            <h2><span class="term-card__zh">Wong 色板</span><span class="term-card__en">Wong palette</span></h2>
+            <a class="term-card__src" href="lesson-03/">
+              <span data-lang="zh">第 3 章 色彩专题</span>
+              <span data-lang="en">Ch. 3 Color</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">发表在 Nature Methods (2011) 的一组定性色板，经过色觉缺陷友好性与等亮度检验。</span>
@@ -374,8 +427,11 @@
         </li>
         <li class="term-card" id="term-vivid-muted" data-term-ch="03">
           <div class="term-card__head">
-            <h2>鲜艳 + 低饱和<span class="term-card__en">Vivid but low saturation</span></h2>
-            <a class="term-card__src" href="lesson-03/">第 3 章 色彩专题</a>
+            <h2><span class="term-card__zh">鲜艳 + 低饱和</span><span class="term-card__en">Vivid but low saturation</span></h2>
+            <a class="term-card__src" href="lesson-03/">
+              <span data-lang="zh">第 3 章 色彩专题</span>
+              <span data-lang="en">Ch. 3 Color</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">一类配色策略：保色相上的区分度（鲜艳），同时压低饱和度（不刺眼），并把颜色数量控制在 7 个以内。</span>
@@ -388,8 +444,11 @@
         </li>
         <li class="term-card" id="term-screen-space" data-term-ch="04">
           <div class="term-card__head">
-            <h2>三层坐标变换<span class="term-card__en">Three-layer coordinate transform</span></h2>
-            <a class="term-card__src" href="lesson-04/">第 4 章 低维数据可视化</a>
+            <h2><span class="term-card__zh">三层坐标变换</span><span class="term-card__en">Three-layer coordinate transform</span></h2>
+            <a class="term-card__src" href="lesson-04/">
+              <span data-lang="zh">第 4 章 低维数据可视化</span>
+              <span data-lang="en">Ch. 4 Low-Dimensional Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">数据空间（语义）→ 坐标系空间（几何）→ 屏幕空间（像素）。每一层只负责一件事。</span>
@@ -402,8 +461,11 @@
         </li>
         <li class="term-card" id="term-cleveland" data-term-ch="04">
           <div class="term-card__head">
-            <h2>Cleveland 45° 黄金角<span class="term-card__en">Cleveland's 45° sweet spot</span></h2>
-            <a class="term-card__src" href="lesson-04/">第 4 章 低维数据可视化</a>
+            <h2><span class="term-card__zh">Cleveland 45° 黄金角</span><span class="term-card__en">Cleveland's 45° sweet spot</span></h2>
+            <a class="term-card__src" href="lesson-04/">
+              <span data-lang="zh">第 4 章 低维数据可视化</span>
+              <span data-lang="en">Ch. 4 Low-Dimensional Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">人眼对斜率的估计在 45° 附近最准确（也称 banking to 45°）。</span>
@@ -416,8 +478,11 @@
         </li>
         <li class="term-card" id="term-marching-squares" data-term-ch="04">
           <div class="term-card__head">
-            <h2>Marching Squares<span class="term-card__en">Marching Squares</span></h2>
-            <a class="term-card__src" href="lesson-04/">第 4 章 低维数据可视化</a>
+            <h2><span class="term-card__zh">Marching Squares</span><span class="term-card__en">Marching Squares</span></h2>
+            <a class="term-card__src" href="lesson-04/">
+              <span data-lang="zh">第 4 章 低维数据可视化</span>
+              <span data-lang="en">Ch. 4 Low-Dimensional Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">在规则网格上逐格判断四角与阈值的关系，生成等值线段，再拼接成完整等值线的算法。</span>
@@ -433,8 +498,11 @@
         </li>
         <li class="term-card" id="term-time-attributes" data-term-ch="05">
           <div class="term-card__head">
-            <h2>时间的 5 个属性<span class="term-card__en">Five attributes of time</span></h2>
-            <a class="term-card__src" href="lesson-05/">第 5 章 时序数据可视化</a>
+            <h2><span class="term-card__zh">时间的 5 个属性</span><span class="term-card__en">Five attributes of time</span></h2>
+            <a class="term-card__src" href="lesson-05/">
+              <span data-lang="zh">第 5 章 时序数据可视化</span>
+              <span data-lang="en">Ch. 5 Time-Series Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">有序、连续、周期、独立于空间、有结构（间隔有含义）。</span>
@@ -447,8 +515,11 @@
         </li>
         <li class="term-card" id="term-van-wijk" data-term-ch="05">
           <div class="term-card__head">
-            <h2>van Wijk 日历热图<span class="term-card__en">van Wijk calendar heatmap</span></h2>
-            <a class="term-card__src" href="lesson-05/">第 5 章 时序数据可视化</a>
+            <h2><span class="term-card__zh">van Wijk 日历热图</span><span class="term-card__en">van Wijk calendar heatmap</span></h2>
+            <a class="term-card__src" href="lesson-05/">
+              <span data-lang="zh">第 5 章 时序数据可视化</span>
+              <span data-lang="en">Ch. 5 Time-Series Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">把一年按「行 = 年 / 列 = 周」摆成网格，用颜色表示每天的值。</span>
@@ -464,8 +535,11 @@
         </li>
         <li class="term-card" id="term-archimedean-spiral" data-term-ch="05">
           <div class="term-card__head">
-            <h2>阿基米德螺旋<span class="term-card__en">Archimedean spiral</span></h2>
-            <a class="term-card__src" href="lesson-05/">第 5 章 时序数据可视化</a>
+            <h2><span class="term-card__zh">阿基米德螺旋</span><span class="term-card__en">Archimedean spiral</span></h2>
+            <a class="term-card__src" href="lesson-05/">
+              <span data-lang="zh">第 5 章 时序数据可视化</span>
+              <span data-lang="en">Ch. 5 Time-Series Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">半径随角度线性增长的螺旋线。把时间沿它排列，同一周期的数据会落在同一条辐射方向上。</span>
@@ -481,8 +555,11 @@
         </li>
         <li class="term-card" id="term-storyline" data-term-ch="05">
           <div class="term-card__head">
-            <h2>Storyline<span class="term-card__en">Storyline</span></h2>
-            <a class="term-card__src" href="lesson-05/">第 5 章 时序数据可视化</a>
+            <h2><span class="term-card__zh">Storyline</span><span class="term-card__en">Storyline</span></h2>
+            <a class="term-card__src" href="lesson-05/">
+              <span data-lang="zh">第 5 章 时序数据可视化</span>
+              <span data-lang="en">Ch. 5 Time-Series Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">多角色叙事可视化：每条线代表一个角色、组织或进程，线的交叉表示它们相遇或产生关系。</span>
@@ -498,8 +575,11 @@
         </li>
         <li class="term-card" id="term-scale" data-term-ch="01">
           <div class="term-card__head">
-            <h2>比例尺（scale）<span class="term-card__en">Scale</span></h2>
-            <a class="term-card__src" href="lesson-01/">第 1 章 数据</a>
+            <h2><span class="term-card__zh">比例尺（scale）</span><span class="term-card__en">Scale</span></h2>
+            <a class="term-card__src" href="lesson-01/">
+              <span data-lang="zh">第 1 章 数据</span>
+              <span data-lang="en">Ch. 1 Data</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">把数据域映射到值域的函数。连续量用 scaleLinear，离散分类用 scaleBand，序数可用 scalePoint。</span>
@@ -515,8 +595,11 @@
         </li>
         <li class="term-card" id="term-colormap-vs-palette" data-term-ch="03">
           <div class="term-card__head">
-            <h2>colormap 与色板的区别<span class="term-card__en">Colormap vs. palette</span></h2>
-            <a class="term-card__src" href="lesson-03/">第 3 章 色彩专题</a>
+            <h2><span class="term-card__zh">colormap 与色板的区别</span><span class="term-card__en">Colormap vs. palette</span></h2>
+            <a class="term-card__src" href="lesson-03/">
+              <span data-lang="zh">第 3 章 色彩专题</span>
+              <span data-lang="en">Ch. 3 Color</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">colormap 是连续的（可插值），用于数值映射；色板是离散的一组颜色，用于类别区分。</span>

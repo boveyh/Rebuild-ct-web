@@ -868,6 +868,39 @@ html[data-theme="dark"] .analogy strong { color: var(--a-200); }
 
 .figure__frame svg { margin-inline: auto; }
 
+/* ============================================================ 关系图交互 */
+/* 节点可拖动。光标是唯一「这东西能抓」的提示，所以 grab/grabbing 必须给。
+   touch-action: none —— 手指落在节点上就是拖节点，不会把页面滚走。
+   代价是节点区域不能再用来滚页；节点之间的缝隙和图的四周留白仍然可以滚，
+   在手机上试过是够用的。若不这么设，浏览器会把纵向拖动判成滚动，直接
+   发 pointercancel，拖动等于没有。 */
+.cm-node { cursor: grab; touch-action: none; }
+.cm-node--dragging { cursor: grabbing; }
+.cm-node > rect:first-of-type { transition: stroke var(--dur-fast) ease; }
+.cm-node:hover > rect:first-of-type,
+.cm-node--dragging > rect:first-of-type { stroke: var(--brand); }
+
+/* 拖动时连 <text> 一起被刷蓝选中会很难看，拖的过程里禁掉选中 */
+.figure__frame[data-dragging],
+.roadmap[data-dragging] { user-select: none; -webkit-user-select: none; }
+
+/* 挪过节点才出现的「恢复布局」 */
+.cm-reset {
+  margin-left: var(--sp-2);
+  padding: 1px var(--sp-2) 2px;
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+.cm-reset:hover { color: var(--text-1); border-color: var(--border-3); background: var(--bg-surface); }
+.cm-reset[hidden] { display: none; }
+.cm-tools { margin-top: calc(var(--sp-2) * -1); text-align: right; }
+
 .figure figcaption {
   margin-top: var(--sp-3);
   font-size: var(--fs-xs);

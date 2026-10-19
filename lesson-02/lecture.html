@@ -51,13 +51,13 @@
       </button>
 
       <a class="topbar__brand" href="../">
-        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text">可视化导论</span>
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text"><span data-lang="zh">可视化导论</span><span data-lang="en">Visualization</span></span>
       </a>
 
       <span class="topbar__divider" aria-hidden="true"></span>
 
       <nav class="breadcrumb" aria-label="面包屑导航">
-        <ol><li><a href="../">课程门户</a></li><li><a href="../lesson-02/">第 2 章 数据可视化流程</a></li><li><span aria-current="page">讲义</span></li></ol>
+        <ol><li><a href="../"><span data-lang="zh">课程门户</span><span data-lang="en">Home</span></a></li><li><a href="../lesson-02/"><span data-lang="zh">第 2 章 数据可视化流程</span><span data-lang="en">Ch. 2 Visualization Workflow</span></a></li><li><span aria-current="page"><span data-lang="zh">讲义</span><span data-lang="en">Lecture</span></span></li></ol>
       </nav>
 
       <div class="topbar__actions">
@@ -114,14 +114,20 @@
   <div class="shell">
     <aside class="sidebar" id="sidebar" data-open="false" aria-label="讲义目录">
       <nav class="sidebar__group">
-        <div class="sidebar__title">数据可视化流程 · 讲义</div>
+        <div class="sidebar__title">
+          <span data-lang="zh">数据可视化流程 · 讲义</span>
+          <span data-lang="en">Ch. 2 Visualization Workflow · Lecture</span>
+        </div>
         <ul class="sidebar__list">
-          <li><a class="sidebar__link" href="#ch-2-1"><span class="sidebar__num">2.1</span><span class="sidebar__text">数据可视化流程</span></a></li>
-          <li><a class="sidebar__link" href="#ch-2-2"><span class="sidebar__num">2.2</span><span class="sidebar__text">数据分类树（d3.rollup 多层聚合）</span></a></li>
-          <li><a class="sidebar__link" href="#ch-2-3"><span class="sidebar__num">2.3</span><span class="sidebar__text">树布局（Reingold-Tilford 算法）</span></a></li>
-          <li><a class="sidebar__link" href="#ch-2-4"><span class="sidebar__num">2.4</span><span class="sidebar__text">树形列表渲染（classed + 事件委托）</span></a></li>
+          <li><a class="sidebar__link" href="#ch-2-1" data-lang="zh"><span class="sidebar__num">2.1</span><span class="sidebar__text">数据可视化流程</span></a><a class="sidebar__link" href="#ch-2-1-en" data-lang="en"><span class="sidebar__num">2.1</span><span class="sidebar__text">Visualization Workflow</span></a></li>
+          <li><a class="sidebar__link" href="#ch-2-2" data-lang="zh"><span class="sidebar__num">2.2</span><span class="sidebar__text">数据变换：原数据 → 数据表</span></a><a class="sidebar__link" href="#ch-2-2-en" data-lang="en"><span class="sidebar__num">2.2</span><span class="sidebar__text">Data Transformation: Raw → Data Table</span></a></li>
+          <li><a class="sidebar__link" href="#ch-2-3" data-lang="zh"><span class="sidebar__num">2.3</span><span class="sidebar__text">视觉映射：数据表 → 视觉结构</span></a><a class="sidebar__link" href="#ch-2-3-en" data-lang="en"><span class="sidebar__num">2.3</span><span class="sidebar__text">Visual Mapping: Data → Visual Structure</span></a></li>
+          <li><a class="sidebar__link" href="#ch-2-4" data-lang="zh"><span class="sidebar__num">2.4</span><span class="sidebar__text">视图渲染与用户交互</span></a><a class="sidebar__link" href="#ch-2-4-en" data-lang="en"><span class="sidebar__num">2.4</span><span class="sidebar__text">View Rendering & User Interaction</span></a></li>
           <li><a class="sidebar__link" href="../lesson-02/">
-            <span class="sidebar__text">← 返回交互版章节页</span></a></li>
+            <span class="sidebar__text">
+              <span data-lang="zh">← 返回交互版章节页</span>
+              <span data-lang="en">← Back to the interactive chapter</span>
+            </span></a></li>
         </ul>
       </nav>
     </aside>
@@ -129,6 +135,7 @@
 
     <main class="main" id="main">
       <article class="content lecture">
+        <div class="lecture__lang" data-lang="zh">
         <h1 id="第-2-章-数据可视化流程">第 2 章 · 数据可视化流程</h1>
         <blockquote class="note">对应你的飞书文档：<strong>4. 数据可视化流程.docx</strong>  源码 + 演示：见 <code>lesson/index.html</code>（讲解 ⇄ 代码 ⇄ 演示 三 tab 集成页面）</blockquote>
         <p>本章用 4 个章节把可视化完整链路拆给你看：<strong>流程模型 → 数据聚合 → 树布局 → 列表渲染</strong>。 陈为教材中的 Card、Mackinlay、van Wijk 三个理论模型，D3.hierarchy 模块，DOM 事件机制，都会嵌在案例的"为什么这么做"位置。</p>
@@ -353,6 +360,232 @@
         <div class="code-block"><pre><code class="lang-bash">cd docs/doc-02-数据可视化流程/lesson
         python -m http.server 8080
         # 浏览器：http://localhost:8080</code></pre></div>
+        </div>
+        <div class="lecture__lang" data-lang="en">
+        <h1 id="chapter-2-data-visualization-pipeline">Chapter 2 · Data Visualization Pipeline</h1>
+        <blockquote class="note">Corresponding to your Feishu (飞书) document: <strong>4. 数据可视化流程.docx</strong>  Source code + demo: see <code>lesson/index.html</code> (explanation ⇄ code ⇄ demo, three-tab integrated page)</blockquote>
+        <p>This chapter breaks the complete visualization pipeline down for you across 4 sections: <strong>pipeline model → data aggregation → tree layout → list rendering</strong>. The three theoretical models from Chen Wei's textbook (陈为教材) — Card, Mackinlay, and van Wijk — along with the D3.hierarchy module and the DOM event mechanism, are embedded exactly where the cases answer "why we do it this way".</p>
+        <hr />
+        <h2 id="ch-2-1-en">2.1 Data Visualization Pipeline (Card · Mackinlay · van Wijk)</h2>
+        <h3 id="your-original-case">Your original case</h3>
+        <p>Three visualization pipeline models:</p>
+        <ol><li>Draw a flowchart based on the Card 1999 model (Box Flowcharts)</li><li>Mackinlay's automation principles</li><li>The van Wijk model (with interactive feedback)</li></ol>
+        <p>The original image is a concept diagram. In this lesson we redraw it with D3; clicking each node expands the corresponding details within the three models.</p>
+        <h3 id="embedded-theory">Embedded theory</h3>
+        <p><strong>Card data flow model (Card, Mackinlay &amp; Shneiderman, 1999)</strong></p>
+        <p>The "pipeline" of data visualization:</p>
+        <ul><li><strong>Raw Data (原始数据)</strong> → <strong>Data Tables (数据表)</strong> → <strong>Visual Structure (视觉结构)</strong> → <strong>Views (视图)</strong></li><li>Nested transforms: D → T → V → C/L/S (Camera/Light/Screen)</li></ul>
+        <p><strong>Mackinlay automation principles (Mackinlay 1986)</strong></p>
+        <p>For each data type, automatically choose the visual channel with the "highest quantitative accuracy":</p>
+        <ul><li>Numerical → position (smallest quantitative error)</li><li>Ordinal → length, density</li><li>Categorical → hue, shape</li></ul>
+        <p><strong>van Wijk feedback model (van Wijk 2005)</strong></p>
+        <p>Emphasizes the <strong>interactive feedback loop</strong>:</p>
+        <div class="code-block"><pre><code class="lang-text">View ⇆ Filter ⇆ Param ⇆ Other Views</code></pre></div>
+        <h3 id="key-code-①-svg-flowchart-nodes">Key code ① SVG flowchart nodes</h3>
+        <p><span class="star">⭐</span> <strong>Key point to mark</strong>: SVG <code>&lt;marker&gt;</code> + <code>marker-end</code> define the arrowhead; D3 <code>classed()</code> handles state switching.</p>
+        <div class="code-block"><pre><code class="lang-js">// 1. 用 &lt;defs&gt; + &lt;marker&gt; 定义箭头
+        svg.append(&quot;defs&quot;).append(&quot;marker&quot;)
+           .attr(&quot;id&quot;, &quot;arrowhead&quot;)
+           .attr(&quot;refX&quot;, 8)            // 箭头位置校准
+           .attr(&quot;orient&quot;, &quot;auto&quot;)      // 跟随线方向旋转
+           .append(&quot;path&quot;).attr(&quot;d&quot;, &quot;M0,-5L10,0L0,5&quot;);
+
+        // 2. 用 marker-end 引用箭头
+        svg.append(&quot;line&quot;)
+           .attr(&quot;marker-end&quot;, &quot;url(#arrowhead)&quot;)  // 把箭头&quot;装&quot;到线段末端
+           .attr(&quot;x1&quot;, x1).attr(&quot;y1&quot;, y)
+           .attr(&quot;x2&quot;, x2).attr(&quot;y2&quot;, y);
+
+        // 3. classed 状态管理（关键）
+        svg.selectAll(&quot;.node&quot;).classed(&quot;selected&quot;, n =&gt; n.id === d.id);</code></pre></div>
+        <p><strong>Key point explanation</strong>:</p>
+        <ul><li><code>marker-end="url(#arrowhead)"</code> is SVG's reference mechanism — referencing a shape defined in <code>&lt;defs&gt;</code> via URL.</li><li><code>classed("selected", predicate)</code> takes a boolean function and switches the state of all nodes at once, which is <strong>cleaner than a manual forEach</strong>.</li></ul>
+        <h3 id="teaching-points">Teaching points</h3>
+        <ul><li><strong>The three models describe different facets of the same thing</strong></li><li>Card gives the "pipeline", Mackinlay gives "automated decisions", van Wijk gives the "feedback loop"</li><li>&lt;strong&gt;They are complementary, not conflicting&lt;/strong&gt;</li></ul>
+        <hr />
+        <h2 id="ch-2-2-en">2.2 Data Transformation: Raw → Data Table (d3.rollup aggregation)</h2>
+        <blockquote class="note"><strong>Where this sits in the pipeline</strong>: Card 1999 data-flow model, first arrow "raw data → data table". This is <strong>Data Transformation</strong>.</blockquote>
+        <h3 id="your-original-case-2">Your original case</h3>
+        <p>Use freshman data to perform <strong>rollup bucketing aggregation</strong> by "major / class". The core of your demo is d3.rollup's chained calls — one function completes multi-dimensional grouping.</p>
+        <h3 id="embedded-theory-2">Embedded theory</h3>
+        <p><strong>Theory patch: the four operations of data transformation (Card 1999, D layer)</strong></p>
+        <table class="theory-table"><thead><tr><th scope="col">Operation</th><th scope="col">What it does</th><th scope="col">D3 implementation</th></tr></thead><tbody><tr><td data-label="Operation">Clean / filter</td><td data-label="What it does">Remove missing/outliers; keep rows matching a condition</td><td data-label="D3 implementation"><code>.filter()</code>, <code>d3.csv(row)</code> callback</td></tr><tr><td data-label="Operation">Aggregate</td><td data-label="What it does">Group by key, reduce each group to one value</td><td data-label="D3 implementation"><code>d3.rollup()</code>, <code>d3.group()</code></td></tr><tr><td data-label="Operation">Join</td><td data-label="What it does">Combine two tables by key</td><td data-label="D3 implementation"><code>d3.map</code> + manual indexing</td></tr><tr><td data-label="Operation">Derive</td><td data-label="What it does">Compute a new column from existing ones (e.g., "class" → "major")</td><td data-label="D3 implementation">compute a new field in the row callback</td></tr></tbody></table>
+        <p><strong>The rollup aggregation demonstrated here belongs to the "aggregate" row.</strong> Reading this table, you realize data transformation is the "first kilometer" of the whole pipeline.</p>
+        <p><strong>d3.rollup is a functional composition of "bucket by key, then reduce once"</strong>:</p>
+        <div class="code-block"><pre><code class="lang-js">const result = d3.rollup(
+          data,                    // 输入数组
+          v =&gt; v.length,           // reducer
+          d =&gt; d.major,            // key1（外层）
+          d =&gt; d.class             // key2（内层）
+        );</code></pre></div>
+        <p>It returns a <strong><code>Map</code></strong> (not an array, not an object):</p>
+        <ul><li>Iterate with <code>for ([k, v] of m)</code> or <code>m.entries()</code></li><li>Nested rollup produces a nested Map</li><li>Difference from <code>d3.group</code>: rollup reduces the in-group data into <strong>a single value</strong>, while group preserves the <strong>original array</strong></li></ul>
+        <p><strong>OLAP slice / dice / drill (Codd 1993)</strong></p>
+        <table class="theory-table"><thead><tr><th scope="col">OLAP operation</th><th scope="col">Actual equivalent</th></tr></thead><tbody><tr><td data-label="OLAP operation">Slice (切片)</td><td data-label="Actual equivalent"><code>.filter()</code> then rollup</td></tr><tr><td data-label="OLAP operation">Dice (切块)</td><td data-label="Actual equivalent">multi-key rollup</td></tr><tr><td data-label="OLAP operation">Drill (钻取)</td><td data-label="Actual equivalent">nested rollup + recursive expand</td></tr></tbody></table>
+        <p><strong>Teaching point</strong>: The "drill-down interaction" in visualization systems is usually backed by a combination of rollup + hierarchy.</p>
+        <h3 id="key-code-①-two-level-rollup">Key code ① Two-level rollup</h3>
+        <p><span class="star">⭐</span> <strong>Key point to mark</strong>: d3.rollup's keys parameter is a rest parameter (...keys).</p>
+        <div class="code-block"><pre><code class="lang-js">const nested = d3.rollup(
+          students,
+          v =&gt; v.length,           // 每组聚合为单一值（这里是 count）
+          d =&gt; d.major,            // 外层 key
+          d =&gt; d.class             // 内层 key（rest 参数，可继续加）
+        );
+
+        for (const [major, inner] of nested) {
+          for (const [cls, count] of inner) {
+            console.log(major, cls, count);
+          }
+        }</code></pre></div>
+        <h3 id="key-code-②-extract-major-with-regex">Key code ② Extract major with regex</h3>
+        <p><span class="star">⭐</span> <strong>Key point to mark</strong>: regex <code>/^(.+?)(\d+班)$/</code> — <code>.+?</code> is a <strong>non-greedy</strong> match.</p>
+        <div class="code-block"><pre><code class="lang-js">const data = await d3.csv(&quot;./data/newstudent.csv&quot;, d =&gt; {
+          const cls = d[&quot;班级&quot;].trim();
+          const m = cls.match(/^(.+?)(\d+班)$/);  // 中间非贪婪 + 末尾&quot;数字+班&quot;
+          return {
+            id:    +d[&quot;序号&quot;],
+            name:  d[&quot;姓名&quot;].trim(),
+            class: cls,
+            major: m ? m[1] : cls,  // &quot;软件工程1班&quot; → &quot;软件工程&quot;
+          };
+        });</code></pre></div>
+        <p><strong>Key point explanation</strong>:</p>
+        <ul><li><code>.+?</code> is a <strong>non-greedy</strong> match — keeps the middle as short as possible, leaving the end for <code>\d+班</code></li><li>Without this non-greedy match: <code>.+</code> would consume the entire string, and <code>m[1]</code> would be undefined</li><li><strong>Students often fall into this regex pitfall — it must be mastered</strong></li></ul>
+        <hr />
+        <h2 id="ch-2-3-en">2.3 Visual Mapping: Data → Visual Structure (Reingold-Tilford + channel theory)</h2>
+        <blockquote class="note"><strong>Where this sits in the pipeline</strong>: following 2.2, we now have a "data table". This is the second arrow, "data table → visual structure", i.e. <strong>Visual Mapping</strong>.</blockquote>
+        <h3 id="your-original-case-3">Your original case</h3>
+        <p>Section 4.2 mentioned "tree-structure visualization". This section expands on the <strong>tree layout algorithm</strong> — once you have hierarchical data, how do you place nodes on screen without collisions? Essentially it uses the "position channel" to do visual mapping.</p>
+        <h3 id="embedded-theory-3">Embedded theory</h3>
+        <p><strong>Theory core: what is a visual channel? Mackinlay's ranking (Figure 1)</strong></p>
+        <p>A visual channel is the carrier that "encodes data onto a visual element": position, length, area, angle, color, shape, texture. <strong>Mackinlay (1986)</strong> gave the classic ranking: for <em>different data types</em>, the quantitative accuracy of each channel differs.</p>
+        <blockquote class="note">📷 <strong>Figure 1 · Mackinlay 1986 channel ranking</strong> (see <code>img/01-mackinlay-ranking.png</code> on the page) For Quantitative / Ordinal / Nominal data, the quantitative-accuracy ordering of each channel. Position is always the most accurate.</blockquote>
+        <ul><li><strong>Position</strong>: ranks #1 for all three data types</li><li><strong>Quantitative data</strong>: length → angle → slope → area (bar charts beat area charts)</li><li><strong>Nominal data</strong>: position → hue → texture → connection → shape</li></ul>
+        <p><strong>Theory core: marks and visual channels (Figures 2 &amp; 3)</strong></p>
+        <p>The visual structure is built on <strong>marks</strong>: Point, Line, Area. These marks are "marked up" through <strong>channels</strong>: position, color, shape, tilt, size.</p>
+        <blockquote class="note">📷 <strong>Figure 2 · Three families of marks</strong> (<code>img/02-marks-points-lines-areas.png</code>): Points / Lines / Areas, the skeleton of the visual structure.  📷 <strong>Figure 3 · Visual-channel families</strong> (<code>img/03-channels-position-color-shape.png</code>): Position (horizontal / vertical / both), Color, Shape, Tilt, Size (length / area / volume).</blockquote>
+        <p><strong>Theory core: two channel classes — Magnitude vs Identity (Figures 4 &amp; 5)</strong></p>
+        <p>By "whether it can express magnitude," channels split into two classes:</p>
+        <ul><li><strong>Magnitude channels</strong>: express <em>ordered / quantitative</em> attributes (position on a common scale is best; length / tilt / area next; luminance / saturation / volume weakest)</li><li><strong>Identity channels</strong>: express <em>categorical</em> attributes (spatial region, hue, motion, shape — distinguish "different classes" but cannot rank "more vs less")</li></ul>
+        <blockquote class="note">📷 <strong>Figure 4 · Magnitude channels</strong> (<code>img/04-magnitude-channels.png</code>): ordered attributes, ordered by accuracy.  📷 <strong>Figure 5 · Identity channels</strong> (<code>img/05-identity-channels.png</code>): categorical attributes — spatial region / hue / motion / shape.</blockquote>
+        <p><strong>Where this lesson lands</strong>: tree layout (Reingold-Tilford) is essentially a <strong>visual mapping</strong> — it uses the <em>position channel</em> to encode hierarchy as "parent above, children below".</p>
+        <p><strong>Reingold-Tilford algorithm (1981, still the core of d3.tree() today)</strong></p>
+        <p>Core idea (3 passes):</p>
+        <ol><li><strong>First pass (bottom-up):</strong> for each parent node, compute how much horizontal space its left and right subtrees "occupy"</li><li><strong>Second pass (top-down):</strong> assign an <strong>absolute x coordinate</strong> to each node (ensuring sibling nodes stay tight to the parent's midline and do not overlap)</li><li><strong>Third pass:</strong> handle "threads" — fix alignment when child nodes cross the parent's midline</li></ol>
+        <p>Complexity: <strong>O(n)</strong> time.</p>
+        <p><strong>d3-hierarchy module full toolkit:</strong></p>
+        <table class="theory-table"><thead><tr><th scope="col">API</th><th scope="col">Purpose</th></tr></thead><tbody><tr><td data-label="API"><code>hierarchy(data)</code></td><td data-label="Purpose">nested data → compute parent/children/depth</td></tr><tr><td data-label="API"><code>tree().size([h, w])</code></td><td data-label="Purpose">Reingold-Tilford algorithm, left-right layout</td></tr><tr><td data-label="API"><code>cluster().size([h, w])</code></td><td data-label="Purpose">align all leaves to the same depth</td></tr><tr><td data-label="API"><code>treemap().tile(...)</code></td><td data-label="Purpose">area layout (slice-and-dice / squarified)</td></tr><tr><td data-label="API"><code>pack().radius(...)</code></td><td data-label="Purpose">circle packing</td></tr><tr><td data-label="API"><code>partition().size([h, w])</code></td><td data-label="Purpose">icicle / sunburst</td></tr></tbody></table>
+        <h3 id="key-code-①-hierarchy-tree-three-steps">Key code ① hierarchy + tree three steps</h3>
+        <p><span class="star">⭐</span> <strong>Key point to mark</strong>: tree.x is the depth direction, tree.y is the horizontal direction — the horizontal tree swaps the axes.</p>
+        <div class="code-block"><pre><code class="lang-js">// 1. hierarchy：嵌套 JSON → parent/children/depth
+        const root = d3.hierarchy(rootData);
+
+        // 2. tree layout：x/y 坐标
+        const treeLayout = d3.tree().size([360, 720]);
+        const treeData = treeLayout(root);
+
+        // 3. links：path 走 linkHorizontal
+        g.selectAll(&quot;.link&quot;).data(treeData.links()).join(&quot;path&quot;)
+          .attr(&quot;d&quot;, d3.linkHorizontal().x(d =&gt; d.y).y(d =&gt; d.x));  // ⭐ swap
+
+        // 4. nodes
+        const ng = g.selectAll(&quot;.node&quot;).data(treeData.descendants()).join(&quot;g&quot;)
+          .attr(&quot;transform&quot;, d =&gt; `translate(${d.y}, ${d.x})`);  // ⭐ swap
+
+        ng.append(&quot;circle&quot;).attr(&quot;r&quot;, 5);
+        ng.append(&quot;text&quot;)
+          .attr(&quot;text-anchor&quot;, d =&gt; d.children ? &quot;end&quot; : &quot;start&quot;)
+          .attr(&quot;x&quot;, d =&gt; d.children ? -8 : 8)
+          .text(d =&gt; d.data.name);</code></pre></div>
+        <p><strong>Key point explanation</strong>:</p>
+        <ul><li><code>treeData.x</code> is the <strong>depth direction</strong> (vertical), <code>treeData.y</code> is the <strong>horizontal direction</strong></li><li>So <code>linkHorizontal</code> uses <code>x=d.y, y=d.x</code> — the horizontal swap</li><li><strong>This "x-axis takes y, y-axis takes x" swap is unique to horizontal trees</strong></li></ul>
+        <h3 id="key-code-②-separation">Key code ② separation</h3>
+        <p><span class="star">⭐</span> <strong>Key point to mark</strong>: separation takes a function that returns the spacing multiplier between <code>[node, parent]</code>.</p>
+        <div class="code-block"><pre><code class="lang-js">const treeLayout = d3.tree()
+          .size([360, 720])
+          .separation((a, b) =&gt; (a.parent === b.parent ? 1 : 2));
+                                      //   ↑ siblings stay tight        ↑ non-siblings at least 2x apart</code></pre></div>
+        <p><code>0.5</code> → everything squeezed together; <code>2.0</code> → the tree widens. The demo has a slider for real-time adjustment.</p>
+        <hr />
+        <h2 id="ch-2-4-en">2.4 View Rendering &amp; User Interaction (classed + event delegation + transition)</h2>
+        <blockquote class="note"><strong>Where this sits in the pipeline</strong>: following 2.3, we now have a "visual structure". This section covers the last two arrows: "visual structure → view" (rendering) and "view ↔ user" (interaction feedback). Card's V layer + van Wijk's feedback loop both land here.</blockquote>
+        <h3 id="your-original-case-4">Your original case</h3>
+        <p>The original document used <code>classed</code> to control node styling and <code>stopPropagation</code> to block bubbling. The key point is <strong>turning D3 tree layout output into an interactive HTML list</strong>.</p>
+        <h3 id="embedded-theory-4">Embedded theory</h3>
+        <p><strong>Theory patch: animation — the "time dimension" of view rendering</strong></p>
+        <p>Animation (transition) isn't "fancy" — it's the <em>time dimension</em> of view rendering. D3 uses <code>.transition().duration(ms)</code> to smoothly interpolate an attribute from its old value to a new one. The pedagogical value lies in a single <code>duration</code> parameter:</p>
+        <ul><li><code>duration=0</code>: instant jump — you can't "see the change happen"</li><li><code>duration=500</code>: a 0.5s transition — you see expand / collapse / move smoothly</li><li><code>duration&gt;1500</code>: too slow — students start to drift</li></ul>
+        <p><strong>This lesson's interactive demo adds a duration slider</strong> so you can change this parameter live and see "how rendering unfolds over time."</p>
+        <p><strong>DOM event three phases</strong>:</p>
+        <ol><li><strong>Capturing</strong>: window → document → ... → target element (outside to inside)</li><li><strong>Target</strong>: the target element itself</li><li><strong>Bubbling</strong>: target element → ... → document → window (inside to outside)</li></ol>
+        <p>By default, listeners attach to the bubbling phase. <code>e.stopPropagation()</code> truncates bubbling so the upper layers no longer fire.</p>
+        <p><strong>Event Delegation</strong>:</p>
+        <table class="theory-table"><thead><tr><th scope="col">Problem</th><th scope="col">Solution</th></tr></thead><tbody><tr><td data-label="Problem">Binding click to each of 1000 <code>li</code> in a list → slow, memory-heavy</td><td data-label="Solution">Bind click once on the parent element (<code>ul</code>)</td></tr><tr><td data-label="Problem">New elements need re-binding</td><td data-label="Solution">Use <code>e.target.closest('.label')</code> to find the actually clicked element</td></tr></tbody></table>
+        <p><strong>Advantage</strong>: one listener replaces N, and future-added elements are automatically supported.</p>
+        <h3 id="key-code-①-event-delegation-toggle-vs-select">Key code ① Event delegation (toggle vs select)</h3>
+        <p><span class="star">⭐</span> <strong>Key point to mark</strong>: the toggle button uses stopPropagation to prevent bubbling to the <code>li</code>'s select listener.</p>
+        <div class="code-block"><pre><code class="lang-js">function buildList(liSel, d) {
+          const label = liSel.append(&quot;span&quot;).attr(&quot;class&quot;, &quot;label&quot;);
+
+          label.on(&quot;click.toggle&quot;, (event) =&gt; {
+            // ⭐ 关键 ①：阻止冒泡 —— toggle 不该触发&quot;选中&quot;
+            event.stopPropagation();
+            d.data._collapsed = !d.data._collapsed;
+            render();
+          });
+
+          liSel.on(&quot;click.select&quot;, (event) =&gt; {
+            // ⭐ 关键 ②：toggle click 已被 stopPropagation 阻断，不会到这里
+            document.querySelectorAll(&quot;li&quot;).forEach(li =&gt; li.classList.remove(&quot;selected&quot;));
+            liSel.classed(&quot;selected&quot;, true);  // D3 class 切换
+          });
+        }</code></pre></div>
+        <p><strong>Key point explanation</strong>:</p>
+        <ul><li>Without stopPropagation → clicking toggle would trigger both "toggle collapse" and "select node" at once, which confuses the user</li><li>This is a core teaching point of the DOM event mechanism</li></ul>
+        <h3 id="key-code-③-d3-transition-transition-duration">Key code ③ D3 transition (transition + duration)</h3>
+        <p><span class="star">⭐</span> <strong>Key point to mark</strong>: <code>transition + duration</code> = letting attributes change smoothly over time.</p>
+        <div class="code-block"><pre><code class="lang-js">// Key: transition + duration = smooth change over time
+        svg.selectAll(&quot;.node&quot;)
+          .transition()                    // enter the transition state
+          .duration(DURATION)              // duration (ms), controlled by slider
+          .attr(&quot;transform&quot;, d =&gt; `translate(${d.y}, ${d.x})`)
+          .attr(&quot;opacity&quot;, 1);
+
+        // New nodes entering: set opacity=0 first, then transition to 1 → fade-in
+        ng.attr(&quot;opacity&quot;, 0)
+          .transition().duration(DURATION).attr(&quot;opacity&quot;, 1);</code></pre></div>
+        <h3 id="key-code-④-animation-duration-slider-html-css-control">Key code ④ Animation duration slider (HTML/CSS control)</h3>
+        <div class="code-block"><pre><code class="lang-html">&lt;!-- HTML slider: listen for input to change DURATION --&gt;
+        &lt;input id=&quot;dur&quot; type=&quot;range&quot; min=&quot;0&quot; max=&quot;1500&quot; step=&quot;50&quot; value=&quot;500&quot;&gt;
+
+        &lt;!-- JS: replay the animation after changing DURATION --&gt;
+        document.getElementById(&quot;dur&quot;).addEventListener(&quot;input&quot;, e =&gt; {
+          DURATION = +e.target.value;
+          render();   // redo the transition with the new duration
+        });</code></pre></div>
+        <h3 id="key-code-②-nested-recursive-buildlist">Key code ② Nested recursive buildList</h3>
+        <p><span class="star">⭐</span> <strong>Key point to mark</strong>: <code>selection.each()</code> + <code>d3.select(this)</code> is the key pattern for D3 ↔ native DOM interop.</p>
+        <div class="code-block"><pre><code class="lang-js">function render() {
+          $tree.innerHTML = &quot;&quot;;  // 全量重画（树结构变化没法增量更新）
+          const ul = d3.create(&quot;ul&quot;);
+          ul.selectAll(&quot;li&quot;).data([root]).join(&quot;li&quot;)
+            .each(function(d) { buildList(d3.select(this), d); });
+          $tree.appendChild(ul.node());
+        }</code></pre></div>
+        <p><strong>Key point explanation</strong>:</p>
+        <ul><li>D3 has no API for "smart updating" tree structures (hierarchy changes) — a full redraw is simplest</li><li><code>selection.each()</code> together with <code>d3.select(this)</code> converts the native element back into a selection</li></ul>
+        <hr />
+        <h2 id="summary-chen-wei-s-textbook-陈为教材-chapters-covered-in-this-chapter">🎯 Summary: Chen Wei's textbook (陈为教材) chapters covered in this chapter</h2>
+        <table class="theory-table"><thead><tr><th scope="col">Chen Wei's textbook (陈为教材)</th><th scope="col">Covered in</th></tr></thead><tbody><tr><td data-label="Chen Wei's textbook (陈为教材)">Ch1.5 Visualization process model (Card, Mackinlay, van Wijk)</td><td data-label="Covered in">2.1</td></tr><tr><td data-label="Chen Wei's textbook (陈为教材)">Ch3 Data transformation (rollup / group / data table, D layer)</td><td data-label="Covered in">2.2</td></tr><tr><td data-label="Chen Wei's textbook (陈为教材)">Ch6 Visual mapping &amp; tree / hierarchical data (hierarchy / tree / cluster)</td><td data-label="Covered in">2.3</td></tr><tr><td data-label="Chen Wei's textbook (陈为教材)">Ch7 Interaction (event mechanism / stopPropagation / transition animation)</td><td data-label="Covered in">2.4</td></tr></tbody></table>
+        <hr />
+        <h2 id="suggested-in-class-questions">❓ Suggested in-class questions</h2>
+        <ol><li><strong>(2.1)</strong> Why does the van Wijk model emphasize the "View ⇆ Filter" loop? What happens without a feedback loop?</li><li><strong>(2.2)</strong> What is the key difference between <code>d3.rollup</code> and <code>d3.group</code> in return type? Of the four data-transformation operations, which one does rollup belong to?</li><li><strong>(2.3)</strong> In Mackinlay's ranking, why is "position" #1 for all three data types? How does tree layout encode hierarchy via the "position channel"?</li><li><strong>(2.4)</strong> Without stopPropagation, events would bubble to document and window. What is the essential difference between <code>duration=0</code> and <code>duration=500</code> in how students perceive "the change over time"?</li></ol>
+        <hr />
+        <h2 id="how-to-run">📂 How to run</h2>
+        <div class="code-block"><pre><code class="lang-bash">cd docs/doc-02-数据可视化流程/lesson
+        python -m http.server 8080
+        # 浏览器：http://localhost:8080</code></pre></div>
+        </div>
       </article>
     </main>
   </div>

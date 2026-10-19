@@ -51,13 +51,13 @@
       </button>
 
       <a class="topbar__brand" href="../">
-        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text">可视化导论</span>
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text"><span data-lang="zh">可视化导论</span><span data-lang="en">Visualization</span></span>
       </a>
 
       <span class="topbar__divider" aria-hidden="true"></span>
 
       <nav class="breadcrumb" aria-label="面包屑导航">
-        <ol><li><a href="../">课程门户</a></li><li><a href="../lesson-01/">第 1 章 数据</a></li><li><span aria-current="page">讲义</span></li></ol>
+        <ol><li><a href="../"><span data-lang="zh">课程门户</span><span data-lang="en">Home</span></a></li><li><a href="../lesson-01/"><span data-lang="zh">第 1 章 数据</span><span data-lang="en">Ch. 1 Data</span></a></li><li><span aria-current="page"><span data-lang="zh">讲义</span><span data-lang="en">Lecture</span></span></li></ol>
       </nav>
 
       <div class="topbar__actions">
@@ -114,15 +114,21 @@
   <div class="shell">
     <aside class="sidebar" id="sidebar" data-open="false" aria-label="讲义目录">
       <nav class="sidebar__group">
-        <div class="sidebar__title">数据 · 讲义</div>
+        <div class="sidebar__title">
+          <span data-lang="zh">数据 · 讲义</span>
+          <span data-lang="en">Ch. 1 Data · Lecture</span>
+        </div>
         <ul class="sidebar__list">
-          <li><a class="sidebar__link" href="#ch-1-1"><span class="sidebar__num">1.1</span><span class="sidebar__text">数据生成</span></a></li>
-          <li><a class="sidebar__link" href="#ch-1-2"><span class="sidebar__num">1.2</span><span class="sidebar__text">数据定义</span></a></li>
-          <li><a class="sidebar__link" href="#ch-1-3"><span class="sidebar__num">1.3</span><span class="sidebar__text">数据属性</span></a></li>
-          <li><a class="sidebar__link" href="#ch-1-4"><span class="sidebar__num">1.4</span><span class="sidebar__text">数据变换</span></a></li>
-          <li><a class="sidebar__link" href="#ch-1-5"><span class="sidebar__num">1.5</span><span class="sidebar__text">D3 数据选择器</span></a></li>
+          <li><a class="sidebar__link" href="#ch-1-1" data-lang="zh"><span class="sidebar__num">1.1</span><span class="sidebar__text">数据生成</span></a><a class="sidebar__link" href="#ch-1-1-en" data-lang="en"><span class="sidebar__num">1.1</span><span class="sidebar__text">Data Generation</span></a></li>
+          <li><a class="sidebar__link" href="#ch-1-2" data-lang="zh"><span class="sidebar__num">1.2</span><span class="sidebar__text">数据定义</span></a><a class="sidebar__link" href="#ch-1-2-en" data-lang="en"><span class="sidebar__num">1.2</span><span class="sidebar__text">Data Definition</span></a></li>
+          <li><a class="sidebar__link" href="#ch-1-3" data-lang="zh"><span class="sidebar__num">1.3</span><span class="sidebar__text">数据属性</span></a><a class="sidebar__link" href="#ch-1-3-en" data-lang="en"><span class="sidebar__num">1.3</span><span class="sidebar__text">Data Attributes</span></a></li>
+          <li><a class="sidebar__link" href="#ch-1-4" data-lang="zh"><span class="sidebar__num">1.4</span><span class="sidebar__text">数据变换</span></a><a class="sidebar__link" href="#ch-1-4-en" data-lang="en"><span class="sidebar__num">1.4</span><span class="sidebar__text">Data Transformation</span></a></li>
+          <li><a class="sidebar__link" href="#ch-1-5" data-lang="zh"><span class="sidebar__num">1.5</span><span class="sidebar__text">D3 数据选择器</span></a><a class="sidebar__link" href="#ch-1-5-en" data-lang="en"><span class="sidebar__num">1.5</span><span class="sidebar__text">D3 Selectors</span></a></li>
           <li><a class="sidebar__link" href="../lesson-01/">
-            <span class="sidebar__text">← 返回交互版章节页</span></a></li>
+            <span class="sidebar__text">
+              <span data-lang="zh">← 返回交互版章节页</span>
+              <span data-lang="en">← Back to the interactive chapter</span>
+            </span></a></li>
         </ul>
       </nav>
     </aside>
@@ -130,6 +136,7 @@
 
     <main class="main" id="main">
       <article class="content lecture">
+        <div class="lecture__lang" data-lang="zh">
         <h1 id="第-1-章-数据">第 1 章 数据</h1>
         <blockquote class="note"><strong>本讲义配套集成教学页面</strong>：<a href="./index.html"><code>./index.html</code></a>（讲解 ⇄ 代码 ⇄ 演示 三 tab 自由切换）  推荐教学用法：浏览器打开 lesson 页面 → 左侧选章节 → 三个 tab 来回切（讲解看原理、代码看 ⭐ 关键点、演示看实际效果）。</blockquote>
         <h2 id="教学目标">📌 教学目标</h2>
@@ -353,6 +360,232 @@
         <div class="code-block"><pre><code class="lang-bash">cd docs/doc-01-数据/demo
         python -m http.server 8081</code></pre></div>
         <p>5 个 demo 各自独立，适合课后练习。</p>
+        </div>
+        <div class="lecture__lang" data-lang="en">
+        <h1 id="chapter-1-data">Chapter 1 Data</h1>
+        <blockquote class="note"><strong>This lecture is accompanied by an integrated teaching page</strong>: <a href="./index.html"><code>./index.html</code></a> (Explanation ⇄ Code ⇄ Demo — three tabs, switch freely)  Recommended teaching usage: open the lesson page in a browser → select a chapter on the left → switch back and forth between the three tabs (Explanation shows the principles, Code shows the ⭐ key points, Demo shows the actual effect).</blockquote>
+        <h2 id="teaching-objectives">📌 Teaching Objectives</h2>
+        <ol><li>Understand the nature of data (DIKW pyramid) and where visualization sits within it</li><li>Master the matching principle of Stevens' measurement scales × Mackinlay's visual channels</li><li>Proficiently use D3 data loading and transformation APIs</li><li>Understand the enter / update / exit three-state model of D3 Selection</li><li><strong>Key mastery</strong>: the ⭐ highlighted JavaScript key programming points (13 in total)</li></ol>
+        <hr />
+        <h2 id="ch-1-1-en">1.1 Data Generation</h2>
+        <h3 id="your-original-case">Your Original Case</h3>
+        <p>This chapter uses the new student data (新生数据) of the China University of Petroleum (East China) Class of 2025. The data was synthesized by the DeepSeek large model, containing 80 records:</p>
+        <div class="code-block"><pre><code class="lang-text">序号、姓名、性别、生日、年龄、班级、籍贯、民族</code></pre></div>
+        <h3 id="embedded-theory-the-credibility-boundary-of-ai-synthesized-data">Embedded Theory: The Credibility Boundary of AI-Synthesized Data</h3>
+        <table class="theory-table"><thead><tr><th scope="col">Dimension</th><th scope="col">Meaning</th><th scope="col">Data generated by DeepSeek</th></tr></thead><tbody><tr><td data-label="Dimension">Accuracy</td><td data-label="Meaning">Degree of reflection of the real world</td><td data-label="Data generated by DeepSeek">⚠️ names/places of origin fabricated</td></tr><tr><td data-label="Dimension">Completeness</td><td data-label="Meaning">Whether required fields are complete</td><td data-label="Data generated by DeepSeek">✅ all fields present</td></tr><tr><td data-label="Dimension">Consistency</td><td data-label="Meaning">Same concept expressed consistently in different places</td><td data-label="Data generated by DeepSeek">✅ fields consistent</td></tr><tr><td data-label="Dimension">Timeliness</td><td data-label="Meaning">Data reflects current state</td><td data-label="Data generated by DeepSeek">✅ enrollment year matches</td></tr></tbody></table>
+        <p><strong>The "sampling bias" of AI-synthesized data</strong>: models tend toward "plausible-looking" distributions (ethnicity skewed toward Han, places of origin skewed toward large cities).</p>
+        <h3 id="key-code-segment-①-field-name-mapping"><span class="star">⭐</span> Key Code Segment ①: Field Name Mapping</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ①：字段映射 —— 把中文 CSV 列名转英文 JS 变量
+        const COLUMN_MAP = {
+          &quot;序号&quot;: &quot;id&quot;,
+          &quot;姓名&quot;: &quot;name&quot;,
+          &quot;性别&quot;: &quot;gender&quot;,
+          &quot;生日&quot;: &quot;birthday&quot;,
+          &quot;年龄&quot;: &quot;age&quot;,
+          &quot;班级&quot;: &quot;class&quot;,
+        };</code></pre></div>
+        <p><strong>Why not use Chinese keys?</strong></p>
+        <ul><li>JS engines have poor tolerance for Chinese identifiers (older browsers throw errors)</li><li>Backends, JSON, and URL encoding may all introduce garbled characters</li><li>IDE autocomplete, search, and refactoring tools have inconsistent support for Chinese</li></ul>
+        <p><strong>Best practice</strong>: use human-readable Chinese names in CSV, and unified English variables inside JS.</p>
+        <h3 id="key-code-segment-②-type-conversion-function"><span class="star">⭐</span> Key Code Segment ②: Type Conversion Function</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ②：类型转换 —— 用户原文「推荐方式」
+        function transformRow(d) {
+          return {
+            id:       +d[&quot;序号&quot;],              // 一元 + 把字符串转 Number
+            name:     d[&quot;姓名&quot;].trim(),       // trim() 去掉首尾空白
+            birthday: new Date(d[&quot;生日&quot;]),   // 字符串 → Date 对象
+            age:      +d[&quot;年龄&quot;],
+            class:    d[&quot;班级&quot;].trim(),
+          };
+        }</code></pre></div>
+        <p><strong>Explanation of key points</strong>:</p>
+        <ul><li><code>+d["年龄"]</code> is the unary plus operator, the fastest way in JS to convert a string to a number</li><li><code>new Date(str)</code> parses ISO-format dates, but has poor compatibility with <code>"2007/8/15"</code>; use <code>d3.timeParse("%Y-%m-%d")</code> as a fallback</li><li><strong>Pitfall</strong>: without <code>trim()</code>, the trailing space in "软件工程1班 " will cause errors in later filtering/aggregation</li></ul>
+        <h3 id="key-code-segment-③-passing-the-row-callback-directly-as-the-second-argument-of-d3-csv"><span class="star">⭐</span> Key Code Segment ③: Passing the row Callback Directly as the Second Argument of d3.csv</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ③：一行完成加载 + 转换
+        const data = await d3.csv(&quot;data/newstudent.csv&quot;, transformRow);
+
+        // 验证类型确实转换了：
+        console.log(typeof data[0].age);              // &quot;number&quot;
+        console.log(data[0].birthday instanceof Date); // true</code></pre></div>
+        <p><strong>Why this line matters</strong>:</p>
+        <ul><li><code>d3.csv</code> is an asynchronous function and must be <code>await</code>ed</li><li>The row callback in the second argument is called <strong>immediately after each row is parsed</strong> — saving memory compared to "first <code>await d3.csv()</code> then <code>.map()</code>"</li><li><strong>The meaning of asynchronous loading</strong>: it does not block page rendering, so users can keep interacting</li></ul>
+        <h3 id="companion-demo">Companion Demo</h3>
+        <p><a href="./index.html"><code>./index.html#ch-1-1</code></a> · Switch to the "Code" tab to see the ⭐ key points; switch to the "Demo" tab to see the actual loading effect.</p>
+        <hr />
+        <h2 id="ch-1-2-en">1.2 Data Definition</h2>
+        <h3 id="your-original-case-dikw-pyramid">Your Original Case (DIKW Pyramid)</h3>
+        <table class="theory-table"><thead><tr><th scope="col">Layer</th><th scope="col">Original text</th><th scope="col">Question answered</th></tr></thead><tbody><tr><td data-label="Layer">Data</td><td data-label="Original text">Raw, discrete observations</td><td data-label="Question answered">—</td></tr><tr><td data-label="Layer">Information</td><td data-label="Original text">Data that has been processed, organized, and given context</td><td data-label="Question answered">Who / What / When / Where</td></tr><tr><td data-label="Layer">Knowledge</td><td data-label="Original text">Further refinement and understanding of information</td><td data-label="Question answered">How</td></tr><tr><td data-label="Layer">Wisdom</td><td data-label="Original text">Applying knowledge to make wise judgments and strategic decisions</td><td data-label="Question answered">Why / What should be done</td></tr></tbody></table>
+        <h3 id="embedded-theory-where-visualization-sits-in-the-dikw-pyramid">Embedded Theory: Where Visualization Sits in the DIKW Pyramid</h3>
+        <p><strong>Key insight</strong>: visualization mainly lifts <strong>Data up to Information</strong>, and in a few scenarios up to <strong>Knowledge</strong>, but it is hard to cross over to Wisdom.</p>
+        <ul><li>✅ Data → Information: "translating" tables into readable graphics (line charts, bar charts, heatmaps)</li><li>⚠️ Information → Knowledge: pattern discovery requires statistical models as aid (machine learning)</li><li>❌ Knowledge → Wisdom: decisions and strategy exceed the capability of visualization</li></ul>
+        <p><strong>Rowley (2007) criticism</strong>: DIKW is an over-simplified hierarchical model. But as a teaching scaffold it remains the most valuable.</p>
+        <h3 id="key-code-segment-①-svg-pyramid-path"><span class="star">⭐</span> Key Code Segment ①: SVG Pyramid Path</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ①：trapezoid 路径 —— 从上到下 4 个点的连线
+        const topW = 60, botW = 120;
+        const yTop = 20, yBot = 100;
+        const path = `
+          M ${cx - topW/2} ${yTop}
+          L ${cx + topW/2} ${yTop}
+          L ${cx + botW/2} ${yBot}
+          L ${cx - botW/2} ${yBot}
+          Z
+        `;</code></pre></div>
+        <p><strong>Explanation of key points</strong>:</p>
+        <ul><li>The SVG path commands <code>M</code> (moveto), <code>L</code> (lineto), <code>Z</code> (close) are the 3 most commonly used</li><li>Template literals <code>${...}</code> embed JS variables directly, more readable than string concatenation</li><li><strong>Practice</strong>: for complex shapes use <code>d3.symbol()</code> (built-in ★●▲); writing your own path is error-prone</li></ul>
+        <h3 id="key-code-segment-②-interactive-highlight-events"><span class="star">⭐</span> Key Code Segment ②: Interactive Highlight (Events)</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ②：选择集绑定事件 —— 注意 function 而非箭头函数
+        const g = svg.append(&quot;g&quot;)
+          .style(&quot;cursor&quot;, &quot;pointer&quot;)
+          .on(&quot;mouseover&quot;, function () {       // ⚠️ 必须 function，不能箭头函数
+            d3.select(this).select(&quot;path&quot;)      //    因为要用 this 访问当前元素
+               .transition().duration(150)
+               .attr(&quot;fill&quot;, d3.color(layer.color).brighter(0.5));
+          })
+          .on(&quot;click&quot;, () =&gt; showDetail(layer));  // 这里箭头函数 OK（不用 this）</code></pre></div>
+        <p><strong>Explanation of key points</strong>:</p>
+        <ul><li><strong>You must use <code>function()</code> instead of an arrow function</strong> — because D3 callbacks use <code>this</code> to access the current element, and an arrow function captures the outer <code>this</code>, which fails</li><li>This is the most common pitfall in D3</li><li><code>transition().duration()</code> is D3's built-in animation API, even cleaner than jQuery</li></ul>
+        <h3 id="companion-demo-2">Companion Demo</h3>
+        <p><a href="./index.html"><code>./index.html#ch-1-2</code></a> · Demo tab: click each layer of the pyramid to view details.</p>
+        <hr />
+        <h2 id="ch-1-3-en">1.3 Data Attributes</h2>
+        <h3 id="your-original-case-3-major-categories">Your Original Case (3 Major Categories)</h3>
+        <table class="theory-table"><thead><tr><th scope="col">Category</th><th scope="col">Example</th><th scope="col">Description</th></tr></thead><tbody><tr><td data-label="Category">Categorical</td><td data-label="Example">Name, gender</td><td data-label="Description">No ordinal relationship</td></tr><tr><td data-label="Category">Ordinal</td><td data-label="Example">Class, degree</td><td data-label="Description">Has order, no spacing</td></tr><tr><td data-label="Category">Numerical</td><td data-label="Example">Age, exam score</td><td data-label="Description">Quantitative</td></tr></tbody></table>
+        <h3 id="embedded-theory-stevens-measurement-scales-1946-4-categories">Embedded Theory: Stevens' Measurement Scales (1946) — 4 Categories</h3>
+        <p>Four categories finer than your original text:</p>
+        <table class="theory-table"><thead><tr><th scope="col">Category</th><th scope="col">Allowed operations</th><th scope="col">Typical example</th><th scope="col">Corresponding to your original</th></tr></thead><tbody><tr><td data-label="Category"><strong>Nominal</strong></td><td data-label="Allowed operations">equivalence / non-equivalence</td><td data-label="Typical example">Name, gender</td><td data-label="Corresponding to your original">Categorical</td></tr><tr><td data-label="Category"><strong>Ordinal</strong></td><td data-label="Allowed operations">+ &gt; &lt;</td><td data-label="Typical example">rank, class number</td><td data-label="Corresponding to your original">Ordinal</td></tr><tr><td data-label="Category"><strong>Interval</strong></td><td data-label="Allowed operations">+ addition/subtraction</td><td data-label="Typical example">temperature (°C)</td><td data-label="Corresponding to your original">—</td></tr><tr><td data-label="Category"><strong>Ratio</strong></td><td data-label="Allowed operations">+ addition/subtraction/multiplication/division</td><td data-label="Typical example">age, price</td><td data-label="Corresponding to your original">Numerical</td></tr></tbody></table>
+        <p><strong>Key distinction</strong>: the interval scale has no "true zero point" (0°C is not "no temperature"); the ratio scale has a true zero point (0 yuan = no money).</p>
+        <h3 id="embedded-theory-mackinlay-s-visual-channel-ranking-1986">Embedded Theory: Mackinlay's Visual Channel Ranking (1986)</h3>
+        <table class="theory-table"><thead><tr><th scope="col">Tier</th><th scope="col">Channel</th><th scope="col">Suitable attribute</th></tr></thead><tbody><tr><td data-label="Tier"><strong>Quantitative</strong></td><td data-label="Channel">position, length, angle</td><td data-label="Suitable attribute">Ratio / Interval</td></tr><tr><td data-label="Tier"><strong>Ordered</strong></td><td data-label="Channel">brightness, density, saturation</td><td data-label="Suitable attribute">Ordinal</td></tr><tr><td data-label="Tier"><strong>Categorical (qualitative)</strong></td><td data-label="Channel">hue, shape</td><td data-label="Suitable attribute">Nominal</td></tr></tbody></table>
+        <p><strong>Core finding</strong>: position is the strongest quantitative channel; hue is the strongest categorical channel. <strong>Mismatch → information loss</strong>.</p>
+        <h3 id="key-code-segment-①-scale-selection"><span class="star">⭐</span> Key Code Segment ①: Scale Selection</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ①：scale 选型 —— 属性 ↔ 通道的映射
+        // 比率型数据 → scaleLinear（连续定量）
+        const x = d3.scaleLinear().domain([0, 100]).range([0, 800]);
+
+        // 名义/序数型数据 → scaleBand（离散分类）
+        const x = d3.scaleBand()
+          .domain([&quot;软件1班&quot;, &quot;软件2班&quot;, &quot;数据1班&quot;])
+          .range([0, 800]);</code></pre></div>
+        <p><strong>Explanation of key points</strong>:</p>
+        <ul><li><code>domain()</code> is the data domain (input), <code>range()</code> is the value range (output pixels)</li><li><strong>Choosing the wrong scale is the most common mistake beginners make</strong>: using scaleLinear for categorical data yields meaningless intermediate values (e.g., 0.5 class)</li><li><strong>Memory aid</strong>: use Linear for continuous quantitative, Band for discrete categorical, Point for ordinal</li></ul>
+        <h3 id="key-code-segment-②-colormap-selection"><span class="star">⭐</span> Key Code Segment ②: Colormap Selection</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ②：颜色映射 —— 顺序 vs 定性 vs 发散
+        // 顺序型（顺序有意义）→ Viridis / Blues —— CVD 友好
+        const color = d3.scaleSequential(d3.interpolateViridis);
+
+        // 定性型（无顺序）→ schemeTableau10
+        const color = d3.scaleOrdinal().range(d3.schemeTableau10);
+
+        // 发散型（有中点）→ RdBu
+        const color = d3.scaleDiverging(d3.interpolateRdBu);</code></pre></div>
+        <p><strong>Explanation of key points</strong>:</p>
+        <ul><li>Viridis is the benchmark sequential colormap, color-vision-deficiency (CVD) friendly and perceptually uniform</li><li><strong>Common mistake</strong>: encoding values with the rainbow <code>interpolateRainbow</code> — neither CVD friendly nor free of false boundaries</li><li><strong>When to use diverging</strong>: data with a "midpoint" (positive/negative, temperature vs. average)</li></ul>
+        <h3 id="companion-demo-3">Companion Demo</h3>
+        <p><a href="./index.html"><code>./index.html#ch-1-3</code></a> · 4 sub-demos for comparative demonstration.</p>
+        <hr />
+        <h2 id="ch-1-4-en">1.4 Data Transformation</h2>
+        <h3 id="your-original-case-8-functions">Your Original Case (8 Functions)</h3>
+        <table class="theory-table"><thead><tr><th scope="col">#</th><th scope="col">Function</th><th scope="col">Purpose</th></tr></thead><tbody><tr><td data-label="#">1</td><td data-label="Function"><code>map(iterable, mapper)</code></td><td data-label="Purpose">similar to Array.map</td></tr><tr><td data-label="#">2</td><td data-label="Function"><code>reduce(iterable, reducer, init)</code></td><td data-label="Purpose">similar to Array.reduce</td></tr><tr><td data-label="#">3</td><td data-label="Function"><code>cross(...iterables, reducer)</code></td><td data-label="Purpose">Cartesian product</td></tr><tr><td data-label="#">4</td><td data-label="Function"><code>merge(iterables)</code></td><td data-label="Purpose">merge into a flat array</td></tr><tr><td data-label="#">5</td><td data-label="Function"><code>pairs(iterable, reducer)</code></td><td data-label="Purpose">adjacent element pairs</td></tr><tr><td data-label="#">6</td><td data-label="Function"><code>transpose(matrix)</code></td><td data-label="Purpose">matrix transpose</td></tr><tr><td data-label="#">7</td><td data-label="Function"><code>zip(...arrays)</code></td><td data-label="Purpose">combine element-wise</td></tr><tr><td data-label="#">8</td><td data-label="Function"><code>filter(iterable, test)</code></td><td data-label="Purpose">similar to Array.filter</td></tr></tbody></table>
+        <h3 id="embedded-theory-functional-data-flow">Embedded Theory: Functional Data Flow</h3>
+        <p>Common characteristics of these 8 functions:</p>
+        <ul><li>✅ <strong>Immutable</strong>: input unchanged, returns a new array</li><li>✅ <strong>Pure function</strong>: same input → same output</li><li>✅ <strong>Chainable</strong>: the return value is an array, which can feed the next transformation</li></ul>
+        <p><strong>Why functional?</strong> Reasonable (each layer independently testable), parallelizable (map/reduce are naturally parallel), cacheable (pure functions can be memoized).</p>
+        <p><strong>The embryonic form of an OLAP data cube</strong>: <code>transpose</code> converts wide/long formats, <code>group + rollup</code> performs slice/dice/drill-down.</p>
+        <h3 id="key-code-segment-①-map-reduce-chained-composition"><span class="star">⭐</span> Key Code Segment ①: map / reduce Chained Composition</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ①：函数式数据流 —— map 后接 filter 再 reduce
+        const avgAge =
+          students
+            .filter(s =&gt; s.gender === &quot;男&quot;)     // ① 过滤男生
+            .map(s =&gt; s.age)                    // ② 提取年龄
+            .reduce((sum, a) =&gt; sum + a, 0)     // ③ 合计
+          / students.filter(s =&gt; s.gender === &quot;男&quot;).length; // ④ 求平均</code></pre></div>
+        <p><strong>Explanation of key points</strong>:</p>
+        <ul><li>Each step of the chained call returns a new array and does not modify the original</li><li><strong>Compared with imperative</strong>: imperative needs 4 temporary variables + a for loop; functional does it in one line</li><li><strong>Performance trade-off</strong>: each map/filter creates a new array, causing performance overhead for very large arrays (significant only at the millions level)</li></ul>
+        <h3 id="key-code-segment-②-cross-cartesian-product"><span class="star">⭐</span> Key Code Segment ②: cross (Cartesian Product)</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ②：cross —— 笛卡尔积
+        const genders = [&quot;男&quot;, &quot;女&quot;];
+        const majors  = [&quot;软件工程&quot;, &quot;数据科学&quot;];
+        const combos  = d3.cross(genders, majors);
+        // → [[&quot;男&quot;,&quot;软件工程&quot;], [&quot;男&quot;,&quot;数据科学&quot;], [&quot;女&quot;,&quot;软件工程&quot;], [&quot;女&quot;,&quot;数据科学&quot;]]</code></pre></div>
+        <p><strong>Explanation of key points</strong>:</p>
+        <ul><li>Cartesian products are commonly used in "pairwise combination" analysis (e.g., counting people by gender × major)</li><li>The second-argument reducer is optional, used to "merge" the two elements</li><li><strong>Extension</strong>: the size of the Cartesian product of n arrays is the product of each array's length</li></ul>
+        <h3 id="key-code-segment-③-group-rollup-aggregation"><span class="star">⭐</span> Key Code Segment ③: group / rollup (Aggregation)</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ③：group 与 rollup —— 层次聚合
+        // group 返回 Map（保留所有元素）
+        const byClass = d3.group(students, s =&gt; s.class);
+
+        // rollup 返回 Map（每个 key 只保留聚合值）
+        const countByClass = d3.rollup(
+          students,
+          v =&gt; v.length,         // reducer
+          s =&gt; s.class           // key 提取函数
+        );</code></pre></div>
+        <p><strong>Explanation of key points</strong>:</p>
+        <ul><li><code>group</code> vs <code>rollup</code> is the difference between "group and keep" vs "group and aggregate"</li><li>The second argument of <code>rollup</code> is the reducer function (here it takes the length)</li><li>A later chapter, <code>doc-02</code>, will use <code>rollup</code> in detail for tree-shaped data</li></ul>
+        <h3 id="companion-demo-4">Companion Demo</h3>
+        <p><a href="./index.html"><code>./index.html#ch-1-4</code></a> · Demo tab: a dropdown switches among 10 functions (including added <code>group</code> / <code>rollup</code> items).</p>
+        <hr />
+        <h2 id="ch-1-5-en">1.5 D3 Data Selectors</h2>
+        <h3 id="your-original-case-6-methods">Your Original Case (6 Methods)</h3>
+        <table class="theory-table"><thead><tr><th scope="col">Method</th><th scope="col">Returns</th></tr></thead><tbody><tr><td data-label="Method"><code>d3.select</code></td><td data-label="Returns">single element</td></tr><tr><td data-label="Method"><code>d3.selectAll</code></td><td data-label="Returns">a selection of multiple elements</td></tr><tr><td data-label="Method"><code>selection.select</code></td><td data-label="Returns">the first among the descendants of each selected element</td></tr><tr><td data-label="Method"><code>selection.selectAll</code></td><td data-label="Returns">all among the descendants</td></tr><tr><td data-label="Method"><code>selection.selectChild</code></td><td data-label="Returns">the first direct child element</td></tr><tr><td data-label="Method"><code>selection.selectChildren</code></td><td data-label="Returns">all direct child elements</td></tr></tbody></table>
+        <h3 id="embedded-theory-the-data-join-three-state-model">Embedded Theory: The Data-Join Three-State Model</h3>
+        <p>The core of D3 is <strong>Data-Join</strong>: "binding" a data array to DOM elements. When the data changes:</p>
+        <ul><li>New data &gt; old data: the extras enter <strong>enter</strong> (need to append)</li><li>New data = old data: the original elements enter <strong>update</strong> (need attribute changes)</li><li>New data &lt; old data: the surplus elements enter <strong>exit</strong> (need to remove)</li></ul>
+        <h3 id="key-code-segment-①-the-join-enter-update-exit-three-states"><span class="star">⭐</span> Key Code Segment ①: The .join(enter, update, exit) Three States</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ①：D3 v5+ 的 join() API —— 优雅处理三态
+        const circles = svg.selectAll(&quot;circle&quot;)
+          .data(currentData)
+          .join(
+            enter  =&gt; enter.append(&quot;circle&quot;).attr(&quot;fill&quot;, &quot;green&quot;),  // enter
+            update =&gt; update.attr(&quot;fill&quot;, &quot;cyan&quot;),                    // update
+            exit   =&gt; exit.remove()                                   // exit
+          );</code></pre></div>
+        <p><strong>Explanation of key points</strong>:</p>
+        <ul><li>The three callbacks of join are invoked at the enter / update / exit stages respectively</li><li>More concise than the v3 <code>enter().append()</code> + <code>exit().remove()</code> style, and less error-prone logically</li><li><strong>Analogy</strong>: React's diff + patch — same idea, but React does it for you, while D3 makes you write the transform functions yourself</li></ul>
+        <h3 id="key-code-segment-②-the-key-function-preserves-identity"><span class="star">⭐</span> Key Code Segment ②: The Key Function Preserves Identity</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ②：key 函数 —— 元素身份的稳定器
+        // ❌ 不带 key：数据顺序变化 → 所有元素都&quot;update&quot;，过渡动画错乱
+        svg.selectAll(&quot;circle&quot;).data(newData);
+
+        // ✅ 带 key：用唯一字段绑定身份
+        svg.selectAll(&quot;circle&quot;).data(newData, d =&gt; d.id);
+
+        // 同样的逻辑用 React 描述：key={item.id}</code></pre></div>
+        <p><strong>Explanation of key points</strong>:</p>
+        <ul><li><strong>The key function is the soul of D3 animations</strong></li><li>Without a key, D3 binds identity by index: reordering data causes "all elements to change position"</li><li>With a key, each circle knows its own id; on reorder only cx changes, and the transition animation is natural</li><li><strong>Analogy</strong>: exactly the same idea as React's <code>key={item.id}</code></li></ul>
+        <h3 id="key-code-segment-③-select-vs-selectall"><span class="star">⭐</span> Key Code Segment ③: select vs selectAll</h3>
+        <div class="code-block"><pre><code class="lang-javascript">// ⭐ 关键点 ③：选择器的核心区别
+        // select：返回 1 个元素（第一个匹配）；数据绑定只对这一个元素
+        const title = d3.select(&quot;#title&quot;);
+
+        // selectAll：返回多个元素；数据绑定按顺序一一对应
+        const bars = d3.selectAll(&quot;.bar&quot;).data(values);</code></pre></div>
+        <p><strong>Explanation of key points</strong>:</p>
+        <ul><li><code>select</code> is for "operating on a single element", <code>selectAll</code> is for "binding data in bulk"</li><li><strong>Common mistake</strong>: when using <code>selectAll(".bar")</code> to bind data to an array, the number of elements and the number of data items must match, otherwise there is "empty space" or "overflow"</li><li><strong>Best practice</strong>: first use <code>selectAll</code> to create placeholder elements (possibly empty), then <code>.data().join(...)</code></li></ul>
+        <h3 id="companion-demo-5">Companion Demo</h3>
+        <p><a href="./index.html"><code>./index.html#ch-1-5</code></a> · Demo tab: click the button to trigger enter / update / exit.</p>
+        <hr />
+        <h2 id="teacher-s-perspective-key-teaching-points-of-this-chapter">📚 Teacher's Perspective · Key Teaching Points of This Chapter</h2>
+        <h3 id="quick-reference-to-the-13-key-points">Quick Reference to the 13 ⭐ Key Points</h3>
+        <table class="theory-table"><thead><tr><th scope="col">Section</th><th scope="col">Key points</th></tr></thead><tbody><tr><td data-label="Section">3.1</td><td data-label="Key points">① field name mapping ② type conversion ③ d3.csv second-argument callback</td></tr><tr><td data-label="Section">3.2</td><td data-label="Key points">① SVG path ② <strong>function vs arrow function</strong></td></tr><tr><td data-label="Section">3.3</td><td data-label="Key points">① scale selection ② colormap selection</td></tr><tr><td data-label="Section">3.4</td><td data-label="Key points">① chained composition ② cross Cartesian product ③ group/rollup</td></tr><tr><td data-label="Section">3.5</td><td data-label="Key points">① join three states ② key function ③ select vs selectAll</td></tr></tbody></table>
+        <h3 id="key-points-difficult-points">Key Points &amp; Difficult Points</h3>
+        <p><strong>Key points</strong>: the Data-Join three states, the Stevens × Mackinlay correspondence, field mapping + type conversion.</p>
+        <p><strong>Difficult points</strong>:</p>
+        <ul><li>the meaning of the key function (most easily overlooked by students)</li><li><code>function</code> vs arrow function (this binding in D3 callbacks)</li><li>sequential / categorical / diverging colormap selection</li></ul>
+        <h3 id="assessment-points">Assessment Points</h3>
+        <ol><li>Given a dataset, determine which visual channel should be used</li><li>Present a buggy demo and have students point out the problem</li><li>Have students explain "why use the key function"</li><li>Have students hand-write a <code>group</code> + <code>rollup</code> aggregation</li></ol>
+        <hr />
+        <h2 id="run-all-demos-with-one-click">🏃 Run All Demos with One Click</h2>
+        <h3 id="integrated-teaching-page-recommended">Integrated Teaching Page (Recommended)</h3>
+        <div class="code-block"><pre><code class="lang-bash">cd docs/doc-01-数据/lesson
+        python -m http.server 8080
+        # 浏览器打开 http://localhost:8080</code></pre></div>
+        <p><strong>Features</strong>: Explanation ⇄ Code ⇄ Demo — three tabs freely switchable; all 13 ⭐ key points have textual explanations.</p>
+        <h3 id="standalone-demos-alternative">Standalone Demos (Alternative)</h3>
+        <div class="code-block"><pre><code class="lang-bash">cd docs/doc-01-数据/demo
+        python -m http.server 8081</code></pre></div>
+        <p>The 5 demos are independent of each other, suitable for after-class practice.</p>
+        </div>
       </article>
     </main>
   </div>

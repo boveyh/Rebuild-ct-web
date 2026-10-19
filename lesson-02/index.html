@@ -53,13 +53,13 @@
       </button>
 
       <a class="topbar__brand" href="../">
-        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text">可视化导论</span>
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text"><span data-lang="zh">可视化导论</span><span data-lang="en">Visualization</span></span>
       </a>
 
       <span class="topbar__divider" aria-hidden="true"></span>
 
       <nav class="breadcrumb" aria-label="面包屑导航">
-        <ol><li><a href="../">课程门户</a></li><li><span aria-current="page">第 2 章 数据可视化流程</span></li></ol>
+        <ol><li><a href="../"><span data-lang="zh">课程门户</span><span data-lang="en">Home</span></a></li><li><span aria-current="page"><span data-lang="zh">第 2 章 数据可视化流程</span><span data-lang="en">Ch. 2 Visualization Workflow</span></span></li></ol>
       </nav>
 
       <div class="topbar__actions">
@@ -118,10 +118,10 @@
     <nav class="sidebar__group" aria-labelledby="sb-toc">
       <div class="sidebar__title" id="sb-toc" data-i18n="sidebar.toc">本章目录</div>
       <ul class="sidebar__list">
-        <li><a class="sidebar__link" href="#ch-2-1" data-toc-link="ch-2-1" data-progress-key="c02s1"><span class="sidebar__num">2.1</span><span class="sidebar__text"><span data-lang="zh">数据可视化流程</span><span data-lang="en">数据可视化流程</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
-        <li><a class="sidebar__link" href="#ch-2-2" data-toc-link="ch-2-2" data-progress-key="c02s2"><span class="sidebar__num">2.2</span><span class="sidebar__text"><span data-lang="zh">数据分类树（d3.rollup 多层聚合）</span><span data-lang="en">数据分类树（d3.rollup 多层聚合）</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
-        <li><a class="sidebar__link" href="#ch-2-3" data-toc-link="ch-2-3" data-progress-key="c02s3"><span class="sidebar__num">2.3</span><span class="sidebar__text"><span data-lang="zh">树布局（Reingold-Tilford 算法）</span><span data-lang="en">树布局（Reingold-Tilford 算法）</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
-        <li><a class="sidebar__link" href="#ch-2-4" data-toc-link="ch-2-4" data-progress-key="c02s4"><span class="sidebar__num">2.4</span><span class="sidebar__text"><span data-lang="zh">树形列表渲染（classed + 事件委托）</span><span data-lang="en">树形列表渲染（classed + 事件委托）</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
+        <li><a class="sidebar__link" href="#ch-2-1" data-toc-link="ch-2-1" data-progress-key="c02s1"><span class="sidebar__num">2.1</span><span class="sidebar__text"><span data-lang="zh">数据可视化流程</span><span data-lang="en">Visualization Workflow</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
+        <li><a class="sidebar__link" href="#ch-2-2" data-toc-link="ch-2-2" data-progress-key="c02s2"><span class="sidebar__num">2.2</span><span class="sidebar__text"><span data-lang="zh">数据变换：原数据 → 数据表</span><span data-lang="en">Data Transformation: Raw → Data Table</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
+        <li><a class="sidebar__link" href="#ch-2-3" data-toc-link="ch-2-3" data-progress-key="c02s3"><span class="sidebar__num">2.3</span><span class="sidebar__text"><span data-lang="zh">视觉映射：数据表 → 视觉结构</span><span data-lang="en">Visual Mapping: Data → Visual Structure</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
+        <li><a class="sidebar__link" href="#ch-2-4" data-toc-link="ch-2-4" data-progress-key="c02s4"><span class="sidebar__num">2.4</span><span class="sidebar__text"><span data-lang="zh">视图渲染与用户交互</span><span data-lang="en">View Rendering & User Interaction</span></span><svg class="sidebar__check" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:3"><path d="M4 12.5l5 5L20 6.5"/></svg></a></li>
       </ul>
     </nav>
     <nav class="sidebar__group" aria-labelledby="sb-all">
@@ -153,15 +153,20 @@
       <div class="content" style="--ch-accent: var(--viz-2)">
         <div class="page-head page-head--chapter">
           <span class="page-head__chapter" aria-hidden="true">02</span>
-          <p class="page-head__eyebrow">Chapter 02 · Visualization Workflow</p>
-          <h1>第 2 章 数据可视化流程</h1>
+          <p class="page-head__eyebrow">
+            <span data-lang="zh">第 02 章 · 数据可视化流程</span>
+            <span data-lang="en">Chapter 02 · Visualization Workflow</span>
+          </p>
+          <h1>
+            <span data-lang="zh">第 2 章 数据可视化流程</span>
+            <span data-lang="en">Chapter 2: Visualization Workflow</span>
+          </h1>
           <p class="page-head__lead">
             <span data-lang="zh">把「拿到一张表」到「画出一张图」之间那段平时看不见的路，用 Card 的四阶段模型摊开：原数据 → 数据表 → 视觉结构 → 视图。</span>
             <span data-lang="en">Laying out the usually invisible path from 'a table' to 'a chart' with Card's four-stage model: raw data → data tables → visual structures → views.</span>
           </p>
           <ul class="chapter-stats">
             <li><strong>4</strong><span data-lang="zh">个小节</span><span data-lang="en">sections</span></li>
-            <li><strong>40</strong><span data-lang="zh">分钟</span><span data-lang="en">min</span></li>
             <li><strong>14</strong><span data-lang="zh">处关键代码</span><span data-lang="en">key snippets</span></li>
             <li><strong>5</strong><span data-lang="zh">项学习目标</span><span data-lang="en">objectives</span></li>
           </ul>
@@ -196,8 +201,8 @@
           <div class="figure__frame" id="concept-map" role="img"
                aria-label="本章概念依赖图"></div>
           <figcaption>
-            <span data-lang="zh">本章知识点的依赖关系。箭头表示「先理解前者，才容易理解后者」。</span>
-            <span data-lang="en">Dependencies between the concepts in this chapter.</span>
+            <span data-lang="zh">本章知识点的依赖关系。箭头表示「先理解前者，才容易理解后者」。节点可以拖动，双击复位。</span>
+            <span data-lang="en">Dependencies between the concepts in this chapter. Drag a node to move it; double-click to reset.</span>
           </figcaption>
         </figure>
 
@@ -208,7 +213,7 @@
           <div class="section__eyebrow">
             <span class="section__num">2.1</span>
           </div>
-          <h2 class="section__title" id="ch-2-1"><span data-lang="zh">数据可视化流程</span><span data-lang="en">数据可视化流程</span></h2>
+          <h2 class="section__title" id="ch-2-1"><span data-lang="zh">数据可视化流程</span><span data-lang="en">Visualization Workflow</span></h2>
         </div>
         <div class="tabs" role="tablist" aria-label="内容视图">
           <button class="tab-btn" type="button" data-tab="explain" role="tab"
@@ -376,7 +381,7 @@
           <div class="section__eyebrow">
             <span class="section__num">2.2</span>
           </div>
-          <h2 class="section__title" id="ch-2-2"><span data-lang="zh">数据分类树（d3.rollup 多层聚合）</span><span data-lang="en">数据分类树（d3.rollup 多层聚合）</span></h2>
+          <h2 class="section__title" id="ch-2-2"><span data-lang="zh">数据变换：原数据 → 数据表</span><span data-lang="en">Data Transformation: Raw → Data Table</span></h2>
         </div>
         <div class="tabs" role="tablist" aria-label="内容视图">
           <button class="tab-btn" type="button" data-tab="explain" role="tab"
@@ -592,7 +597,7 @@
           <div class="section__eyebrow">
             <span class="section__num">2.3</span>
           </div>
-          <h2 class="section__title" id="ch-2-3"><span data-lang="zh">树布局（Reingold-Tilford 算法）</span><span data-lang="en">树布局（Reingold-Tilford 算法）</span></h2>
+          <h2 class="section__title" id="ch-2-3"><span data-lang="zh">视觉映射：数据表 → 视觉结构</span><span data-lang="en">Visual Mapping: Data → Visual Structure</span></h2>
         </div>
         <div class="tabs" role="tablist" aria-label="内容视图">
           <button class="tab-btn" type="button" data-tab="explain" role="tab"
@@ -861,7 +866,7 @@
           <div class="section__eyebrow">
             <span class="section__num">2.4</span>
           </div>
-          <h2 class="section__title" id="ch-2-4"><span data-lang="zh">树形列表渲染（classed + 事件委托）</span><span data-lang="en">树形列表渲染（classed + 事件委托）</span></h2>
+          <h2 class="section__title" id="ch-2-4"><span data-lang="zh">视图渲染与用户交互</span><span data-lang="en">View Rendering & User Interaction</span></h2>
         </div>
         <div class="tabs" role="tablist" aria-label="内容视图">
           <button class="tab-btn" type="button" data-tab="explain" role="tab"
@@ -1106,7 +1111,7 @@
             <div class="quiz__why" hidden>
               <p class="quiz__verdict" data-quiz-verdict></p>
               <p><span data-lang="zh">数据 → 变换 → 视觉映射 → 视图，然后用户操作又改回变换或映射参数，构成回路。没有这一环，可视化就只是一张静态图。</span><span data-lang="en">Data → transform → encode → view, then the user's actions feed back into transforms or encodings. Without that loop it is just a static picture.</span></p>
-              <a class="quiz__ref" href="#sec-ch-2-1"><span data-lang="zh">复习 2.1 数据可视化流程</span><span data-lang="en">Review 2.1 数据可视化流程</span></a>
+              <a class="quiz__ref" href="#sec-ch-2-1"><span data-lang="zh">复习 2.1 数据可视化流程</span><span data-lang="en">Review 2.1 Visualization Workflow</span></a>
             </div>
           </li>
           <li class="quiz__item" data-answer="0">
@@ -1124,7 +1129,7 @@
             <div class="quiz__why" hidden>
               <p class="quiz__verdict" data-quiz-verdict></p>
               <p><span data-lang="zh">rollup 每个键值层都返回 Map，层层嵌套正好对应「城市 → 区 → 街道」。想变回平铺结构得自己递归展开。</span><span data-lang="en">Each level is a Map, nesting naturally into city → district → street. Flattening it back is your job.</span></p>
-              <a class="quiz__ref" href="#sec-ch-2-2"><span data-lang="zh">复习 2.2 数据分类树（d3.rollup 多层聚合）</span><span data-lang="en">Review 2.2 数据分类树（d3.rollup 多层聚合）</span></a>
+              <a class="quiz__ref" href="#sec-ch-2-2"><span data-lang="zh">复习 2.2 数据变换：原数据 → 数据表</span><span data-lang="en">Review 2.2 Data Transformation: Raw → Data Table</span></a>
             </div>
           </li>
           <li class="quiz__item" data-answer="0">
@@ -1142,7 +1147,7 @@
             <div class="quiz__why" hidden>
               <p class="quiz__verdict" data-quiz-verdict></p>
               <p><span data-lang="zh">它按左右轮廓推进，保证兄弟子树紧凑又不相交；父节点落在子节点的中间，读者不需要靠连线去猜归属。</span><span data-lang="en">It walks the left and right contours so subtrees stay compact without overlapping, and centres each parent over its children.</span></p>
-              <a class="quiz__ref" href="#sec-ch-2-3"><span data-lang="zh">复习 2.3 树布局（Reingold-Tilford 算法）</span><span data-lang="en">Review 2.3 树布局（Reingold-Tilford 算法）</span></a>
+              <a class="quiz__ref" href="#sec-ch-2-3"><span data-lang="zh">复习 2.3 视觉映射：数据表 → 视觉结构</span><span data-lang="en">Review 2.3 Visual Mapping: Data → Visual Structure</span></a>
             </div>
           </li>
           <li class="quiz__item" data-answer="0">
@@ -1160,7 +1165,7 @@
             <div class="quiz__why" hidden>
               <p class="quiz__verdict" data-quiz-verdict></p>
               <p><span data-lang="zh">数据一变就要重绘子节点时，逐个绑定必然会漏。挂在父节点上，事件靠冒泡上来，新节点天然被覆盖。</span><span data-lang="en">When data changes redraw the children, per-node bindings get lost. With delegation the event bubbles to the parent, so new nodes work automatically.</span></p>
-              <a class="quiz__ref" href="#sec-ch-2-4"><span data-lang="zh">复习 2.4 树形列表渲染（classed + 事件委托）</span><span data-lang="en">Review 2.4 树形列表渲染（classed + 事件委托）</span></a>
+              <a class="quiz__ref" href="#sec-ch-2-4"><span data-lang="zh">复习 2.4 视图渲染与用户交互</span><span data-lang="en">Review 2.4 View Rendering & User Interaction</span></a>
             </div>
           </li>
           </ol>
@@ -1171,8 +1176,8 @@
 
         <nav class="lesson-pager" data-prev="../lesson-01/"
              data-next="../lesson-03/" aria-label="章节翻页">
-          <a class="lesson-pager__link" href="../lesson-01/"><span class="lesson-pager__label" data-i18n="nav.prev">上一节</span><span class="lesson-pager__title">第 1 章 数据</span></a>
-          <a class="lesson-pager__link lesson-pager__link--next" href="../lesson-03/"><span class="lesson-pager__label" data-i18n="nav.next">下一节</span><span class="lesson-pager__title">第 3 章 色彩专题</span></a>
+          <a class="lesson-pager__link" href="../lesson-01/"><span class="lesson-pager__label" data-i18n="nav.prev">上一节</span><span class="lesson-pager__title"><span data-lang="zh">第 1 章 数据</span><span data-lang="en">Ch. 1 Data</span></span></a>
+          <a class="lesson-pager__link lesson-pager__link--next" href="../lesson-03/"><span class="lesson-pager__label" data-i18n="nav.next">下一节</span><span class="lesson-pager__title"><span data-lang="zh">第 3 章 色彩专题</span><span data-lang="en">Ch. 3 Color</span></span></a>
         </nav>
       </div>
     </main>

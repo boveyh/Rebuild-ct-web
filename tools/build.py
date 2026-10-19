@@ -181,6 +181,12 @@ def t(pair, lang="zh"):
     return pair or ""
 
 
+def L(zh, en):
+    """面包屑、翻页这类由 Python 拼出来的短标签，直接出双语文案。
+    只传一个字符串的话，切到英文后这几个位置会突兀地留中文。"""
+    return f'<span data-lang="zh">{zh}</span><span data-lang="en">{en}</span>'
+
+
 # ============================================================ 正文抽取
 
 RE_ARTICLE = re.compile(
@@ -273,9 +279,11 @@ def extract_sections(html: str):
         art = m.group("body")
 
         h2 = RE_H2.search(art)
+        # 正则里捕获的 key 已经是完整的 "sec-01-1.title"，不能再拼一次后缀 ——
+        # 拼了就是 sec-01-1.title.title，两边都取不到，英文标题一直悄悄退回中文。
         key = h2.group("key") if h2 else None
-        zh_title = ZH.get(key + ".title") if key else None
-        en_title = EN.get(key + ".title") if key else None
+        zh_title = ZH.get(key) if key else None
+        en_title = EN.get(key) if key else None
         if not zh_title and h2:
             zh_title = re.sub(r"<[^>]+>", "", h2.group("text")).strip()
         if not en_title:
@@ -449,7 +457,7 @@ def topbar(depth, crumbs, current, lang_toggle=True):
       </button>
 
       <a class="topbar__brand" {href_attr(up)}>
-        {BRAND_MARK}<span class="brand-text">可视化导论</span>
+        {BRAND_MARK}<span class="brand-text"><span data-lang="zh">可视化导论</span><span data-lang="en">Visualization</span></span>
       </a>
 
       <span class="topbar__divider" aria-hidden="true"></span>
@@ -913,13 +921,124 @@ CHAPTER_ACCENT = {
     "05": "viz-5",
 }
 
+# 三条学习路线。五个章节的默认顺序面向"从头学"，但读者不是一类人：
+# 有人只想快点把数据画成图，有人是补色彩与时序这两块专题。
+# 与其让他们自己在卡片里挑，不如把"该走哪条、跳过什么"直接写出来。
+LEARNING_ROUTES = [
+    {
+        "key": "scratch",
+        "title": {"zh": "零基础，从头走一遍", "en": "From scratch, in order"},
+        "why": {
+            "zh": "没写过 JavaScript 也能跟上。每章都先讲「为什么」，再落到代码。",
+            "en": "No JavaScript needed. Each chapter explains the why before the code.",
+        },
+        "steps": [
+            ("01", {"zh": "分清楚名义、序数、区间尺度 —— 后面每一次选图都靠这个判断",
+                    "en": "Nominal, ordinal, interval: every later chart choice follows from this"}),
+            ("02", {"zh": "把「数据 → 变换 → 映射 → 渲染」整条链路走通",
+                    "en": "Walk the whole data → transform → map → render pipeline"}),
+            ("03", {"zh": "颜色不只是好看：三类 colormap 用错就是误导",
+                    "en": "Colour is not decoration: the wrong colormap misleads"}),
+            ("04", {"zh": "低维数据的取舍：散点、平行坐标、降维各自放弃了什么",
+                    "en": "Low-dimensional trade-offs: what scatter, parallel coords and projection each give up"}),
+            ("05", {"zh": "时间数据的三种形态：折线、日历热图、周期螺旋",
+                    "en": "Three shapes of time: line, calendar heatmap, spiral"}),
+        ],
+    },
+    {
+        "key": "fast",
+        "title": {"zh": "会写 JS，想尽快出图", "en": "Know JS, want charts fast"},
+        "why": {
+            "zh": "跳过色彩专题与时序，先把通用流程和低维图表拿下。缺的两块随时能回来补。",
+            "en": "Skip colour and time for now; get the pipeline and low-dimensional charts first.",
+        },
+        "steps": [
+            ("01", {"zh": "只需要看 1.3 数据属性，其余可略读",
+                    "en": "Read 1.3 on attributes; skim the rest"}),
+            ("02", {"zh": "整章必看，这是所有图共用的骨架",
+                    "en": "Read all of it — this is the skeleton every chart shares"}),
+            ("04", {"zh": "散点与坐标变换是日常用得最多的两块",
+                    "en": "Scatter and axis transforms are the two you will use daily"}),
+        ],
+    },
+    {
+        "key": "topic",
+        "title": {"zh": "只补色彩或时序", "en": "Just colour or time"},
+        "why": {
+            "zh": "两个独立专题。先花二十分钟过第 1 章的数据尺度，再直接跳过去。",
+            "en": "Two standalone topics. Spend twenty minutes on data scales in chapter 1 first.",
+        },
+        "steps": [
+            ("01", {"zh": "只看 1.2 与 1.3，知道数据有哪几种尺度就够",
+                    "en": "Only 1.2 and 1.3 — you just need the data scales"}),
+            ("03", {"zh": "色彩专题：模型、colormap、搭配规则、色觉缺陷",
+                    "en": "Colour: models, colormaps, palettes, colour-vision deficiency"}),
+            ("05", {"zh": "时序专题：时间属性、日历热图、周期螺旋",
+                    "en": "Time: properties, calendar heatmaps, periodic spirals"}),
+        ],
+    },
+]
+
+
+def routes_html(section_counts):
+    """门户的「学习路径」。每条路线是一条带连接线的步骤链，
+    走过的章会在步骤上打勾（复用站内的阅读进度，不另存一份状态）。"""
+    cards = []
+    for r in LEARNING_ROUTES:
+        steps = []
+        for cid, note in r["steps"]:
+            ch = next(c for c in CHAPTERS if c["id"] == cid)
+            steps.append(f"""            <li class="route__step" data-progress-scope="c{cid}s"
+                data-progress-total="{section_counts[cid]}">
+              <a class="route__link" href="{ch['slug']}/">
+                <span class="route__num">{cid}</span>
+                <span class="route__body">
+                  <span class="route__name">
+                    <span data-lang="zh">{ch['short']['zh']}</span>
+                    <span data-lang="en">{ch['short']['en']}</span>
+                  </span>
+                  <span class="route__note">
+                    <span data-lang="zh">{note['zh']}</span>
+                    <span data-lang="en">{note['en']}</span>
+                  </span>
+                </span>
+              </a>
+            </li>""")
+        cards.append(f"""        <article class="route" data-route="{r['key']}">
+          <h3 class="route__title">
+            <span data-lang="zh">{r['title']['zh']}</span>
+            <span data-lang="en">{r['title']['en']}</span>
+          </h3>
+          <p class="route__why">
+            <span data-lang="zh">{r['why']['zh']}</span>
+            <span data-lang="en">{r['why']['en']}</span>
+          </p>
+          <ol class="route__steps">
+{chr(10).join(steps)}
+          </ol>
+        </article>""")
+    return f"""    <section class="portal-section" aria-labelledby="routes-title">
+      <h2 id="routes-title" class="portal-section__title">
+        <span data-lang="zh">学习路径</span><span data-lang="en">Learning paths</span>
+      </h2>
+      <p class="portal-section__lead">
+        <span data-lang="zh">五章不必都从头读到尾。按你的目标挑一条，跳过的章随时能回来补。</span>
+        <span data-lang="en">You do not have to read all five in order. Pick the path that matches your goal; skipped chapters stay open.</span>
+      </p>
+      <div class="route-grid">
+{chr(10).join(cards)}
+      </div>
+    </section>"""
+
 
 def chapter_stats(ch):
     """章首的关键数字条。数字用等宽字体放大，单位跟在后面 —— 一屏之内就能
-    判断"这章要花多久、有多少代码"，不用读完铅字段落。"""
+    判断"这章有多少内容、多少代码"，不用读完铅字段落。
+
+    这里刻意不放「预计用时」：读者的阅读速度差好几倍，写出来的数字对谁都不准，
+    反而会让人先打退堂鼓。要的量是「这一章有多少东西」，不是「你得花多久」。"""
     rows = [
         (ch["_sections"], "个小节", "sections"),
-        (ch["minutes"], "分钟", "min"),
         (ch["_stars"], "处关键代码", "key snippets"),
         (len(ch["objectives"]["zh"]), "项学习目标", "objectives"),
     ]
@@ -971,9 +1090,13 @@ def objectives_html(ch):
 LABS = {
     "01": {
         "href": "demo/",
-        "name": "5 个可独立运行的实验",
-        "desc": "数据加载器 · DIKW 金字塔 · 属性类型 × 视觉通道 · D3 数组函数 · Selection 三态模型。"
-                "每个实验都是一个独立页面，不依赖本站其他资源。",
+        "name": {"zh": "5 个可独立运行的实验", "en": "Five standalone experiments"},
+        "desc": {
+            "zh": "数据加载器 · DIKW 金字塔 · 属性类型 × 视觉通道 · D3 数组函数 · Selection 三态模型。"
+                  "每个实验都是一个独立页面，不依赖本站其他资源。",
+            "en": "Data loader · DIKW pyramid · attribute types × visual channels · D3 array helpers · "
+                  "the three states of a selection. Each experiment is its own page with no dependencies.",
+        },
     },
 }
 
@@ -986,8 +1109,14 @@ def lab_callout(ch):
         <aside class="lab-callout">
           <div>
             <p class="lab-callout__eyebrow" data-i18n="lab.eyebrow">延伸实验</p>
-            <h2 class="lab-callout__title">{lab['name']}</h2>
-            <p class="lab-callout__desc">{lab['desc']}</p>
+            <h2 class="lab-callout__title">
+              <span data-lang="zh">{lab['name']['zh']}</span>
+              <span data-lang="en">{lab['name']['en']}</span>
+            </h2>
+            <p class="lab-callout__desc">
+              <span data-lang="zh">{lab['desc']['zh']}</span>
+              <span data-lang="en">{lab['desc']['en']}</span>
+            </p>
           </div>
           <a class="lab-callout__cta" href="{lab['href']}">
             <span data-i18n="lab.open">打开实验目录</span>
@@ -1073,18 +1202,20 @@ def build_lesson(ch):
     pager_prev = ('<span class="lesson-pager__spacer"></span>' if not prev_ch else
                   f'<a class="lesson-pager__link" href="../{prev_ch["slug"]}/">'
                   f'<span class="lesson-pager__label" data-i18n="nav.prev">上一节</span>'
-                  f'<span class="lesson-pager__title">第 {prev_ch["num"]} 章 {prev_ch["title"]["zh"]}</span></a>')
+                  f'<span class="lesson-pager__title"><span data-lang="zh">第 {prev_ch["num"]} 章 {prev_ch["title"]["zh"]}</span>'
+                  f'<span data-lang="en">Ch. {prev_ch["num"]} {prev_ch["title"]["en"]}</span></span></a>')
     pager_next = ('<span class="lesson-pager__spacer"></span>' if not next_ch else
                   f'<a class="lesson-pager__link lesson-pager__link--next" href="../{next_ch["slug"]}/">'
                   f'<span class="lesson-pager__label" data-i18n="nav.next">下一节</span>'
-                  f'<span class="lesson-pager__title">第 {next_ch["num"]} 章 {next_ch["title"]["zh"]}</span></a>')
+                  f'<span class="lesson-pager__title"><span data-lang="zh">第 {next_ch["num"]} 章 {next_ch["title"]["zh"]}</span>'
+                  f'<span data-lang="en">Ch. {next_ch["num"]} {next_ch["title"]["en"]}</span></span></a>')
 
     html = f"""{head(title, desc, "../", extra_js=("conceptmap", "lesson"),
                      path=f"/{ch['slug']}/")}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 
-{topbar("../", [("课程门户", "../"), (f"第 {ch['num']} 章 {ch['title']['zh']}", None)], slug)}
+{topbar("../", [(L("课程门户", "Home"), "../"), (L(f"第 {ch['num']} 章 {ch['title']['zh']}", f"Ch. {ch['num']} {ch['title']['en']}"), None)], slug)}
 
 {search_layer()}
 
@@ -1095,8 +1226,14 @@ def build_lesson(ch):
       <div class="content" style="--ch-accent: var(--{CHAPTER_ACCENT[ch['id']]})">
         <div class="page-head page-head--chapter">
           <span class="page-head__chapter" aria-hidden="true">{ch['num']:02d}</span>
-          <p class="page-head__eyebrow">Chapter {ch['num']:0>2} · {ch['title']['en']}</p>
-          <h1>第 {ch['num']} 章 {ch['title']['zh']}</h1>
+          <p class="page-head__eyebrow">
+            <span data-lang="zh">第 {ch['num']:0>2} 章 · {ch['title']['zh']}</span>
+            <span data-lang="en">Chapter {ch['num']:0>2} · {ch['title']['en']}</span>
+          </p>
+          <h1>
+            <span data-lang="zh">第 {ch['num']} 章 {ch['title']['zh']}</span>
+            <span data-lang="en">Chapter {ch['num']}: {ch['title']['en']}</span>
+          </h1>
           <p class="page-head__lead">
             <span data-lang="zh">{ch['lead']['zh']}</span>
             <span data-lang="en">{ch['lead']['en']}</span>
@@ -1110,8 +1247,8 @@ def build_lesson(ch):
           <div class="figure__frame" id="concept-map" role="img"
                aria-label="本章概念依赖图"></div>
           <figcaption>
-            <span data-lang="zh">本章知识点的依赖关系。箭头表示「先理解前者，才容易理解后者」。</span>
-            <span data-lang="en">Dependencies between the concepts in this chapter.</span>
+            <span data-lang="zh">本章知识点的依赖关系。箭头表示「先理解前者，才容易理解后者」。节点可以拖动，双击复位。</span>
+            <span data-lang="en">Dependencies between the concepts in this chapter. Drag a node to move it; double-click to reset.</span>
           </figcaption>
         </figure>
 
@@ -1146,12 +1283,25 @@ def build_lesson(ch):
 
 
 def build_lecture(ch, md_text, sections):
-    """讲义页：完整 markdown 版正文，供打印与离线阅读。"""
-    body = markdown(md_text, {s["num"]: s["id"] for s in sections})
+    """讲义页：完整 markdown 版正文，供打印与离线阅读。
+
+    中英两版都渲染进同一个页面，靠 data-lang 切换。英文锚点统一加 `-en`
+    后缀，否则两版里的 h2 id 完全相同，英文模式下点目录会跳到被隐藏的中文标题上。
+    讲义页原本是「点了 EN 没反应」的重灾区：顶栏有语言按钮，正文一个字不动。"""
+    id_map = {s["num"]: s["id"] for s in sections}
+    body = markdown(md_text, id_map)
+    en_md_path = ROOT / ch["slug"] / "lecture-en.md"
+    if en_md_path.exists():
+        en_body = markdown(read(en_md_path), {s["num"]: s["id"] + "-en" for s in sections})
+        body = (f'<div class="lecture__lang" data-lang="zh">\n{body}\n</div>\n'
+                f'<div class="lecture__lang" data-lang="en">\n{en_body}\n</div>')
     toc = "\n".join(
-        f'          <li><a class="sidebar__link" href="#{s["id"]}">'
+        f'          <li><a class="sidebar__link" href="#{s["id"]}" data-lang="zh">'
         f'<span class="sidebar__num">{s["num"]}</span>'
-        f'<span class="sidebar__text">{s["title"]["zh"]}</span></a></li>'
+        f'<span class="sidebar__text">{s["title"]["zh"]}</span></a>'
+        f'<a class="sidebar__link" href="#{s["id"]}-en" data-lang="en">'
+        f'<span class="sidebar__num">{s["num"]}</span>'
+        f'<span class="sidebar__text">{s["title"]["en"]}</span></a></li>'
         for s in sections
     )
     html = f"""{head(f"第 {ch['num']} 章 讲义 · 《可视化导论》", re.sub(r"\\s+", " ", ch['lead']['zh'])[:110], "../",
@@ -1159,18 +1309,24 @@ def build_lecture(ch, md_text, sections):
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 
-{topbar("../", [("课程门户", "../"), (f"第 {ch['num']} 章 {ch['title']['zh']}", f"../{ch['slug']}/"), ("讲义", None)], ch['slug'])}
+{topbar("../", [(L("课程门户", "Home"), "../"), (L(f"第 {ch['num']} 章 {ch['title']['zh']}", f"Ch. {ch['num']} {ch['title']['en']}"), f"../{ch['slug']}/"), (L("讲义", "Lecture"), None)], ch['slug'])}
 
 {search_layer()}
 
   <div class="shell">
     <aside class="sidebar" id="sidebar" data-open="false" aria-label="讲义目录">
       <nav class="sidebar__group">
-        <div class="sidebar__title">{ch['title']['zh']} · 讲义</div>
+        <div class="sidebar__title">
+          <span data-lang="zh">{ch['title']['zh']} · 讲义</span>
+          <span data-lang="en">Ch. {ch['num']} {ch['title']['en']} · Lecture</span>
+        </div>
         <ul class="sidebar__list">
 {toc}
           <li><a class="sidebar__link" href="../{ch['slug']}/">
-            <span class="sidebar__text">← 返回交互版章节页</span></a></li>
+            <span class="sidebar__text">
+              <span data-lang="zh">← 返回交互版章节页</span>
+              <span data-lang="en">← Back to the interactive chapter</span>
+            </span></a></li>
         </ul>
       </nav>
     </aside>
@@ -1633,18 +1789,26 @@ def build_portal(all_sections, demo_counts):
           <span class="chapter-card__glow" aria-hidden="true"></span>
           {CHAPTER_MOTIFS[ch['id']]}
           <span class="chapter-card__top">
-            <span class="chapter-card__num">第 {ch['num']} 章</span>
+            <span class="chapter-card__num"><span data-lang="zh">第 {ch['num']} 章</span><span data-lang="en">Chapter {ch['num']}</span></span>
             <span class="chapter-card__progress" data-progress-out>0%</span>
           </span>
-          <span class="chapter-card__title">{ch['title']['zh']}</span>
+          <span class="chapter-card__title">
+            <span data-lang="zh">{ch['title']['zh']}</span>
+            <span data-lang="en">{ch['title']['en']}</span>
+          </span>
           <span class="chapter-card__lead">
             <span data-lang="zh">{ch['lead']['zh']}</span>
             <span data-lang="en">{ch['lead']['en']}</span>
           </span>
           <ul class="chapter-card__tags">{tags}</ul>
           <span class="chapter-card__foot">
-            <span>{len(secs)} 小节 · 约 {ch['minutes']} 分钟</span>
-            <span class="chapter-card__cta">进入章节 →</span>
+            <span>
+              <span data-lang="zh">{len(secs)} 小节 · {demo_counts[ch['id']]} 个演示</span>
+              <span data-lang="en">{len(secs)} sections · {demo_counts[ch['id']]} demos</span>
+            </span>
+            <span class="chapter-card__cta">
+              <span data-lang="zh">进入章节 →</span><span data-lang="en">Open →</span>
+            </span>
           </span>
           <span class="chapter-card__bar" aria-hidden="true">
             <span class="chapter-card__barfill" data-progress-bar style="width:0%"></span>
@@ -1719,19 +1883,58 @@ def build_portal(all_sections, demo_counts):
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 
-{topbar("", [("课程门户", None)], "")}
+{topbar("", [(L("课程门户", "Home"), None)], "")}
 
 {search_layer()}
 
   <main id="main">
     <section class="portal-hero">
+      <svg class="portal-hero__art" viewBox="0 0 520 380" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="heroArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--viz-1)" stop-opacity=".15" />
+            <stop offset="100%" stop-color="var(--viz-1)" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <path d="M8 296 C64 282 96 214 148 198 S236 214 288 158 386 66 470 78 L520 82 L520 372 L8 372 Z"
+              fill="url(#heroArea)" />
+        <path d="M8 296 C64 282 96 214 148 198 S236 214 288 158 386 66 470 78"
+              fill="none" stroke="var(--viz-1)" stroke-width="2" stroke-linecap="round" opacity=".75" />
+        <g fill="var(--viz-2)" opacity=".8">
+          <circle cx="58" cy="268" r="4" /><circle cx="112" cy="240" r="5" />
+          <circle cx="188" cy="196" r="4" /><circle cx="246" cy="188" r="5" />
+          <circle cx="312" cy="140" r="4" /><circle cx="372" cy="104" r="5" />
+          <circle cx="428" cy="88" r="4" />
+        </g>
+        <g fill="var(--viz-3)" opacity=".5">
+          <rect x="24" y="316" width="18" height="44" rx="3" />
+          <rect x="56" y="300" width="18" height="60" rx="3" />
+          <rect x="88" y="324" width="18" height="36" rx="3" />
+          <rect x="120" y="286" width="18" height="74" rx="3" />
+        </g>
+        <g fill="none" stroke-width="9" stroke-linecap="round" opacity=".45">
+          <path d="M470 214 A58 58 0 0 1 412 272" stroke="var(--viz-4)" />
+          <path d="M404 292 A58 58 0 0 1 352 330" stroke="var(--viz-6)" />
+          <path d="M340 300 A58 58 0 0 0 396 246" stroke="var(--viz-7)" />
+        </g>
+      </svg>
       <p class="page-head__eyebrow">{SITE['tag']}</p>
-      <h1>《可视化导论》</h1>
-      <p class="portal-hero__sub">{t(SITE['subtitle'])}</p>
+      <h1>
+        <span data-lang="zh">《可视化导论》</span>
+        <span data-lang="en">Introduction to Visualization</span>
+      </h1>
+      <p class="portal-hero__sub">
+        <span data-lang="zh">{t(SITE['subtitle'], 'zh')}</span>
+        <span data-lang="en">{t(SITE['subtitle'], 'en')}</span>
+      </p>
       <p class="portal-hero__meta">
-        {t(SITE['school'])} · 授课教师
+        <span data-lang="zh">{t(SITE['school'], 'zh')}</span>
+        <span data-lang="en">{t(SITE['school'], 'en')}</span> ·
+        <span data-lang="zh">授课教师</span><span data-lang="en">Instructor</span>
         <a href="{SITE['teacherUrl']}" target="_blank" rel="noopener">{SITE['teacher']}</a>
-        · 主要参考教材 {t(SITE['book'])}
+        · <span data-lang="zh">主要参考教材</span><span data-lang="en">Main textbook</span>
+        <span data-lang="zh">{t(SITE['book'], 'zh')}</span>
+        <span data-lang="en">{t(SITE['book'], 'en')}</span>
       </p>
       <div class="portal-hero__actions">
         <a class="btn btn--primary" href="lesson-01/">
@@ -1746,11 +1949,10 @@ def build_portal(all_sections, demo_counts):
         </button>
       </div>
       <dl class="portal-stats">
-        <div><dt>章节</dt><dd>{len(CHAPTERS)}</dd></div>
-        <div><dt>小节</dt><dd>{total_sections}</dd></div>
-        <div><dt>可运行演示</dt><dd>{total_demos}</dd></div>
-        <div><dt>关键代码点</dt><dd>{total_stars}</dd></div>
-        <div><dt>预计总时长</dt><dd>{SITE['totalMinutes']} 分</dd></div>
+        <div><dt><span data-lang="zh">章节</span><span data-lang="en">Chapters</span></dt><dd>{len(CHAPTERS)}</dd></div>
+        <div><dt><span data-lang="zh">小节</span><span data-lang="en">Sections</span></dt><dd>{total_sections}</dd></div>
+        <div><dt><span data-lang="zh">可运行演示</span><span data-lang="en">Live demos</span></dt><dd>{total_demos}</dd></div>
+        <div><dt><span data-lang="zh">关键代码点</span><span data-lang="en">Key snippets</span></dt><dd>{total_stars}</dd></div>
       </dl>
     </section>
 
@@ -1766,7 +1968,13 @@ def build_portal(all_sections, demo_counts):
         and time-series practice.</span>
       </p>
       <div class="roadmap" id="roadmap" role="img" aria-label="课程章节依赖关系图"></div>
+      <p class="portal-section__hint">
+        <span data-lang="zh">节点可以拖动：哪条箭头看不清楚，就把挡路的节点挪开；双击节点回到原位。</span>
+        <span data-lang="en">Drag a node out of the way if an arrow is hard to follow; double-click it to snap back.</span>
+      </p>
     </section>
+
+{routes_html({c['id']: len(all_sections[c['id']]) for c in CHAPTERS})}
 
     <section class="portal-section" aria-labelledby="chapters-title">
       <h2 id="chapters-title" class="portal-section__title">
@@ -1788,39 +1996,39 @@ def build_portal(all_sections, demo_counts):
       </h2>
       <div class="howto-grid">
         <article class="howto-card">
-          <h3>学生在自学</h3>
+          <h3><span data-lang="zh">学生在自学</span><span data-lang="en">Studying on your own</span></h3>
           <ol>
-            <li>读章首的「学完这一章你应该能够」，先知道要往哪去</li>
-            <li>按小节顺序过一遍讲解，遇到看不懂的看概念依赖图找到前置</li>
-            <li>对照关键代码，注意 ⭐ 标出的写法和旁边写的坑</li>
-            <li>打开演示亲手改一改参数，看画面怎么变</li>
+            <li><span data-lang="zh">读章首的「学完这一章你应该能够」，先知道要往哪去</span><span data-lang="en">Read the objectives first — know where you are going</span></li>
+            <li><span data-lang="zh">按小节顺序过一遍讲解，遇到看不懂的看概念依赖图找到前置</span><span data-lang="en">Work through the sections in order; use the concept map to find prerequisites</span></li>
+            <li><span data-lang="zh">对照关键代码，注意 ⭐ 标出的写法和旁边写的坑</span><span data-lang="en">Compare with the key code, and read the pitfalls marked ⭐</span></li>
+            <li><span data-lang="zh">打开演示亲手改一改参数，看画面怎么变</span><span data-lang="en">Open the demo and change the parameters yourself</span></li>
           </ol>
         </article>
         <article class="howto-card">
-          <h3>教师在课堂</h3>
+          <h3><span data-lang="zh">教师在课堂</span><span data-lang="en">Teaching in class</span></h3>
           <ol>
-            <li>每章顶部有「自动导览」，可以按脚本把重点依次演一遍</li>
-            <li>讲解 / 关键代码 / 演示三个视图随时切换，不必切窗口</li>
-            <li>演示都支持实时调参，适合现场提问「如果改成这样会怎样」</li>
-            <li>按 <kbd>Ctrl</kbd>+<kbd>K</kbd> 可以直接跳到任意知识点</li>
+            <li><span data-lang="zh">每章顶部有「自动导览」，可以按脚本把重点依次演一遍</span><span data-lang="en">Each chapter has a guided tour that walks the highlights in order</span></li>
+            <li><span data-lang="zh">讲解 / 关键代码 / 演示三个视图随时切换，不必切窗口</span><span data-lang="en">Switch between explain, code and demo without leaving the page</span></li>
+            <li><span data-lang="zh">演示都支持实时调参，适合现场提问「如果改成这样会怎样」</span><span data-lang="en">Demos are live — perfect for "what happens if we change this?"</span></li>
+            <li><span data-lang="zh">按 <kbd>Ctrl</kbd>+<kbd>K</kbd> 可以直接跳到任意知识点</span><span data-lang="en">Press <kbd>Ctrl</kbd>+<kbd>K</kbd> to jump straight to any concept</span></li>
           </ol>
         </article>
         <article class="howto-card">
-          <h3>离线与局域网</h3>
+          <h3><span data-lang="zh">离线与局域网</span><span data-lang="en">Offline and LAN</span></h3>
           <ol>
-            <li>整个站点没有任何构建步骤，克隆下来就能跑</li>
-            <li><code>python -m http.server 8080</code> 起一个本地服务</li>
-            <li>同一 WiFi 下的设备用本机 IP 即可访问，适合机房环境</li>
-            <li>除 D3.js 走 CDN 之外没有外部依赖</li>
+            <li><span data-lang="zh">整个站点没有任何构建步骤，克隆下来就能跑</span><span data-lang="en">No build step at all — clone it and open it</span></li>
+            <li><span data-lang="zh"><code>python -m http.server 8080</code> 起一个本地服务</span><span data-lang="en">Serve it with <code>python -m http.server 8080</code></span></li>
+            <li><span data-lang="zh">同一 WiFi 下的设备用本机 IP 即可访问，适合机房环境</span><span data-lang="en">Other devices on the same Wi-Fi can use your local IP</span></li>
+            <li><span data-lang="zh">D3.js 已内置在仓库里，断网也能跑完全部演示</span><span data-lang="en">D3 is bundled in the repo — every demo runs offline</span></li>
           </ol>
         </article>
         <article class="howto-card">
-          <h3>配套资源</h3>
+          <h3><span data-lang="zh">配套资源</span><span data-lang="en">More material</span></h3>
           <ol>
-            <li><a href="supplementary/">补充 demo 集合</a>：与章节配合的独立示例</li>
-            <li><a href="glossary.html">术语表</a>：全课程名词的集中解释</li>
-            <li>每章都有完整讲义页，适合打印</li>
-            <li>源码结构与重构说明见仓库 README 与 docs/</li>
+            <li><span data-lang="zh"><a href="supplementary/">补充 demo 集合</a>：与章节配合的独立示例</span><span data-lang="en"><a href="supplementary/">Extra demos</a> — standalone examples that pair with the chapters</span></li>
+            <li><span data-lang="zh"><a href="glossary.html">术语表</a>：全课程名词的集中解释</span><span data-lang="en"><a href="glossary.html">Glossary</a> — every term in one place</span></li>
+            <li><span data-lang="zh">每章都有完整讲义页，适合打印</span><span data-lang="en">Each chapter has a printable handout page</span></li>
+            <li><span data-lang="zh">源码结构与重构说明见仓库 README 与 docs/</span><span data-lang="en">Structure and refactor notes live in README and docs/</span></li>
           </ol>
         </article>
       </div>
@@ -2008,7 +2216,7 @@ def build_supplementary():
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 
-{topbar("../", [("课程门户", "../"), ("补充 Demo 集合", None)], "")}
+{topbar("../", [(L("课程门户", "Home"), "../"), (L("补充 Demo 集合", "Extra demos"), None)], "")}
 
 {search_layer()}
 
@@ -2128,7 +2336,7 @@ def build_404():
                extra_css=("portal",), root_probe=True, path=None)}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
-{topbar("@", [("课程门户", None)], "")}
+{topbar("@", [(L("课程门户", "Home"), None)], "")}
 {search_layer()}
   <main class="shell shell--wide" id="main" style="display:block">
     <div class="page-head">
@@ -2183,8 +2391,11 @@ def build_glossary(all_sections):
           </p>""" if seen else "")
         items.append(f"""        <li class="term-card" id="term-{term['id']}" data-term-ch="{term['ch']}">
           <div class="term-card__head">
-            <h2>{term['zh']}<span class="term-card__en">{term['en']}</span></h2>
-            <a class="term-card__src" href="{ch['slug']}/">第 {ch['num']} 章 {ch['title']['zh']}</a>
+            <h2><span class="term-card__zh">{term['zh']}</span><span class="term-card__en">{term['en']}</span></h2>
+            <a class="term-card__src" href="{ch['slug']}/">
+              <span data-lang="zh">第 {ch['num']} 章 {ch['title']['zh']}</span>
+              <span data-lang="en">Ch. {ch['num']} {ch['title']['en']}</span>
+            </a>
           </div>
           <p class="term-card__def">
             <span data-lang="zh">{term['zh_def']}</span>
@@ -2202,7 +2413,7 @@ def build_glossary(all_sections):
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 
-{topbar("", [("课程门户", "./"), ("术语表", None)], "")}
+{topbar("", [(L("课程门户", "Home"), "./"), (L("术语表", "Glossary"), None)], "")}
 
 {search_layer()}
 
@@ -2210,16 +2421,24 @@ def build_glossary(all_sections):
     <main class="main" id="main">
       <div class="page-head">
         <p class="page-head__eyebrow">Glossary</p>
-        <h1>术语表</h1>
+        <h1>
+          <span data-lang="zh">术语表</span>
+          <span data-lang="en">Glossary</span>
+        </h1>
         <p class="page-head__lead">
-          按章节顺序排列。每个词条除了「是什么」，还写了「为什么重要」——
-          名词表最容易变成一份背了也没用的清单，加上后半句才有意义。
+          <span data-lang="zh">按章节顺序排列。每个词条除了「是什么」，还写了「为什么重要」——
+          名词表最容易变成一份背了也没用的清单，加上后半句才有意义。</span>
+          <span data-lang="en">Ordered by chapter. Each entry says what the term is and why it
+          matters — a bare list of definitions is something you memorise and forget.</span>
         </p>
       </div>
 
       <div class="term-filter" role="group" aria-label="按章节筛选">
-        <button type="button" data-term-filter="all" aria-pressed="true">全部 {len(data['terms'])}</button>
-        {''.join(f'''<button type="button" data-term-filter="{c['id']}" aria-pressed="false">第 {c['num']} 章</button>''' for c in CHAPTERS)}
+        <button type="button" data-term-filter="all" aria-pressed="true">
+          <span data-lang="zh">全部 {len(data['terms'])}</span>
+          <span data-lang="en">All {len(data['terms'])}</span>
+        </button>
+        {''.join(f'''<button type="button" data-term-filter="{c['id']}" aria-pressed="false"><span data-lang="zh">第 {c['num']} 章</span><span data-lang="en">Ch. {c['num']}</span></button>''' for c in CHAPTERS)}
       </div>
 
       <ul class="term-list">

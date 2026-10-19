@@ -535,6 +535,147 @@ try {
   ]);
 } catch (e) { interact.push(["减弱动效", false, String(e.message)]); }
 
+/*    知识图谱可拖动，且拖完算数。
+    拖动本身好做，难的是「切主题 / 切语言会整图重绘」之后位置还在 ——
+    第一版就是重绘时把偏移读丢了，节点悄悄弹回原位，肉眼几乎看不出，
+    因为重绘只发生在切主题的一瞬间。所以这里拖完先切主题再量。 */
+try {
+  const gp = await browser.newPage();
+  await gp.setViewport({ width: 1440, height: 900 });
+  await gp.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2", timeout: 30000 });
+  await gp.evaluate(() => document.getElementById("concept-map").scrollIntoView({ block: "center" }));
+  await new Promise(r => setTimeout(r, 500));
+  const box = await gp.evaluate(() => {
+    const g = document.querySelector("#concept-map g.cm-node");
+    const r = g.getBoundingClientRect();
+    // 记住 id：拖动时节点会被提到最上层，DOM 顺序会变，不能靠「第一个 g」找它
+    return { x: r.x + r.width / 2, y: r.y + r.height / 2, id: g.dataset.node };
+  });
+  await gp.mouse.move(box.x, box.y);
+  await gp.mouse.down();
+  for (let i = 1; i <= 8; i++) {
+    await gp.mouse.move(box.x + i * 10, box.y + i * 5);
+    await new Promise(r => setTimeout(r, 16));
+  }
+  await gp.mouse.up();
+  await new Promise(r => setTimeout(r, 220));
+
+  const read = () => gp.evaluate((id) => {
+    const host = document.getElementById("concept-map");
+    return {
+      tr: host.querySelector(`g.cm-node[data-node="${id}"]`).getAttribute("transform"),
+      edge: host.querySelector("path[marker-end]").getAttribute("d").slice(0, 24),
+      resetHidden: host.closest("figure").querySelector(".cm-reset")?.hidden,
+    };
+  }, box.id);
+  const dragged = await read();
+  await gp.evaluate(() => document.documentElement.setAttribute("data-theme", "dark"));
+  await new Promise(r => setTimeout(r, 420));
+  const afterTheme = await read();
+  await gp.evaluate(() => document.querySelector(".cm-reset").click());
+  await new Promise(r => setTimeout(r, 320));
+  const afterReset = await read();
+  await gp.close();
+
+  const num = (tr) => {
+    const m = /translate\((-?[\d.]+),(-?[\d.]+)\)/.exec(tr || "");
+    return m ? Math.hypot(+m[1], +m[2]) : 0;
+  };
+  interact.push([
+    "知识图谱节点可拖动且重绘后不弹回",
+    num(dragged.tr) > 40 && num(afterTheme.tr) === num(dragged.tr) &&
+      !dragged.resetHidden && num(afterReset.tr) === 0 && afterReset.resetHidden,
+    JSON.stringify({ 拖后: Math.round(num(dragged.tr)), 切主题后: Math.round(num(afterTheme.tr)),
+                     复位后: Math.round(num(afterReset.tr)), 边上跟着变: dragged.edge }),
+  ]);
+} catch (e) { interact.push(["知识图谱拖动", false, String(e.message)]); }
+
+/*    学习路径：门户上三条路线要真的排开、每个步骤都要落到存在的章节页。
+    只数 .route 的个数会被"有容器没内容"骗过去，所以同时检查步数与链接。 */
+try {
+  await ipage.goto(BASE + "/", { waitUntil: "networkidle2", timeout: 30000 });
+  const routes = await ipage.evaluate(() => {
+    const links = [...document.querySelectorAll(".route__link")].map(a => a.getAttribute("href"));
+    const cols = new Set([...document.querySelectorAll(".route")].map(r => Math.round(r.getBoundingClientRect().left)));
+    return {
+      routes: document.querySelectorAll(".route").length,
+      steps: links.length,
+      cols: cols.size,
+      linksOk: links.every(h => /^lesson-0[1-5]\/$/.test(h)),
+      art: !!document.querySelector(".portal-hero__art"),
+    };
+  });
+  interact.push([
+    "门户三条学习路径排开且链接有效",
+    routes.routes === 3 && routes.steps === 11 && routes.cols === 3 && routes.linksOk,
+    JSON.stringify(routes),
+  ]);
+} catch (e) { interact.push(["学习路径", false, String(e.message)]); }
+
+/*    切英文之后正文里不该再留中文。
+    这条是用户报的原始问题：首页点 EN「像没反应」—— 语言状态确实切了，
+    可标题、副标题、统计条全是硬编码中文。所以断言不看 lang 属性，
+    直接数「可见的中文文本节点」。教师姓名是专有名词，允许留着。 */
+try {
+  const langs = [];
+  for (const path of ["/", "/lesson-03/", "/lesson-03/lecture.html", "/glossary.html"]) {
+    await ipage.goto(BASE + path, { waitUntil: "networkidle2", timeout: 30000 });
+    const r = await ipage.evaluate(async () => {
+      const btn = document.querySelector("[data-lang-btn='en']");
+      if (!btn || btn.disabled) return { skipped: true };
+      btn.click();
+      await new Promise(r => setTimeout(r, 420));
+      const walker = document.createTreeWalker(document.querySelector("main"), NodeFilter.SHOW_TEXT);
+      const hits = [];
+      const demoHits = [];
+      let n;
+      while ((n = walker.nextNode())) {
+        const t = n.nodeValue.trim();
+        if (!t || !/[\u4e00-\u9fa5]/.test(t)) continue;
+        const el = n.parentElement;
+        if (!el || !el.getClientRects().length) continue;
+        if (el.tagName === "A" && t === "李昕") continue;   // 人名保留中文
+        // 演示区里的解说目前只有中文（27 个演示的文案没做双语），
+        // 单独计数、只报不判 —— 但它必须是可见的「已知缺口」而不是悄悄放过。
+        if (el.closest(".demo-mount")) { demoHits.push(t.slice(0, 12)); continue; }
+        hits.push(t.slice(0, 20));
+      }
+      return { count: hits.length, demoLeft: demoHits.length, sample: hits.slice(0, 4), lang: document.documentElement.dataset.locale };
+    });
+    langs.push({ path, ...r });
+  }
+  const bad = langs.filter(l => l.skipped || l.count > 0);
+  interact.push([
+    "切英文后正文无中文残留（演示区除外）",
+    bad.length === 0,
+    JSON.stringify(bad.length ? bad : langs.map(l => l.path + ":" + l.lang + (l.demoLeft ? ` / 演示内中文 ${l.demoLeft} 处` : ""))),
+  ]);
+} catch (e) { interact.push(["英文模式", false, String(e.message)]); }
+
+/*    讲义英文版：正文能切，且侧栏目录在英文下的锚点确实指向英文正文
+    （英文锚点带 -en 后缀，否则会跳到被隐藏的中文标题上）。 */
+try {
+  await ipage.goto(BASE + "/lesson-03/lecture.html", { waitUntil: "networkidle2", timeout: 30000 });
+  const lec = await ipage.evaluate(async () => {
+    document.querySelector("[data-lang-btn='en']").click();
+    await new Promise(r => setTimeout(r, 420));
+    const link = document.querySelector('.sidebar__link[data-lang="en"]');
+    const href = link && link.getAttribute("href");
+    const target = href && document.querySelector(href);
+    return {
+      href,
+      targetVisible: !!target && target.getClientRects().length > 0,
+      enVisible: [...document.querySelectorAll('.lecture [data-lang="en"]')].filter(e => e.getClientRects().length).length,
+      zhVisible: [...document.querySelectorAll('.lecture [data-lang="zh"]')].filter(e => e.getClientRects().length).length,
+    };
+  });
+  interact.push([
+    "讲义可切英文且目录锚点指向英文正文",
+    lec.href?.endsWith("-en") && lec.targetVisible && lec.enVisible > 0 && lec.zhVisible === 0,
+    JSON.stringify(lec),
+  ]);
+} catch (e) { interact.push(["讲义英文版", false, String(e.message)]); }
+
 await ipage.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2", timeout: 30000 });
 
 for (const [name, ok, detail] of interact) {
@@ -594,7 +735,8 @@ const layout = await lpage.evaluate(() => {
 
 const layoutOk =
   layout.chapterGrid.cols >= 3 &&
-  layout.stats.cols >= 5 &&
+  // 统计条从 5 项减到 4 项（去掉了「预计总时长」），阈值跟着降到 4
+  layout.stats.cols >= 4 &&
   layout.howto.cols >= 4 &&
   layout.motifs === 5 &&
   layout.motifShapes >= 20;

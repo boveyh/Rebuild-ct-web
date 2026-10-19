@@ -107,6 +107,8 @@
       "sidebar.toc": "本章目录",
       "sidebar.chapters": "全部章节",
       "sidebar.resources": "配套资源",
+      "resource.demos": "补充 demo 集合",
+      "resource.glossary": "术语表",
       "sidebar.progress": "学习进度",
       "sidebar.done": "已读",
       "nav.prev": "上一节",
@@ -136,6 +138,8 @@
       "sidebar.toc": "On this page",
       "sidebar.chapters": "All chapters",
       "sidebar.resources": "Resources",
+      "resource.demos": "Extra demos",
+      "resource.glossary": "Glossary",
       "sidebar.progress": "Progress",
       "sidebar.done": "read",
       "nav.prev": "Previous",
@@ -177,10 +181,37 @@
       var self = this;
       $$("[data-lang-btn]").forEach(function (btn) {
         btn.addEventListener("click", function () {
+          if (btn.disabled) return;
           var lang = btn.getAttribute("data-lang-btn");
           if (lang && lang !== self.current) self.apply(lang, true);
         });
       });
+
+      this.syncAvailability();
+    },
+
+    /* 有些页面天然只有一种语言：讲义页由中文 markdown 生成，补充 Demo 是原站
+       打包过来的独立页面，它们一个 [data-lang="en"] 都没有。以前照旧渲染出
+       「中 / EN」两个按钮，点了 lang 属性会变、正文一个字不动 —— 用户看到的是
+       「切换坏了」，而不是「这页没有英文版」。
+       现在按实际双语覆盖率禁用按钮，并把原因写在 title 上；同时不让这种页面
+       停在英文态（否则顶栏的搜索、导航是英文，正文却是中文，更割裂）。 */
+    syncAvailability: function () {
+      // 只看正文区。顶栏品牌、面包屑这些外壳本身就是双语的，拿整页判断
+      // 会把「正文完全没有英文」的页面也判成有英文版 —— 按钮可点，正文不动。
+      var scope = doc.querySelector("main") || doc.body;
+      var hasEn = !!scope.querySelector('[data-lang="en"]');
+      root.setAttribute("data-has-en", hasEn ? "1" : "0");
+      $$("[data-lang-btn]").forEach(function (btn) {
+        var isEn = btn.getAttribute("data-lang-btn") === "en";
+        var off = isEn && !hasEn;
+        btn.disabled = off;
+        btn.setAttribute("aria-disabled", String(off));
+        btn.title = off
+          ? "本页暂无英文版 / No English version on this page"
+          : "";
+      });
+      if (!hasEn && this.current === "en") this.apply("zh", false);
     },
 
     apply: function (lang, persist) {

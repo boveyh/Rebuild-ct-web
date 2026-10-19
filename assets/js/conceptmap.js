@@ -202,11 +202,50 @@
            " H" + xSide + " V" + (b.y + b.h / 2) + " H" + b.x;
   }
 
+  /* 节点被拖动后的偏移量，按「图 + 节点」记。
+     之所以不直接改 n.x / n.y：切语言、切主题、改窗口宽度都会整张重绘，
+     重绘时布局会重新算一遍。偏移单独存，重绘后再叠回去，读者挪过的位置
+     才不会一换主题就跳回原样。 */
+  var OFFSETS = {};
+
+  /* 同一页上可能有两张图（门户有主线图，章节页有概念图），容器的 id 不一定
+     唯一甚至可能为空，所以给每个容器发一个稳定的内部编号当命名空间。 */
+  var UID = 0;
+  function hostKey(host) {
+    if (!host.dataset.cmId) {
+      UID += 1;
+      host.dataset.cmId = host.id || ("cm" + UID);
+    }
+    return host.dataset.cmId;
+  }
+
+  /* 横排和竖排是两套完全不同的坐标系（宽高差好几倍），一份偏移不能通用：
+     横排里把节点往右拖 200px 有意义，切到竖排后同样的 200px 会把它顶出画布。
+     按布局形态分开记，换形态时各自恢复自己的位置。
+     第三个参数是模式字符串 "h"/"t" 而不是布尔 —— 传布尔时 "h" 也是真值，
+     会静默地全部算成竖排。 */
+  function offKey(host, id, mode) {
+    return hostKey(host) + "::" + mode + "::" + id;
+  }
+
+  /* 边要连到「节点现在的位置」，不是「布局给的位置」。
+     拖动只改偏移，所以画边前先把偏移叠上去，w/h/d 保持布局时的值。 */
+  function placed(n) {
+    return { x: n.x + n.ox, y: n.y + n.oy, w: n.w, h: n.h, d: n.d };
+  }
+
   function render(host, data, opts) {
     opts = opts || {};
     var locale = (doc.documentElement.getAttribute("data-locale") || "zh") === "en" ? "en" : "zh";
     var tree = opts.tree;
     var L = tree ? layoutTree(data, locale) : layout(data, locale);
+
+    // 布局坐标只算一次，偏移从 OFFSETS 里取
+    L.nodes.forEach(function (n) {
+      var o = OFFSETS[offKey(host, n.id, tree ? "t" : "h")];
+      n.ox = o ? o.x : 0;
+      n.oy = o ? o.y : 0;
+    });
 
     var cText = cssVar("--text-1", "#161c24");
     var cSub = cssVar("--text-3", "#6b7688");
@@ -241,30 +280,53 @@
     svg.appendChild(defs);
 
     // 先画边，节点压在边上面
+    var links = [];      // {a, b, path, loop}，拖动时要跟着重算
     (data.edges || []).forEach(function (pair) {
       var a = L.byId[pair[0]], b = L.byId[pair[1]];
       if (!a || !b) return;
-      svg.appendChild(el("path", {
-        d: tree ? edgeTree(a, b) : edgePath(a, b), fill: "none", stroke: cLine,
+      var path = el("path", {
+        d: tree ? edgeTree(placed(a), placed(b)) : edgePath(placed(a), placed(b)),
+        fill: "none", stroke: cLine,
         "stroke-width": "1.5", "marker-end": "url(#cm-arrow)",
         "stroke-linejoin": "round",
         opacity: "0.9",
-      }));
+      });
+      svg.appendChild(path);
+      links.push({ a: a, b: b, path: path, loop: false });
     });
 
     if (data.loop) {
       var a = L.byId[data.loop[0]], b = L.byId[data.loop[1]];
       if (a && b) {
-        svg.appendChild(el("path", {
-          d: tree ? edgeTreeLoop(a, b) : edgePath(a, b, true), fill: "none", stroke: cAccent,
+        var loopPath = el("path", {
+          d: tree ? edgeTreeLoop(placed(a), placed(b)) : edgePath(placed(a), placed(b), true),
+          fill: "none", stroke: cAccent,
           "stroke-width": "1.5", "stroke-dasharray": "5 4",
           "marker-end": "url(#cm-arrow)", opacity: "0.85",
-        }));
+        });
+        svg.appendChild(loopPath);
+        links.push({ a: a, b: b, path: loopPath, loop: true });
       }
     }
 
+    function syncLinks() {
+      links.forEach(function (l) {
+        l.path.setAttribute(
+          "d",
+          l.loop
+            ? (tree ? edgeTreeLoop(placed(l.a), placed(l.b)) : edgePath(placed(l.a), placed(l.b), true))
+            : (tree ? edgeTree(placed(l.a), placed(l.b)) : edgePath(placed(l.a), placed(l.b)))
+        );
+      });
+    }
+
     L.nodes.forEach(function (n, i) {
-      var g = el("g");
+      // 节点内部坐标始终按布局算，位移挂在 group 的 transform 上：
+      // 这样重绘时只要把偏移读出来写回去，不用改任何一处 x/y。
+      var g = el("g", {
+        "class": "cm-node", "data-node": n.id,
+        transform: "translate(" + n.ox + "," + n.oy + ")",
+      });
       var accent = cssVar(palettes[n.d % palettes.length], cAccent);
       var box = el("rect", {
         x: n.x, y: n.y, width: n.w, height: n.h, rx: 10,
@@ -302,6 +364,7 @@
     });
 
     host.appendChild(svg);
+    attachDrag(host, svg, L, links, syncLinks, data, opts);
 
     /* 首次绘制时让节点依次浮上来、连线随后淡入。
        用 WAAPI 而不是给 SVG 写 CSS class：图每次切主题/语言都会重绘，
@@ -323,6 +386,105 @@
         );
       }
     }
+  }
+
+  /* ------------------------------------------------------------------ 拖动
+     需求：节点能用鼠标/手指挪位置，且切主题、切语言、转屏之后挪过的还在。
+
+     三个实现要点，都是踩过才写下来的：
+
+     1. 坐标必须过 getScreenCTM().inverse()。图靠 viewBox 自适应容器宽度，
+        屏幕上的 1px 不等于 SVG 用户单位的 1px。直接拿 clientX 的差值当位移，
+        在缩放或换算比例不是 1:1 的屏上就是「鼠标走了 100，方块只走 76」。
+     2. 位移只写 n.ox / n.oy，绘制时叠加。切主题会整张重绘，直接改 n.x / n.y
+        会被新布局覆盖；偏移单独存才能跨重绘保留。
+     3. 松手才落盘到 OFFSETS。拖动过程中每帧写会让持久化跟着帧率跑，低端机上掉帧。
+     拖动过程中每帧只改一个 transform + 重算几条边，不给整图重新排布局。 */
+  function attachDrag(host, svg, L, links, syncLinks, data, opts) {
+    var mode = opts.tree ? "t" : "h";
+    var drag = null;
+    var groups = svg.querySelectorAll("g.cm-node");
+
+    /* 指针 → SVG 用户坐标 */
+    function toUser(e) {
+      var m = svg.getScreenCTM();
+      if (!m) return { x: e.clientX, y: e.clientY };
+      var p = svg.createSVGPoint();
+      p.x = e.clientX;
+      p.y = e.clientY;
+      var q = p.matrixTransform(m.inverse());
+      return { x: q.x, y: q.y };
+    }
+
+    /* 允许拖到画布边缘，但不许拖出画布：拖出去就再也抓不回来，
+       只能刷新页面，而读者多半会以为图坏了。 */
+    function clamp(n) {
+      var lo = -n.x, hi = L.width - n.x - n.w;
+      if (lo <= hi) n.ox = Math.min(Math.max(n.ox, lo), hi);
+      lo = -n.y; hi = L.height - n.y - n.h;
+      if (lo <= hi) n.oy = Math.min(Math.max(n.oy, lo), hi);
+    }
+
+    function paint(n) {
+      var g = svg.querySelector('g.cm-node[data-node="' + n.id + '"]');
+      if (g) g.setAttribute("transform", "translate(" + n.ox + "," + n.oy + ")");
+      syncLinks();
+    }
+
+    function commit(n) {
+      OFFSETS[offKey(host, n.id, mode)] = { x: n.ox, y: n.oy };
+      host.dispatchEvent(new CustomEvent("cm:moved", { bubbles: true }));
+    }
+
+    groups.forEach(function (g) {
+      g.addEventListener("pointerdown", function (e) {
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        var n = L.byId[g.getAttribute("data-node")];
+        if (!n) return;
+        e.preventDefault();          // 别让浏览器顺手开始拖选文字
+        drag = { n: n, g: g, id: e.pointerId, p0: toUser(e), ox: n.ox, oy: n.oy, moved: false };
+        // 拖到别的节点上时要压在它上面，否则被拖的那个会被盖住、看起来像消失了
+        g.parentNode.appendChild(g);
+        try { svg.setPointerCapture(e.pointerId); } catch (err) { /* 老浏览器 */ }
+        g.classList.add("cm-node--dragging");
+        host.setAttribute("data-dragging", "1");
+      });
+
+      // 双击单个节点：回到布局给它的位置
+      g.addEventListener("dblclick", function () {
+        var n = L.byId[g.getAttribute("data-node")];
+        if (!n || (!n.ox && !n.oy)) return;
+        n.ox = 0;
+        n.oy = 0;
+        paint(n);
+        delete OFFSETS[offKey(host, n.id, mode)];
+      });
+    });
+
+    svg.addEventListener("pointermove", function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      // 手指刚落下时会有 1~2px 的抖动，先攒够再动，免得「点一下」也移位
+      if (!drag.moved) {
+        var rough = Math.abs(e.clientX - drag.p0.x) + Math.abs(e.clientY - drag.p0.y);
+        if (rough < 3) return;
+        drag.moved = true;
+      }
+      var p = toUser(e);
+      drag.n.ox = drag.ox + (p.x - drag.p0.x);
+      drag.n.oy = drag.oy + (p.y - drag.p0.y);
+      clamp(drag.n);
+      paint(drag.n);
+    });
+
+    function end(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      drag.g.classList.remove("cm-node--dragging");
+      host.removeAttribute("data-dragging");
+      if (drag.moved) commit(drag.n);
+      drag = null;
+    }
+    svg.addEventListener("pointerup", end);
+    svg.addEventListener("pointercancel", end);
   }
 
   function reducedMotion() {
@@ -368,6 +530,35 @@
       first = false;
       render(host, data, opts);
     }
+    /* 「恢复布局」只在读者真的挪过节点之后才出现。一个从头到尾用不上的按钮
+       只会占地方，还让人以为必须点它才能继续。
+       章节页塞进 figcaption（那本来就是图的说明行），门户的主线图没有
+       figcaption，就放在图下面一行。 */
+    var resetBtn = doc.createElement("button");
+    resetBtn.type = "button";
+    resetBtn.className = "cm-reset";
+    resetBtn.hidden = true;
+    resetBtn.innerHTML = '<span data-lang="zh">恢复布局</span><span data-lang="en">Reset layout</span>';
+    resetBtn.addEventListener("click", function () {
+      var prefix = hostKey(host) + "::";
+      Object.keys(OFFSETS).forEach(function (k) {
+        if (k.indexOf(prefix) === 0) delete OFFSETS[k];
+      });
+      resetBtn.hidden = true;
+      draw();
+    });
+    var fig = host.closest("figure");
+    var cap = fig ? fig.querySelector("figcaption") : null;
+    if (cap) {
+      cap.appendChild(resetBtn);
+    } else {
+      var tools = doc.createElement("p");
+      tools.className = "cm-tools";
+      tools.appendChild(resetBtn);
+      host.parentNode.insertBefore(tools, host.nextSibling);
+    }
+    host.addEventListener("cm:moved", function () { resetBtn.hidden = false; });
+
     draw();
     doc.addEventListener("wb:locale", draw);
     // 主题切换会改变 CSS 变量，图里的取色需要跟着重取

@@ -51,13 +51,13 @@
       </button>
 
       <a class="topbar__brand" href="../">
-        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text">可视化导论</span>
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text"><span data-lang="zh">可视化导论</span><span data-lang="en">Visualization</span></span>
       </a>
 
       <span class="topbar__divider" aria-hidden="true"></span>
 
       <nav class="breadcrumb" aria-label="面包屑导航">
-        <ol><li><a href="../">课程门户</a></li><li><a href="../lesson-04/">第 4 章 低维数据可视化</a></li><li><span aria-current="page">讲义</span></li></ol>
+        <ol><li><a href="../"><span data-lang="zh">课程门户</span><span data-lang="en">Home</span></a></li><li><a href="../lesson-04/"><span data-lang="zh">第 4 章 低维数据可视化</span><span data-lang="en">Ch. 4 Low-Dimensional Data</span></a></li><li><span aria-current="page"><span data-lang="zh">讲义</span><span data-lang="en">Lecture</span></span></li></ol>
       </nav>
 
       <div class="topbar__actions">
@@ -114,15 +114,21 @@
   <div class="shell">
     <aside class="sidebar" id="sidebar" data-open="false" aria-label="讲义目录">
       <nav class="sidebar__group">
-        <div class="sidebar__title">低维数据可视化 · 讲义</div>
+        <div class="sidebar__title">
+          <span data-lang="zh">低维数据可视化 · 讲义</span>
+          <span data-lang="en">Ch. 4 Low-Dimensional Data · Lecture</span>
+        </div>
         <ul class="sidebar__list">
-          <li><a class="sidebar__link" href="#ch-4-1"><span class="sidebar__num">4.1</span><span class="sidebar__text">数据转换</span></a></li>
-          <li><a class="sidebar__link" href="#ch-4-2"><span class="sidebar__num">4.2</span><span class="sidebar__text">坐标轴变换</span></a></li>
-          <li><a class="sidebar__link" href="#ch-4-3"><span class="sidebar__num">4.3</span><span class="sidebar__text">曲线拟合</span></a></li>
-          <li><a class="sidebar__link" href="#ch-4-4"><span class="sidebar__num">4.4</span><span class="sidebar__text">倾角感知（45° 黄金角）</span></a></li>
-          <li><a class="sidebar__link" href="#ch-4-5"><span class="sidebar__num">4.5</span><span class="sidebar__text">等值线（Marching Squares）</span></a></li>
+          <li><a class="sidebar__link" href="#ch-4-1" data-lang="zh"><span class="sidebar__num">4.1</span><span class="sidebar__text">数据转换</span></a><a class="sidebar__link" href="#ch-4-1-en" data-lang="en"><span class="sidebar__num">4.1</span><span class="sidebar__text">Data Transformation</span></a></li>
+          <li><a class="sidebar__link" href="#ch-4-2" data-lang="zh"><span class="sidebar__num">4.2</span><span class="sidebar__text">坐标轴变换</span></a><a class="sidebar__link" href="#ch-4-2-en" data-lang="en"><span class="sidebar__num">4.2</span><span class="sidebar__text">Axis Transformation</span></a></li>
+          <li><a class="sidebar__link" href="#ch-4-3" data-lang="zh"><span class="sidebar__num">4.3</span><span class="sidebar__text">曲线拟合</span></a><a class="sidebar__link" href="#ch-4-3-en" data-lang="en"><span class="sidebar__num">4.3</span><span class="sidebar__text">Curve Fitting</span></a></li>
+          <li><a class="sidebar__link" href="#ch-4-4" data-lang="zh"><span class="sidebar__num">4.4</span><span class="sidebar__text">倾角感知（45° 黄金角）</span></a><a class="sidebar__link" href="#ch-4-4-en" data-lang="en"><span class="sidebar__num">4.4</span><span class="sidebar__text">Slope Perception (45° Sweet Spot)</span></a></li>
+          <li><a class="sidebar__link" href="#ch-4-5" data-lang="zh"><span class="sidebar__num">4.5</span><span class="sidebar__text">等值线（Marching Squares）</span></a><a class="sidebar__link" href="#ch-4-5-en" data-lang="en"><span class="sidebar__num">4.5</span><span class="sidebar__text">Marching Squares (Contour Lines)</span></a></li>
           <li><a class="sidebar__link" href="../lesson-04/">
-            <span class="sidebar__text">← 返回交互版章节页</span></a></li>
+            <span class="sidebar__text">
+              <span data-lang="zh">← 返回交互版章节页</span>
+              <span data-lang="en">← Back to the interactive chapter</span>
+            </span></a></li>
         </ul>
       </nav>
     </aside>
@@ -130,6 +136,7 @@
 
     <main class="main" id="main">
       <article class="content lecture">
+        <div class="lecture__lang" data-lang="zh">
         <h1 id="第-4-章-低维数据可视化">第 4 章 低维数据可视化</h1>
         <blockquote class="note"><strong>本讲义配套集成教学页面</strong>：<a href="./index.html"><code>./index.html</code></a>（讲解 ⇄ 代码 ⇄ 演示 三 tab 自由切换）  推荐教学用法：浏览器打开 lesson 页面 → 左侧选章节 → 三个 tab 来回切（讲解看原理、代码看 ⭐ 关键点、演示看实际效果）。</blockquote>
         <hr />
@@ -187,6 +194,69 @@
         <p>地形等高线（地图）</p>
         <ul><li>医学影像（MRI/CT 等值面）</li><li>密度等高图（核密度估计）</li><li>天气预报（等温线、等压线）</li></ul>
         <hr />
+        </div>
+        <div class="lecture__lang" data-lang="en">
+        <h1 id="chapter-4-low-dimensional-data-visualization">Chapter 4 Low-Dimensional Data Visualization</h1>
+        <blockquote class="note"><strong>This lecture comes with an integrated teaching page</strong>: <a href="./index.html"><code>./index.html</code></a> (Explanation ⇄ Code ⇄ Demo — freely switch among the three tabs)  Recommended teaching approach: open the lesson page in a browser → select a section on the left → switch back and forth among the three tabs (Explanation for principles, Code for ⭐ key points, Demo for actual results).</blockquote>
+        <hr />
+        <h2 id="ch-4-1-en">4.1 Data Transformation</h2>
+        <blockquote class="note">Your Crime data is in wide format; visualization often needs long format. A single conversion function solves it.</blockquote>
+        <h3 id="this-section-uses-colormap-viridis-to-draw-the-heatmap-for-colormap-theory-see">🎨 This section uses colormap (Viridis) to draw the heatmap. For colormap theory, see</h3>
+        <p>Chapter 3, Section 3.2 — the three types of colormap choices. Your original case Original Section 5.1 used 1985 US 50-state crime data (CSV), containing 8 crime indicator columns.</p>
+        <h3 id="embedded-chen-wei-textbook-theory">Embedded Chen-Wei Textbook Theory</h3>
+        <ul><li>Long format (long): one observation per row, columns = fields (e.g., {state, metric, value}). Advantage: easy to filter, group, and bind to d3 join.</li><li>Wide format (wide): one entity per row, columns = metrics (e.g., {state, murder, robbery, ...}). Advantage: human-readable and intuitive.</li><li>Conversion: flatMap + looping over key names = done in just a few lines of code.</li><li>d3.autoType: automatically infers column types (number, date, boolean), saving you from manually writing +d.field.</li></ul>
+        <hr />
+        <h2 id="ch-4-2-en">4.2 Axis Transformation</h2>
+        <blockquote class="note">Data space → coordinate system space → screen space. Three layers with clear responsibilities; if you get it wrong, everything falls apart.</blockquote>
+        <h3 id="your-original-case">Your Original Case</h3>
+        <p>Original Section 5.1.2 used a scatter plot to show the Crime data (murder vs robbery), with axes based on 1985 data.</p>
+        <h3 id="embedded-chen-wei-textbook-theory-2">Embedded Chen-Wei Textbook Theory</h3>
+        <ul><li></li></ul>
+        <ol><li>Three-layer space:</li></ol>
+        <p>Data space: raw values (e.g., population 27058000, murder rate 8)</p>
+        <ol><li>Coordinate system space: normalized to 0..innerWidth (standardized coordinates)</li><li>Screen space: plus margin offset (final pixel position)</li></ol>
+        <ul><li>Why layer: elements within the coordinate system space (lines, points) can be shared, so no recalculation is needed when switching screen sizes. d3.axisBottom automatically handles coordinate system → screen for you.</li></ul>
+        <ul><li></li></ul>
+        <ul><li>scale selection:</li></ul>
+        <p>scaleLinear: uniform distribution, most commonly used</p>
+        <ul><li>scaleLog: across orders of magnitude (population from 530,000 to 27 million)</li><li>scaleSqrt: area perception (circle area mapped to value)</li><li>scaleBand: categorical axis (bar chart)</li></ul>
+        <hr />
+        <h2 id="ch-4-3-en">4.3 Curve Fitting</h2>
+        <blockquote class="note">The same 50 points, drawn with 10 different line.curve styles, look very different. When to use which?</blockquote>
+        <h3 id="your-original-case-2">Your Original Case</h3>
+        <p>Original Section 5.1.3 used a line + scatter plot to show the trend. The original code used curveCatmullRom without explaining why.</p>
+        <h3 id="embedded-chen-wei-textbook-theory-3">Embedded Chen-Wei Textbook Theory</h3>
+        <ul><li></li></ul>
+        <ul><li>Interpolation vs fitting:</li></ul>
+        <p>Interpolation: the curve passes through all data points (e.g., Catmull-Rom, Natural)</p>
+        <ul><li>Fitting: the curve does not pass through data points, only reflecting the trend (e.g., linear regression LOESS)</li></ul>
+        <ul><li>d3.line().curve() provides 10+ curve types; the most commonly used are:</li><li>step family: for discrete steps (digital signals, state transitions)</li><li>catmullRom / natural: tension splines that pass through all points, "look smooth"</li><li>monotoneX: preserves the monotonicity of the original data sequence (no false oscillations)</li><li>Selection principle: data with order → monotoneX / linear; data with large jitter → catmullRom / basis for smoothing; discrete states → step</li></ul>
+        <hr />
+        <h2 id="ch-4-4-en">4.4 Slope Perception (45° Golden Angle)</h2>
+        <h3 id="your-original-case-3">Your Original Case</h3>
+        <p>Original Section 5.1.4 mentions "the optimal average slope is 45°," but does not explain why.</p>
+        <h3 id="embedded-chen-wei-textbook-theory-4">Embedded Chen-Wei Textbook Theory</h3>
+        <ul><li></li></ul>
+        <ul><li>Cleveland 1984 experiment: subjects were asked to estimate the slope of lines, and it was found that:</li></ul>
+        <p>When slope = 0° or 90°, estimation error is largest</p>
+        <ul><li>When slope = 45°, estimation is most accurate</li><li>It forms a U-shaped curve</li></ul>
+        <ul><li>Stevens' power law: perceived slope ≈ (actual slope)^1.0 ~ 1.3. That is, the human eye exaggerates "steepness" by 30%.</li></ul>
+        <ul><li></li></ul>
+        <ul><li>Design principles:</li></ul>
+        <p>Keep key data slopes within the 30°~60° range for the most stable read</p>
+        <ul><li>When comparing growth curves, use a log axis to keep steepness around 45°</li><li>Avoid trend comparisons below 5° or above 85° (error is too large)</li></ul>
+        <hr />
+        <h2 id="ch-4-5-en">4.5 Contours (Marching Squares)</h2>
+        <h3 id="your-original-case-4">Your Original Case</h3>
+        <p>Original Section 5.2.2 used Marching Squares to extract contours from the Crime data. The original code was a screenshot placeholder.</p>
+        <h3 id="embedded-chen-wei-textbook-theory-5">Embedded Chen-Wei Textbook Theory</h3>
+        <ul><li>Marching Squares principle: discretize a scalar field into a grid, where each cell's 4 corners' "whether greater than the threshold" determines the case number 0~15 (2⁴=16 cases). Each case corresponds to 0/1/2 line segments, separating the "above threshold" and "below threshold" regions.</li><li>16 cases: encoding bit0=BL, bit1=BR, bit2=TR, bit3=TL.</li><li>Extending to 3D: Marching Cubes (Lorensen &amp; Cline 1987), 2⁸=256 cases, commonly used for medical MRI / CT isosurface extraction.</li></ul>
+        <ul><li></li></ul>
+        <ul><li>Application scenarios:</li></ul>
+        <p>Topographic contour lines (maps)</p>
+        <ul><li>Medical imaging (MRI/CT isosurfaces)</li><li>Density contour plots (kernel density estimation)</li><li>Weather forecasting (isotherms, isobars)</li></ul>
+        <hr />
+        </div>
       </article>
     </main>
   </div>

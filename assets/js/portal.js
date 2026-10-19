@@ -19,6 +19,10 @@
     var map;
     try { map = JSON.parse(localStorage.getItem("wb.progress") || "{}"); } catch (e) { return; }
 
+    // 切语言时会重跑一遍，先清掉上一次的标记，免得叠出两个「继续」
+    $$(".chapter-card__resume").forEach(function (b) { b.remove(); });
+    $$('.chapter-card[data-resume="1"]').forEach(function (c) { c.removeAttribute("data-resume"); });
+
     var best = null;
     $$(".chapter-card").forEach(function (card) {
       var scope = card.getAttribute("data-progress-scope");
@@ -32,9 +36,12 @@
     });
 
     if (!best) return;
+    var en = document.documentElement.getAttribute("data-locale") === "en";
     var badge = doc.createElement("span");
     badge.className = "chapter-card__resume";
-    badge.textContent = "继续 · 已读 " + best.done + " / " + best.total;
+    badge.textContent = en
+      ? "Continue · " + best.done + " / " + best.total + " read"
+      : "继续 · 已读 " + best.done + " / " + best.total;
     var foot = best.card.querySelector(".chapter-card__foot");
     if (foot) foot.insertBefore(badge, foot.firstChild);
     best.card.setAttribute("data-resume", "1");
@@ -67,6 +74,7 @@
 
   function init() {
     markResume();
+    doc.addEventListener("wb:locale", markResume);
     if ("IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (entries, obs) {
         entries.forEach(function (e) {
