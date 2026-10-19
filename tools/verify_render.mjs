@@ -102,6 +102,11 @@ const IGNORE = [
 
 const results = [];
 let hardFail = 0;
+/* 有几条断言必须按顺序在同一个标签页上操作（滚到某块、读高亮），没法塞进
+   interact 那个「先收集、后统一打印」的数组，否则会打两遍。这里单独计数，
+   结尾和 interact 一起汇总 —— 否则尾行的「N/N」会永远停留在旧的数字上。 */
+let sideChecks = 0;
+let sidePass = 0;
 
 function log(s) { process.stdout.write(s + "\n"); }
 
@@ -792,6 +797,94 @@ const layoutOk =
 if (!layoutOk) hardFail += 1;
 log((layoutOk ? "✅ " : "❌ ") + "章节网格 / 统计条 / 使用说明真的排开了  " + JSON.stringify(layout));
 
+/* ------------------------------------------------------------ 门户的信息架构 */
+/* 门户是一张长页，四块内容彼此没有横向联系，读者只能靠往下滚来发现它们。
+   顶栏那排导航是唯一的「往哪去」提示，因此两件事必须成立：
+     1. 导航项的顺序 = 版块在页面里的顺序（对不上，点一次就会觉得被骗）；
+     2. 滚到某一块时导航要亮起来（否则读者不知道自己在哪，也不知道还能去哪）。
+
+   这条断言同时守住「学习路径」不再被挤到后面 —— 它曾经排在知识图谱之后，
+   而知识图谱有近一屏高，于是学习路径被推到第三屏，看起来像被删掉了。 */
+const NAV_TARGETS = ["paths", "kg", "chapters", "howto"];
+const ia = await lpage.evaluate(() => ({
+  ids: [...document.querySelectorAll(".portal-section")].map(s => s.id).filter(Boolean),
+  nav: [...document.querySelectorAll(".topnav__link")].map(a => a.getAttribute("data-nav-target")),
+  brand: document.querySelector(".topbar__brand") !== null,
+  toggle: document.querySelector("#sidebar-toggle") !== null,
+}));
+const iaOrderOk =
+  ia.ids.join(",") === NAV_TARGETS.join(",") &&
+  ia.nav.join(",") === NAV_TARGETS.join(",") &&
+  // 门户没有侧栏，就不该有开侧栏的按钮
+  ia.brand && !ia.toggle;
+sideChecks += 1;
+if (iaOrderOk) sidePass += 1; else hardFail += 1;
+log((iaOrderOk ? "✅ " : "❌ ") + "板块顺序与顶栏导航一致（学习路径在知识图谱之前）  " + JSON.stringify(ia));
+
+await lpage.evaluate(() => document.getElementById("kg").scrollIntoView({ block: "center" }));
+await new Promise(r => setTimeout(r, 550));
+const iaSpy = await lpage.evaluate(() => ({
+  current: [...document.querySelectorAll(".topnav__link")]
+    .filter(a => a.getAttribute("aria-current") === "true")
+    .map(a => a.getAttribute("data-nav-target")),
+}));
+const spyOk = iaSpy.current.length === 1 && iaSpy.current[0] === "kg";
+sideChecks += 1;
+if (spyOk) sidePass += 1; else hardFail += 1;
+log((spyOk ? "✅ " : "❌ ") + "滚到知识图谱时顶栏高亮跟着走  " + JSON.stringify(iaSpy));
+
+/* ------------------------------------------------------------ 学习路径的进度 */
+/* 步骤序号上的对勾由 shell.js 统一写 data-progress-value，但它只在 100% 时
+   才有视觉差异 —— 刚读了两章的人看到的是一条完全静止的路径。所以卡片上另有
+   一行「已读 m / n 章」。两件事一起验：
+     1. 一章没读时这行不出现（写「已读 0 / 5」只会让人觉得落后）；
+     2. 读完之后出现，且对勾数量与已读完的章数一致。 */
+let routeFail = 0;
+const rp = await browser.newPage();
+await rp.setViewport({ width: 1440, height: 900 });
+await rp.evaluateOnNewDocument(() => {
+  try { localStorage.setItem("wb.theme", "light"); localStorage.setItem("wb.locale", "zh"); } catch (e) {}
+});
+await rp.goto(BASE + "/", { waitUntil: "networkidle2" });
+await rp.evaluate(() => localStorage.removeItem("wb.progress"));
+await rp.reload({ waitUntil: "networkidle2" });
+await new Promise(r => setTimeout(r, 700));
+const routeFresh = await rp.evaluate(() => ({
+  shown: [...document.querySelectorAll("[data-route-meter]")].filter(m => !m.hidden).length,
+  total: document.querySelectorAll("[data-route-meter]").length,
+}));
+const freshOk = routeFresh.total === 3 && routeFresh.shown === 0;
+sideChecks += 1;
+if (freshOk) sidePass += 1;
+if (!freshOk) routeFail += 1;
+log((freshOk ? "✅ " : "❌ ") + "没读过时路径不显示进度  " + JSON.stringify(routeFresh));
+
+await rp.evaluate(() => {
+  // 第 1 章 5 节全部读完，第 2 章只读 2 节
+  localStorage.setItem("wb.progress", JSON.stringify({
+    c01s1: 1, c01s2: 1, c01s3: 1, c01s4: 1, c01s5: 1, c02s1: 1, c02s2: 1,
+  }));
+});
+await rp.reload({ waitUntil: "networkidle2" });
+await new Promise(r => setTimeout(r, 900));
+const routeProg = await rp.evaluate(() => ({
+  meters: [...document.querySelectorAll("[data-route-meter]")].filter(m => !m.hidden)
+    .map(m => ({ text: m.textContent.trim(), state: m.getAttribute("data-state") })),
+  ticks: [...document.querySelectorAll(".route__step")]
+    .filter(s => s.getAttribute("data-progress-value") === "100").length,
+}));
+const progOk = routeProg.meters.length === 3 &&
+               routeProg.meters.every(m => /已读 1 \/ \d+ 章/.test(m.text)) &&
+               routeProg.meters[0].state === "partial" &&
+               routeProg.ticks === 3;
+sideChecks += 1;
+if (progOk) sidePass += 1;
+if (!progOk) routeFail += 1;
+log((progOk ? "✅ " : "❌ ") + "读过之后显示「已读 m / n 章」并给章节打勾  " + JSON.stringify(routeProg));
+await rp.close();
+if (routeFail) hardFail += routeFail;
+
+
 /* ------------------------------------------------------------ 知识图谱 */
 /* 图谱是懒加载的：滚进视口才动态 import d3，再跑力导向。所以这里必须先
    滚过去、等它装完，否则量到的是一块空 SVG ——「元素在但没画」正是这类
@@ -1028,7 +1121,9 @@ await browser.close();
 log("\n" + "=".repeat(76));
 const total = results.length;
 const clean = results.filter(r => !r.errors.length && !r.failed.length && !r.domIssues.length).length;
-log(`页面 ${clean}/${total} 完全干净；交互项 ${interact.filter(i => i[1]).length}/${interact.length} 通过`);
+const passN = interact.filter(i => i[1]).length + sidePass;
+const allN = interact.length + sideChecks;
+log(`页面 ${clean}/${total} 完全干净；交互与布局断言 ${passN}/${allN} 通过`);
 if (hardFail) {
   log(`\n还有 ${hardFail} 处需要处理。`);
   process.exit(1);

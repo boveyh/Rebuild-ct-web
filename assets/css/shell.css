@@ -349,6 +349,69 @@ body.tour-on .site-footer { opacity: 0.35; transition: opacity var(--dur-slow) v
 
 .breadcrumb a:hover { color: var(--brand); }
 
+
+/* ============================================ 门户的板块导航
+   门户是一张 4000px 的长页，四个板块之间没有横向关系。面包屑在门户只有
+   「课程门户」一项 —— 它回答「我在哪」，但读者真正需要的是「往哪去」，
+   所以这个位置换成板块导航。
+
+   注意：这里的顺序必须和页面里版块的物理顺序一致。导航项和版块顺序对不上，
+   读者点击之后会发现「怎么往回跳」，第二次就不信任它了。 */
+.topnav {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.topnav__list {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.topnav__link {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--radius-full);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--text-2);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--dur-fast) ease, background-color var(--dur-fast) ease;
+}
+
+.topnav__link:hover {
+  color: var(--text-1);
+  background: var(--bg-sunken);
+}
+
+/* 当前所在板块。只有脚本算得出「滚到哪算进了哪一块」，
+   所以 aria-current 由 portal.js 在滚动时写；没有脚本时这里不亮，也不算错。 */
+.topnav__link[aria-current="true"] {
+  color: var(--brand-text);
+  background: var(--brand-bg);
+  font-weight: var(--fw-semibold);
+}
+
+/* 中等宽度先砍掉后面的两项：「学习路径」和「知识图谱」是这一页最该被找到的，
+   另外两项在首屏下方不远处，滚一下就到。 */
+@media (max-width: 1080px) {
+  .topnav__list li:nth-child(n + 3) { display: none; }
+}
+
+/* 再窄就整个收起来：顶栏还要放搜索、主题、语言，挤在一起谁都不好点。
+   手机上首屏的按钮和页面顺序已经能带路。 */
+@media (max-width: 720px) {
+  .topnav { display: none; }
+}
+
 .breadcrumb [aria-current="page"] {
   color: var(--text-1);
   font-weight: var(--fw-medium);
@@ -363,6 +426,9 @@ body.tour-on .site-footer { opacity: 0.35; transition: opacity var(--dur-slow) v
   align-items: center;
   gap: var(--sp-2);
   flex: none;
+  /* 靠 margin 而不是靠中间的弹性项把它顶到右边：窄屏下面包屑和板块导航
+     都会 display:none，那时中间没人撑开，右边这组按钮就会紧贴品牌名。 */
+  margin-left: auto;
 }
 
 /* 搜索触发按钮：看起来像一个输入框，是整站的「概念检索」入口 */
@@ -1111,4 +1177,11 @@ body.tour-on .site-footer { opacity: 0.35; transition: opacity var(--dur-slow) v
 @media (max-width: 480px) {
   .brand-text { display: none; }
   .topbar__inner { padding-inline: var(--sp-3); gap: var(--sp-2); }
+}
+
+/* 门户没有侧栏开关，顶栏比章节页少占 40px，380 以上就容得下课程名。
+   只剩一个色块图标的话，读者在手机上根本不知道自己打开的是哪个站。
+   375（iPhone SE 那一档）仍然隐藏：那里是真放不下，硬塞会挤掉语言切换。 */
+@media (min-width: 380px) and (max-width: 480px) {
+  .topbar--portal .brand-text { display: inline; }
 }

@@ -72,9 +72,102 @@
     });
   }
 
+  /* --------------------------------------------------- 学习路径走到哪了 */
+  /* 步骤序号上的对勾由 shell.js 统一处理（它会给每个 [data-progress-scope]
+     写 data-progress-value）。但它只在 100% 时才看得出来，中途没有任何反馈，
+     于是「学习路径」这一块对回访者来说等于静止的。这里补一条「已读 m / n 章」。
+
+     一章没读就不显示：一个刚打开页面的人看到「已读 0 / 5」只会觉得自己落后。 */
+  function markRoutes() {
+    var map;
+    try { map = JSON.parse(localStorage.getItem("wb.progress") || "{}"); } catch (e) { return; }
+    var en = document.documentElement.getAttribute("data-locale") === "en";
+
+    $$(".route").forEach(function (card) {
+      var meter = card.querySelector("[data-route-meter]");
+      if (!meter) return;
+      var steps = Array.prototype.slice.call(card.querySelectorAll(".route__step"));
+      var done = 0;
+
+      steps.forEach(function (st) {
+        var scope = st.getAttribute("data-progress-scope");
+        var total = parseInt(st.getAttribute("data-progress-total") || "0", 10);
+        if (!scope || !total) return;
+        var n = 0;
+        for (var k in map) if (map[k] && k.indexOf(scope) === 0) n++;
+        if (n >= total) done++;
+      });
+
+      if (!done) {
+        meter.hidden = true;
+        meter.removeAttribute("data-state");
+        return;
+      }
+      meter.hidden = false;
+      meter.setAttribute("data-state", done === steps.length ? "done" : "partial");
+      meter.textContent = en
+        ? done + " of " + steps.length + " chapters read"
+        : "已读 " + done + " / " + steps.length + " 章";
+    });
+  }
+
+  /* --------------------------------------------------- 顶栏板块导航高亮 */
+  /* 顶栏是 sticky 的，滚到哪里都看得见这排链接。既然一直挂在眼前，就得回答
+     「我现在在这一页的哪一块」—— 否则它只是一排可以点的字，读者不知道点完会不会
+     又回到上面。用 rAF 节流，别再给滚动加第二个监听器。 */
+  function spySections() {
+    var links = $$(".topnav__link");
+    if (!links.length) return;
+
+    var targets = links.map(function (a) {
+      return { id: a.getAttribute("data-nav-target"), el: null, link: a };
+    }).filter(function (t) { return !!t.id; });
+
+    targets.forEach(function (t) { t.el = doc.getElementById(t.id); });
+    var live = targets.filter(function (t) { return t.el; });
+    if (!live.length) return;
+
+    var current = null;
+    var queued = false;
+
+    function paint() {
+      queued = false;
+      var top = parseFloat(getComputedStyle(doc.documentElement)
+        .getPropertyValue("--topbar-h")) || 56;
+      // 判定线放在顶栏下沿再往下一点：标题刚碰到顶栏就算进了这一块
+      var line = top + 32;
+      var hit = null;
+      live.forEach(function (t) {
+        var r = t.el.getBoundingClientRect();
+        if (r.top <= line) hit = t.id;
+      });
+      if (hit === current) return;
+      current = hit;
+      live.forEach(function (t) {
+        if (t.id === hit) t.link.setAttribute("aria-current", "true");
+        else t.link.removeAttribute("aria-current");
+      });
+    }
+
+    function onScroll() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(paint);
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    paint();
+  }
+
   function init() {
     markResume();
-    doc.addEventListener("wb:locale", markResume);
+    markRoutes();
+    spySections();
+    doc.addEventListener("wb:locale", function () {
+      markResume();
+      markRoutes();
+    });
     if ("IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (entries, obs) {
         entries.forEach(function (e) {

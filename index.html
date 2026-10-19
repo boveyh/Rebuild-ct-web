@@ -46,13 +46,9 @@
 
   <div class="progress-rail" aria-hidden="true"><div class="progress-rail__bar" id="progress-bar"></div></div>
 
-  <header class="topbar">
+  <header class="topbar topbar--portal">
     <div class="topbar__inner">
-      <button class="icon-btn sidebar-toggle" id="sidebar-toggle" type="button"
-              aria-controls="sidebar" aria-expanded="false">
-        <span class="sr-only">打开目录</span>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-      </button>
+      
 
       <a class="topbar__brand" href="">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="brand-text"><span data-lang="zh">可视化导论</span><span data-lang="en">Visualization</span></span>
@@ -60,9 +56,7 @@
 
       <span class="topbar__divider" aria-hidden="true"></span>
 
-      <nav class="breadcrumb" aria-label="面包屑导航">
-        <ol><li><span aria-current="page"><span data-lang="zh">课程门户</span><span data-lang="en">Home</span></span></li></ol>
-      </nav>
+      <nav class="topnav" aria-label="页面板块"><ul class="topnav__list"><li><a class="topnav__link" href="#paths" data-nav-target="paths"><span data-lang="zh">学习路径</span><span data-lang="en">Learning paths</span></a></li><li><a class="topnav__link" href="#kg" data-nav-target="kg"><span data-lang="zh">知识图谱</span><span data-lang="en">Knowledge graph</span></a></li><li><a class="topnav__link" href="#chapters" data-nav-target="chapters"><span data-lang="zh">全部章节</span><span data-lang="en">All chapters</span></a></li><li><a class="topnav__link" href="#howto" data-nav-target="howto"><span data-lang="zh">怎么用</span><span data-lang="en">How to use</span></a></li></ul></nav>
 
       <div class="topbar__actions">
         <button class="search-trigger" type="button" data-search-open data-i18n-aria="search.open">
@@ -300,78 +294,20 @@
       </dl>
     </section>
 
-    <section class="portal-section" aria-labelledby="kg-title">
-      <h2 id="kg-title" class="portal-section__title">
-        <span data-lang="zh">知识图谱</span><span data-lang="en">Knowledge graph</span>
-      </h2>
-      <p class="portal-section__lead">
-        <span data-lang="zh">26 个知识点不是散落的。这张图按章节把它们聚成 5 簇：
-        点开一章，看它由哪几个点组成；点开一点，看它在整门课里的位置。
-        连线表示知识之间的依赖，也标出了建议的学习顺序。</span>
-        <span data-lang="en">26 concepts, clustered by chapter. Open a chapter to see
-        what it is built from; open a concept to see where it sits in the course.
-        Edges mark dependencies — and the order worth following.</span>
-      </p>
-
-      <div class="kg" id="kg">
-        <div class="kg__bar">
-          <nav class="kg__crumbs" aria-label="图谱位置">
-            <button class="kg__crumb" type="button" data-kg-home>
-              <span data-lang="zh">可视化导论</span><span data-lang="en">Visualization</span>
-            </button>
-            <span class="kg__sep" aria-hidden="true">/</span>
-            <span class="kg__crumb is-current" data-kg-crumb>
-              <span data-lang="zh">总览</span><span data-lang="en">Overview</span>
-            </span>
-          </nav>
-          <p class="kg__count" data-kg-count></p>
-          <div class="kg__actions">
-            <button class="kg-btn" type="button" data-kg-up>
-              <span data-lang="zh">返回上一级</span><span data-lang="en">Go up</span>
-            </button>
-            <button class="kg-btn" type="button" data-kg-root>
-              <span data-lang="zh">回到根节点</span><span data-lang="en">Back to root</span>
-            </button>
-            <button class="kg-btn" type="button" data-kg-all>
-              <span data-lang="zh">展开全部</span><span data-lang="en">Expand all</span>
-            </button>
-            <button class="kg-btn" type="button" data-kg-relayout>
-              <span data-lang="zh">重排位置</span><span data-lang="en">Re-layout</span>
-            </button>
-          </div>
-        </div>
-        <div class="kg__body">
-          <div class="kg__canvas">
-            <svg class="kg__svg" aria-label="课程知识图谱"></svg>
-            <p class="kg__loading">
-              <span data-lang="zh">正在装配图谱…</span><span data-lang="en">Assembling the graph…</span>
-            </p>
-            <p class="kg__hint">
-              <span data-lang="zh">拖动空白处平移 · 滚轮缩放 · 点节点看详情，双击章节展开或收起</span>
-              <span data-lang="en">Drag to pan · scroll to zoom · click a node for details, double-click a chapter to toggle</span>
-            </p>
-          </div>
-          <aside class="kg__panel" aria-live="polite">
-            <p class="kg__panel-desc">
-              <span data-lang="zh">26 个知识点 · 39 条关系，正在装配…</span>
-              <span data-lang="en">26 concepts · 39 relations, assembling…</span>
-            </p>
-          </aside>
-        </div>
-      </div>
-      <script type="application/json" id="kg-data">{"root": {"zh": "可视化导论", "en": "Introduction to Visualization", "summary": {"zh": "全部 5 个主题簇、26 个知识点。点开任意一章，看它由哪些点组成；点开任意一点，看它在课程里的位置。", "en": "Five topic clusters and 26 concepts. Open a chapter to see what it is made of; open a concept to see where it sits in the course."}, "tags": {"zh": ["课程总览"], "en": ["Overview"]}, "href": "lesson-01/"}, "chapters": [{"id": "01", "num": 1, "title": {"zh": "数据", "en": "Data"}, "short": {"zh": "数据", "en": "Data"}, "summary": {"zh": "把「数据是什么」拆成四件可操作的事：怎么装载、怎么定义、怎么分类、怎么变换。这一章决定后面每一张图的地基。", "en": "Turns 'what is data' into four actionable tasks — load, define, classify, transform — and lays the foundation for every chart that follows."}, "tags": {"zh": ["数据", "地基"], "en": ["Data", "Foundation"]}, "sections": 5, "href": "lesson-01/"}, {"id": "02", "num": 2, "title": {"zh": "数据可视化流程", "en": "Visualization Workflow"}, "short": {"zh": "可视化流程", "en": "Workflow"}, "summary": {"zh": "Card 的三段式模型把可视化拆成一条流水线：变换、映射、渲染，再加一圈交互反馈。整门课的主干骨架。", "en": "Card's three stages split visualization into a pipeline — transform, map, render — plus a feedback loop. The backbone of the whole course."}, "tags": {"zh": ["流程", "主干"], "en": ["Pipeline", "Core"]}, "sections": 4, "href": "lesson-02/"}, {"id": "03", "num": 3, "title": {"zh": "色彩专题", "en": "Color"}, "short": {"zh": "色彩", "en": "Color"}, "summary": {"zh": "颜色是唯一一个「用错了没人提醒、但读者会直接读错」的通道，所以从流程里拆出来单列一章，八节讲透。", "en": "Colour is the one channel that fails silently while readers misread the chart — hence a standalone chapter of eight sections."}, "tags": {"zh": ["色彩", "独立专题"], "en": ["Colour", "Standalone"]}, "sections": 8, "href": "lesson-03/"}, {"id": "04", "num": 4, "title": {"zh": "低维数据可视化", "en": "Low-Dimensional Data"}, "short": {"zh": "低维数据", "en": "Low-dim data"}, "summary": {"zh": "低维数据的四类基本操作：整理成可画的形状、换坐标系、拟合出趋势、按人的感知摆放。全是可以直接抄的写法。", "en": "Four basic moves for low-dimensional data: reshape, rescale, fit a trend, and place marks where perception expects them."}, "tags": {"zh": ["低维", "实战"], "en": ["Low-dim", "Practice"]}, "sections": 5, "href": "lesson-04/"}, {"id": "05", "num": 5, "title": {"zh": "时序数据可视化", "en": "Time-Series Data"}, "short": {"zh": "时序数据", "en": "Time series"}, "summary": {"zh": "时间有五种属性，每一种都有比折线图更合适的画法。这一章按属性选图，而不是按数据长什么样选图。", "en": "Time has five properties and each has an answer better than the line chart. Choose the chart by property, not by data shape."}, "tags": {"zh": ["时序", "实战"], "en": ["Time", "Practice"]}, "sections": 5, "href": "lesson-05/"}], "nodes": {"01.n1": {"zh": "数据生成", "en": "Data loading", "summary": {"zh": "从 DeepSeek 合成的 2024 级新生数据出发，用 d3.csv 的 row 回调一次完成字段映射与类型转换。", "en": "Start from DeepSeek-synthesized freshman data; d3.csv's row callback does field mapping and type conversion in one pass."}, "tags": {"zh": ["装载", "d3.csv"], "en": ["Loading", "d3.csv"]}, "section": 1, "href": "lesson-01/#ch-1-1"}, "01.n2": {"zh": "数据定义 · DIKW", "en": "Data definition · DIKW", "summary": {"zh": "数据→信息→知识→智慧的四级金字塔。可视化主要停在「信息」这一级，再往上走要格外谨慎。", "en": "The four-level pyramid from data to wisdom. Visualization mostly stops at 'information'; claims above it need care."}, "tags": {"zh": ["定义", "DIKW"], "en": ["Definition", "DIKW"]}, "section": 2, "href": "lesson-01/#ch-1-2"}, "01.n3": {"zh": "数据属性 · 尺度 × 通道", "en": "Attributes · scale × channel", "summary": {"zh": "Stevens 的四种测量尺度决定哪些运算合法，Mackinlay 的通道排名决定属性该映射到位置、长度还是颜色。", "en": "Stevens' four scales decide which operations are legal; Mackinlay's channel ranking decides position, length or colour."}, "tags": {"zh": ["属性", "映射"], "en": ["Attribute", "Mapping"]}, "section": 3, "href": "lesson-01/#ch-1-3"}, "01.n4": {"zh": "数据变换 · 函数式数组", "en": "Transformation · array ops", "summary": {"zh": "filter / map / rollup 把原始数组变成能画的表。变换写在数据一侧，绘图代码就只剩「画」。", "en": "filter / map / rollup turn raw arrays into a plottable table; keep the transform on the data side and the chart code stays pure."}, "tags": {"zh": ["变换", "数组"], "en": ["Transform", "Arrays"]}, "section": 4, "href": "lesson-01/#ch-1-4"}, "01.n5": {"zh": "选择器 · Data-Join 三态", "en": "Selectors · data-join", "summary": {"zh": "enter / update / exit 解释数据变化时 DOM 发生了什么；key 函数是过渡动画能不能对上的前提。", "en": "enter / update / exit explain what happens to the DOM when data changes; the key function is what makes a transition coherent."}, "tags": {"zh": ["选择器", "Data-Join"], "en": ["Selection", "Data-Join"]}, "section": 5, "href": "lesson-01/#ch-1-5"}, "02.n1": {"zh": "Card 数据流模型", "en": "Card's pipeline model", "summary": {"zh": "Card 把可视化拆成三段：数据变换、视觉映射、视图渲染。后面四节就是逐段拆开讲这三段。", "en": "Card splits visualization into three stages: transform, visual mapping, view rendering. The next sections take them one by one."}, "tags": {"zh": ["模型", "骨架"], "en": ["Model", "Backbone"]}, "section": 1, "href": "lesson-02/#ch-2-1"}, "02.n2": {"zh": "数据变换 D → T", "en": "Transform D → T", "summary": {"zh": "双层 rollup 把明细行压成图表要的维度表，正则清洗负责把「计算机科学与技术」这类脏字段拆开。", "en": "Two-level rollup collapses detail rows into the table a chart needs; regex cleaning splits dirty fields apart."}, "tags": {"zh": ["聚合", "rollup"], "en": ["Aggregate", "rollup"]}, "section": 2, "href": "lesson-02/#ch-2-2"}, "02.n3": {"zh": "视觉映射 T → V", "en": "Map T → V", "summary": {"zh": "Reingold-Tilford 树布局加通道理论：把表的列映射成位置、长度、颜色，同时保证不丢信息。", "en": "Reingold–Tilford layout plus channel theory: map table columns onto position, length and colour without losing information."}, "tags": {"zh": ["映射", "布局"], "en": ["Mapping", "Layout"]}, "section": 3, "href": "lesson-02/#ch-2-3"}, "02.n4": {"zh": "视图渲染 V → R", "en": "Render V → R", "summary": {"zh": "数据绑定落到 SVG 元素上成为最终画面，比例尺、坐标轴、过渡动画都发生在这一步。", "en": "Data joins land on SVG elements to produce the picture; scales, axes and transitions all happen here."}, "tags": {"zh": ["渲染", "SVG"], "en": ["Render", "SVG"]}, "section": 4, "href": "lesson-02/#ch-2-4"}, "02.n5": {"zh": "用户交互与反馈", "en": "Interaction & feedback", "summary": {"zh": "交互把「看到的图」变回「可操作的数据」，于是 Card 的三段式变成一个闭环，而不是一条直路。", "en": "Interaction turns the seen chart back into operable data, closing Card's three stages into a loop instead of a straight line."}, "tags": {"zh": ["交互", "闭环"], "en": ["Interaction", "Loop"]}, "section": 4, "href": "lesson-02/#ch-2-4"}, "03.n1": {"zh": "颜色模型基础", "en": "Color models", "summary": {"zh": "RGB 面向屏幕、HSL 面向直觉，Lab 与 HCL 才是感知均匀的——这是能把数字映射成颜色的前提。", "en": "RGB for screens, HSL for intuition, Lab/HCL for perceptual uniformity — the precondition for mapping numbers to colour."}, "tags": {"zh": ["颜色空间", "Lab"], "en": ["Colour space", "Lab"]}, "section": 1, "href": "lesson-03/#ch-3-1"}, "03.n2": {"zh": "colormap 三类", "en": "Three colormap types", "summary": {"zh": "顺序型、发散型、定性型对应三种数据语义。用错会让读者凭空读出一个不存在的中点或边界。", "en": "Sequential, diverging and qualitative match three data semantics; the wrong pick invents a midpoint or a boundary."}, "tags": {"zh": ["colormap", "选型"], "en": ["colormap", "Choice"]}, "section": 2, "href": "lesson-03/#ch-3-2"}, "03.n3": {"zh": "色系搭配 5 类", "en": "Five harmony rules", "summary": {"zh": "单色、类比、互补、三等分、分裂互补——从色轮关系推出一组协调而非随手拼的颜色。", "en": "Monochromatic, analogous, complementary, triadic, split-complementary: harmony derived from the wheel, not from taste."}, "tags": {"zh": ["配色", "色轮"], "en": ["Palette", "Wheel"]}, "section": 4, "href": "lesson-03/#ch-3-4"}, "03.n4": {"zh": "科研经典色板", "en": "Research palettes", "summary": {"zh": "Wong、Paul Tol、Okabe-Ito 三套经过色觉缺陷检验的色板。做论文图不用自己凑颜色。", "en": "Wong, Paul Tol and Okabe-Ito are CVD-tested palettes — reuse them instead of inventing colours for a paper figure."}, "tags": {"zh": ["色板", "论文"], "en": ["Palette", "Paper"]}, "section": 5, "href": "lesson-03/#ch-3-5"}, "03.n5": {"zh": "鲜艳 + 低饱和", "en": "Vivid + low saturation", "summary": {"zh": "类别数控制在 7 以内，靠色相拉开区分、靠降低饱和度压住刺眼感，既醒目又耐看。", "en": "Keep categories under seven, separate by hue, calm by lowering saturation: noticeable yet comfortable."}, "tags": {"zh": ["类别色", "饱和度"], "en": ["Categorical", "Saturation"]}, "section": 6, "href": "lesson-03/#ch-3-6"}, "03.n6": {"zh": "CVD 色觉缺陷校验", "en": "CVD verification", "summary": {"zh": "用红绿色盲模拟检查图还能不能读。结论只有一条：颜色永远不能是唯一的编码通道。", "en": "Simulate red-green deficiency to check the figure still reads. The rule: hue must never be the only encoding channel."}, "tags": {"zh": ["无障碍", "色盲"], "en": ["A11y", "CVD"]}, "section": 8, "href": "lesson-03/#ch-3-8"}, "04.n1": {"zh": "数据转换 宽 → 长", "en": "Wide → long reshape", "summary": {"zh": "宽表转长表是分组绘图的第一步：一条记录一个观测，图才知道该按哪一列分组。", "en": "Wide-to-long reshaping is step one for grouped charts: one observation per row tells the chart what to group by."}, "tags": {"zh": ["整形", "pivot"], "en": ["Reshape", "pivot"]}, "section": 1, "href": "lesson-04/#ch-4-1"}, "04.n2": {"zh": "坐标轴变换 三层", "en": "Three-layer transforms", "summary": {"zh": "线性、对数、序数比例尺决定数值怎么变成像素；坐标轴、网格、刻度要分层画，改主题才不用重写。", "en": "Linear, log and ordinal scales decide how numbers become pixels; axis, grid and ticks are drawn in layers."}, "tags": {"zh": ["比例尺", "坐标轴"], "en": ["Scale", "Axis"]}, "section": 2, "href": "lesson-04/#ch-4-2"}, "04.n3": {"zh": "曲线拟合 10 种", "en": "Ten curve types", "summary": {"zh": "d3-regression 的十种模型，用 R² 判断该信任哪条线——以及 R² 高不等于模型对。", "en": "Ten models in d3-regression; use R² to decide which line to trust — and remember a high R² is not proof."}, "tags": {"zh": ["回归", "拟合"], "en": ["Regression", "Fit"]}, "section": 3, "href": "lesson-04/#ch-4-3"}, "04.n4": {"zh": "倾角感知 45°", "en": "45° slope perception", "summary": {"zh": "人对角度的分辨在 45° 附近最灵敏，斜率图要刻意把主要对比压在这个黄金角附近。", "en": "Angle discrimination peaks around 45°, so slope charts should push the main contrast near that golden angle."}, "tags": {"zh": ["感知", "斜率图"], "en": ["Perception", "Slope"]}, "section": 4, "href": "lesson-04/#ch-4-4"}, "04.n5": {"zh": "等值线 Marching Squares", "en": "Marching Squares", "summary": {"zh": "从标量场网格里提取等值线的经典算法，逐格判断 16 种情形。d3-contour 内置了它。", "en": "The classic algorithm for pulling isolines out of a scalar grid, sixteen cases per cell. d3-contour ships it."}, "tags": {"zh": ["等值线", "算法"], "en": ["Contour", "Algorithm"]}, "section": 5, "href": "lesson-04/#ch-4-5"}, "05.n1": {"zh": "时间属性 5 个", "en": "Five time attributes", "summary": {"zh": "时间点、时间间隔、持续时间、时序、节律。先分清属性语义，再决定画什么图。", "en": "Instant, interval, duration, sequence and rhythm: name the semantics first, then choose the chart."}, "tags": {"zh": ["时间", "语义"], "en": ["Time", "Semantics"]}, "section": 1, "href": "lesson-05/#ch-5-1"}, "05.n2": {"zh": "标准时间可视化 折线图", "en": "Standard line chart", "summary": {"zh": "折线图是时间序列的默认答案，也是衡量其他时间图表值不值得用的参照基线。", "en": "The line chart is the default answer for time series and the baseline every other temporal chart must beat."}, "tags": {"zh": ["折线图", "基线"], "en": ["Line chart", "Baseline"]}, "section": 2, "href": "lesson-05/#ch-5-2"}, "05.n3": {"zh": "日历热图 van Wijk", "en": "Calendar heatmap", "summary": {"zh": "van Wijk 的日历视图把长期数据压进一屏，按月分隔线保留「月」这个最重要的节律。", "en": "Van Wijk's calendar view compresses long series into one screen while month dividers preserve the monthly rhythm."}, "tags": {"zh": ["日历", "热图"], "en": ["Calendar", "Heatmap"]}, "section": 3, "href": "lesson-05/#ch-5-3"}, "05.n4": {"zh": "周期时间 阿基米德螺旋", "en": "Archimedean spiral", "summary": {"zh": "螺旋把周期数据卷成一圈一圈，同一相位落在同一角度上，趋势和季节能同时看见。", "en": "A spiral coils periodic data so equal phases share an angle — trend and season become visible at once."}, "tags": {"zh": ["螺旋", "周期"], "en": ["Spiral", "Cyclic"]}, "section": 4, "href": "lesson-05/#ch-5-4"}, "05.n5": {"zh": "Storyline 时间线叙事", "en": "Storyline narrative", "summary": {"zh": "用横向轨道表达事件与状态变化，适合讲「谁在什么时候做了什么」，而不适合讲精确数值。", "en": "Horizontal tracks express events and state changes — good for who did what when, poor for exact values."}, "tags": {"zh": ["叙事", "事件"], "en": ["Narrative", "Events"]}, "section": 5, "href": "lesson-05/#ch-5-5"}}, "chapterEdges": [["01", "02"], ["01", "03"], ["02", "03"], ["02", "04"], ["02", "05"]], "edges": [["01.n1", "02.n1"], ["01.n3", "02.n3"], ["01.n3", "03.n1"], ["01.n3", "05.n1"], ["01.n5", "02.n4"], ["02.n2", "04.n1"], ["02.n3", "03.n2"], ["02.n4", "04.n2"], ["03.n2", "04.n1"], ["04.n2", "05.n2"], ["01.n1", "01.n2"], ["01.n2", "01.n3"], ["01.n3", "01.n4"], ["01.n4", "01.n5"], ["01.n1", "01.n4"], ["02.n1", "02.n2"], ["02.n2", "02.n3"], ["02.n3", "02.n4"], ["02.n4", "02.n5"], ["02.n5", "02.n2"], ["03.n1", "03.n2"], ["03.n1", "03.n3"], ["03.n2", "03.n4"], ["03.n3", "03.n5"], ["03.n4", "03.n6"], ["03.n5", "03.n6"], ["04.n1", "04.n2"], ["04.n2", "04.n3"], ["04.n2", "04.n4"], ["04.n3", "04.n5"], ["05.n1", "05.n2"], ["05.n2", "05.n3"], ["05.n2", "05.n4"], ["05.n1", "05.n5"]]}</script>
-    </section>
-
-    <section class="portal-section" aria-labelledby="routes-title">
+    <section class="portal-section" id="paths" aria-labelledby="routes-title">
       <h2 id="routes-title" class="portal-section__title">
         <span data-lang="zh">学习路径</span><span data-lang="en">Learning paths</span>
       </h2>
       <p class="portal-section__lead">
-        <span data-lang="zh">五章不必都从头读到尾。按你的目标挑一条，跳过的章随时能回来补。</span>
-        <span data-lang="en">You do not have to read all five in order. Pick the path that matches your goal; skipped chapters stay open.</span>
+        <span data-lang="zh">五章不必都从头读到尾。三条路线对应三种情况：<strong>完全从零</strong>、
+        <strong>会写 JavaScript 想尽快出图</strong>、<strong>只补某个专题</strong>。
+        挑一条照着走，跳过的章随时能回来补，走完的章会在序号上打勾。</span>
+        <span data-lang="en">You do not have to read all five in order. Three routes cover three
+        situations: starting from zero, knowing JavaScript and wanting charts fast, or patching
+        a single topic. Walked chapters get a tick; skipped ones stay open.</span>
       </p>
       <div class="route-grid">
-        <article class="route" data-route="scratch">
+        <article class="route" data-route="scratch" data-route-steps="5">
           <h3 class="route__title">
             <span data-lang="zh">零基础，从头走一遍</span>
             <span data-lang="en">From scratch, in order</span>
@@ -380,6 +316,7 @@
             <span data-lang="zh">没写过 JavaScript 也能跟上。每章都先讲「为什么」，再落到代码。</span>
             <span data-lang="en">No JavaScript needed. Each chapter explains the why before the code.</span>
           </p>
+          <p class="route__meter" data-route-meter hidden></p>
           <ol class="route__steps">
             <li class="route__step" data-progress-scope="c01s"
                 data-progress-total="5">
@@ -463,7 +400,7 @@
             </li>
           </ol>
         </article>
-        <article class="route" data-route="fast">
+        <article class="route" data-route="fast" data-route-steps="3">
           <h3 class="route__title">
             <span data-lang="zh">会写 JS，想尽快出图</span>
             <span data-lang="en">Know JS, want charts fast</span>
@@ -472,6 +409,7 @@
             <span data-lang="zh">跳过色彩专题与时序，先把通用流程和低维图表拿下。缺的两块随时能回来补。</span>
             <span data-lang="en">Skip colour and time for now; get the pipeline and low-dimensional charts first.</span>
           </p>
+          <p class="route__meter" data-route-meter hidden></p>
           <ol class="route__steps">
             <li class="route__step" data-progress-scope="c01s"
                 data-progress-total="5">
@@ -523,7 +461,7 @@
             </li>
           </ol>
         </article>
-        <article class="route" data-route="topic">
+        <article class="route" data-route="topic" data-route-steps="3">
           <h3 class="route__title">
             <span data-lang="zh">只补色彩或时序</span>
             <span data-lang="en">Just colour or time</span>
@@ -532,6 +470,7 @@
             <span data-lang="zh">两个独立专题。先花二十分钟过第 1 章的数据尺度，再直接跳过去。</span>
             <span data-lang="en">Two standalone topics. Spend twenty minutes on data scales in chapter 1 first.</span>
           </p>
+          <p class="route__meter" data-route-meter hidden></p>
           <ol class="route__steps">
             <li class="route__step" data-progress-scope="c01s"
                 data-progress-total="5">
@@ -584,9 +523,79 @@
           </ol>
         </article>
       </div>
+      <p class="portal-section__hint">
+        <span data-lang="zh">拿不定选哪条就选第一条，它包含全部五章。想知道某一个知识点被哪几章用到，
+        往下看知识图谱。</span>
+        <span data-lang="en">Unsure? Take the first route — it covers all five chapters. To see where
+        a single concept is used, scroll to the knowledge graph.</span>
+      </p>
     </section>
 
-    <section class="portal-section" aria-labelledby="chapters-title">
+    <section class="portal-section" id="kg" aria-labelledby="kg-title">
+      <h2 id="kg-title" class="portal-section__title">
+        <span data-lang="zh">知识图谱</span><span data-lang="en">Knowledge graph</span>
+      </h2>
+      <p class="portal-section__lead">
+        <span data-lang="zh">26 个知识点不是散落的。这张图按章节把它们聚成 5 簇：
+        点开一章，看它由哪几个点组成；点开一点，看它在整门课里的位置。
+        连线表示知识之间的依赖 —— 前一个没懂，后一个就会卡住。
+        要的是「按什么顺序读」，上面那条学习路径更直接。</span>
+        <span data-lang="en">26 concepts, clustered by chapter. Open a chapter to see
+        what it is built from; open a concept to see where it sits in the course.
+        Edges mark dependencies: skip the source and the target will not land.
+        For an order to read in, the learning paths above are the shorter answer.</span>
+      </p>
+
+      <div class="kg" id="kg">
+        <div class="kg__bar">
+          <nav class="kg__crumbs" aria-label="图谱位置">
+            <button class="kg__crumb" type="button" data-kg-home>
+              <span data-lang="zh">可视化导论</span><span data-lang="en">Visualization</span>
+            </button>
+            <span class="kg__sep" aria-hidden="true">/</span>
+            <span class="kg__crumb is-current" data-kg-crumb>
+              <span data-lang="zh">总览</span><span data-lang="en">Overview</span>
+            </span>
+          </nav>
+          <p class="kg__count" data-kg-count></p>
+          <div class="kg__actions">
+            <button class="kg-btn" type="button" data-kg-up>
+              <span data-lang="zh">返回上一级</span><span data-lang="en">Go up</span>
+            </button>
+            <button class="kg-btn" type="button" data-kg-root>
+              <span data-lang="zh">回到根节点</span><span data-lang="en">Back to root</span>
+            </button>
+            <button class="kg-btn" type="button" data-kg-all>
+              <span data-lang="zh">展开全部</span><span data-lang="en">Expand all</span>
+            </button>
+            <button class="kg-btn" type="button" data-kg-relayout>
+              <span data-lang="zh">重排位置</span><span data-lang="en">Re-layout</span>
+            </button>
+          </div>
+        </div>
+        <div class="kg__body">
+          <div class="kg__canvas">
+            <svg class="kg__svg" aria-label="课程知识图谱"></svg>
+            <p class="kg__loading">
+              <span data-lang="zh">正在装配图谱…</span><span data-lang="en">Assembling the graph…</span>
+            </p>
+            <p class="kg__hint">
+              <span data-lang="zh">拖动空白处平移 · 滚轮缩放 · 点节点看详情，双击章节展开或收起</span>
+              <span data-lang="en">Drag to pan · scroll to zoom · click a node for details, double-click a chapter to toggle</span>
+            </p>
+          </div>
+          <aside class="kg__panel" aria-live="polite">
+            <p class="kg__panel-desc">
+              <span data-lang="zh">26 个知识点 · 39 条关系，正在装配…</span>
+              <span data-lang="en">26 concepts · 39 relations, assembling…</span>
+            </p>
+          </aside>
+        </div>
+      </div>
+      <script type="application/json" id="kg-data">{"root": {"zh": "可视化导论", "en": "Introduction to Visualization", "summary": {"zh": "全部 5 个主题簇、26 个知识点。点开任意一章，看它由哪些点组成；点开任意一点，看它在课程里的位置。", "en": "Five topic clusters and 26 concepts. Open a chapter to see what it is made of; open a concept to see where it sits in the course."}, "tags": {"zh": ["课程总览"], "en": ["Overview"]}, "href": "lesson-01/"}, "chapters": [{"id": "01", "num": 1, "title": {"zh": "数据", "en": "Data"}, "short": {"zh": "数据", "en": "Data"}, "summary": {"zh": "把「数据是什么」拆成四件可操作的事：怎么装载、怎么定义、怎么分类、怎么变换。这一章决定后面每一张图的地基。", "en": "Turns 'what is data' into four actionable tasks — load, define, classify, transform — and lays the foundation for every chart that follows."}, "tags": {"zh": ["数据", "地基"], "en": ["Data", "Foundation"]}, "sections": 5, "href": "lesson-01/"}, {"id": "02", "num": 2, "title": {"zh": "数据可视化流程", "en": "Visualization Workflow"}, "short": {"zh": "可视化流程", "en": "Workflow"}, "summary": {"zh": "Card 的三段式模型把可视化拆成一条流水线：变换、映射、渲染，再加一圈交互反馈。整门课的主干骨架。", "en": "Card's three stages split visualization into a pipeline — transform, map, render — plus a feedback loop. The backbone of the whole course."}, "tags": {"zh": ["流程", "主干"], "en": ["Pipeline", "Core"]}, "sections": 4, "href": "lesson-02/"}, {"id": "03", "num": 3, "title": {"zh": "色彩专题", "en": "Color"}, "short": {"zh": "色彩", "en": "Color"}, "summary": {"zh": "颜色是唯一一个「用错了没人提醒、但读者会直接读错」的通道，所以从流程里拆出来单列一章，八节讲透。", "en": "Colour is the one channel that fails silently while readers misread the chart — hence a standalone chapter of eight sections."}, "tags": {"zh": ["色彩", "独立专题"], "en": ["Colour", "Standalone"]}, "sections": 8, "href": "lesson-03/"}, {"id": "04", "num": 4, "title": {"zh": "低维数据可视化", "en": "Low-Dimensional Data"}, "short": {"zh": "低维数据", "en": "Low-dim data"}, "summary": {"zh": "低维数据的四类基本操作：整理成可画的形状、换坐标系、拟合出趋势、按人的感知摆放。全是可以直接抄的写法。", "en": "Four basic moves for low-dimensional data: reshape, rescale, fit a trend, and place marks where perception expects them."}, "tags": {"zh": ["低维", "实战"], "en": ["Low-dim", "Practice"]}, "sections": 5, "href": "lesson-04/"}, {"id": "05", "num": 5, "title": {"zh": "时序数据可视化", "en": "Time-Series Data"}, "short": {"zh": "时序数据", "en": "Time series"}, "summary": {"zh": "时间有五种属性，每一种都有比折线图更合适的画法。这一章按属性选图，而不是按数据长什么样选图。", "en": "Time has five properties and each has an answer better than the line chart. Choose the chart by property, not by data shape."}, "tags": {"zh": ["时序", "实战"], "en": ["Time", "Practice"]}, "sections": 5, "href": "lesson-05/"}], "nodes": {"01.n1": {"zh": "数据生成", "en": "Data loading", "summary": {"zh": "从 DeepSeek 合成的 2024 级新生数据出发，用 d3.csv 的 row 回调一次完成字段映射与类型转换。", "en": "Start from DeepSeek-synthesized freshman data; d3.csv's row callback does field mapping and type conversion in one pass."}, "tags": {"zh": ["装载", "d3.csv"], "en": ["Loading", "d3.csv"]}, "section": 1, "href": "lesson-01/#ch-1-1"}, "01.n2": {"zh": "数据定义 · DIKW", "en": "Data definition · DIKW", "summary": {"zh": "数据→信息→知识→智慧的四级金字塔。可视化主要停在「信息」这一级，再往上走要格外谨慎。", "en": "The four-level pyramid from data to wisdom. Visualization mostly stops at 'information'; claims above it need care."}, "tags": {"zh": ["定义", "DIKW"], "en": ["Definition", "DIKW"]}, "section": 2, "href": "lesson-01/#ch-1-2"}, "01.n3": {"zh": "数据属性 · 尺度 × 通道", "en": "Attributes · scale × channel", "summary": {"zh": "Stevens 的四种测量尺度决定哪些运算合法，Mackinlay 的通道排名决定属性该映射到位置、长度还是颜色。", "en": "Stevens' four scales decide which operations are legal; Mackinlay's channel ranking decides position, length or colour."}, "tags": {"zh": ["属性", "映射"], "en": ["Attribute", "Mapping"]}, "section": 3, "href": "lesson-01/#ch-1-3"}, "01.n4": {"zh": "数据变换 · 函数式数组", "en": "Transformation · array ops", "summary": {"zh": "filter / map / rollup 把原始数组变成能画的表。变换写在数据一侧，绘图代码就只剩「画」。", "en": "filter / map / rollup turn raw arrays into a plottable table; keep the transform on the data side and the chart code stays pure."}, "tags": {"zh": ["变换", "数组"], "en": ["Transform", "Arrays"]}, "section": 4, "href": "lesson-01/#ch-1-4"}, "01.n5": {"zh": "选择器 · Data-Join 三态", "en": "Selectors · data-join", "summary": {"zh": "enter / update / exit 解释数据变化时 DOM 发生了什么；key 函数是过渡动画能不能对上的前提。", "en": "enter / update / exit explain what happens to the DOM when data changes; the key function is what makes a transition coherent."}, "tags": {"zh": ["选择器", "Data-Join"], "en": ["Selection", "Data-Join"]}, "section": 5, "href": "lesson-01/#ch-1-5"}, "02.n1": {"zh": "Card 数据流模型", "en": "Card's pipeline model", "summary": {"zh": "Card 把可视化拆成三段：数据变换、视觉映射、视图渲染。后面四节就是逐段拆开讲这三段。", "en": "Card splits visualization into three stages: transform, visual mapping, view rendering. The next sections take them one by one."}, "tags": {"zh": ["模型", "骨架"], "en": ["Model", "Backbone"]}, "section": 1, "href": "lesson-02/#ch-2-1"}, "02.n2": {"zh": "数据变换 D → T", "en": "Transform D → T", "summary": {"zh": "双层 rollup 把明细行压成图表要的维度表，正则清洗负责把「计算机科学与技术」这类脏字段拆开。", "en": "Two-level rollup collapses detail rows into the table a chart needs; regex cleaning splits dirty fields apart."}, "tags": {"zh": ["聚合", "rollup"], "en": ["Aggregate", "rollup"]}, "section": 2, "href": "lesson-02/#ch-2-2"}, "02.n3": {"zh": "视觉映射 T → V", "en": "Map T → V", "summary": {"zh": "Reingold-Tilford 树布局加通道理论：把表的列映射成位置、长度、颜色，同时保证不丢信息。", "en": "Reingold–Tilford layout plus channel theory: map table columns onto position, length and colour without losing information."}, "tags": {"zh": ["映射", "布局"], "en": ["Mapping", "Layout"]}, "section": 3, "href": "lesson-02/#ch-2-3"}, "02.n4": {"zh": "视图渲染 V → R", "en": "Render V → R", "summary": {"zh": "数据绑定落到 SVG 元素上成为最终画面，比例尺、坐标轴、过渡动画都发生在这一步。", "en": "Data joins land on SVG elements to produce the picture; scales, axes and transitions all happen here."}, "tags": {"zh": ["渲染", "SVG"], "en": ["Render", "SVG"]}, "section": 4, "href": "lesson-02/#ch-2-4"}, "02.n5": {"zh": "用户交互与反馈", "en": "Interaction & feedback", "summary": {"zh": "交互把「看到的图」变回「可操作的数据」，于是 Card 的三段式变成一个闭环，而不是一条直路。", "en": "Interaction turns the seen chart back into operable data, closing Card's three stages into a loop instead of a straight line."}, "tags": {"zh": ["交互", "闭环"], "en": ["Interaction", "Loop"]}, "section": 4, "href": "lesson-02/#ch-2-4"}, "03.n1": {"zh": "颜色模型基础", "en": "Color models", "summary": {"zh": "RGB 面向屏幕、HSL 面向直觉，Lab 与 HCL 才是感知均匀的——这是能把数字映射成颜色的前提。", "en": "RGB for screens, HSL for intuition, Lab/HCL for perceptual uniformity — the precondition for mapping numbers to colour."}, "tags": {"zh": ["颜色空间", "Lab"], "en": ["Colour space", "Lab"]}, "section": 1, "href": "lesson-03/#ch-3-1"}, "03.n2": {"zh": "colormap 三类", "en": "Three colormap types", "summary": {"zh": "顺序型、发散型、定性型对应三种数据语义。用错会让读者凭空读出一个不存在的中点或边界。", "en": "Sequential, diverging and qualitative match three data semantics; the wrong pick invents a midpoint or a boundary."}, "tags": {"zh": ["colormap", "选型"], "en": ["colormap", "Choice"]}, "section": 2, "href": "lesson-03/#ch-3-2"}, "03.n3": {"zh": "色系搭配 5 类", "en": "Five harmony rules", "summary": {"zh": "单色、类比、互补、三等分、分裂互补——从色轮关系推出一组协调而非随手拼的颜色。", "en": "Monochromatic, analogous, complementary, triadic, split-complementary: harmony derived from the wheel, not from taste."}, "tags": {"zh": ["配色", "色轮"], "en": ["Palette", "Wheel"]}, "section": 4, "href": "lesson-03/#ch-3-4"}, "03.n4": {"zh": "科研经典色板", "en": "Research palettes", "summary": {"zh": "Wong、Paul Tol、Okabe-Ito 三套经过色觉缺陷检验的色板。做论文图不用自己凑颜色。", "en": "Wong, Paul Tol and Okabe-Ito are CVD-tested palettes — reuse them instead of inventing colours for a paper figure."}, "tags": {"zh": ["色板", "论文"], "en": ["Palette", "Paper"]}, "section": 5, "href": "lesson-03/#ch-3-5"}, "03.n5": {"zh": "鲜艳 + 低饱和", "en": "Vivid + low saturation", "summary": {"zh": "类别数控制在 7 以内，靠色相拉开区分、靠降低饱和度压住刺眼感，既醒目又耐看。", "en": "Keep categories under seven, separate by hue, calm by lowering saturation: noticeable yet comfortable."}, "tags": {"zh": ["类别色", "饱和度"], "en": ["Categorical", "Saturation"]}, "section": 6, "href": "lesson-03/#ch-3-6"}, "03.n6": {"zh": "CVD 色觉缺陷校验", "en": "CVD verification", "summary": {"zh": "用红绿色盲模拟检查图还能不能读。结论只有一条：颜色永远不能是唯一的编码通道。", "en": "Simulate red-green deficiency to check the figure still reads. The rule: hue must never be the only encoding channel."}, "tags": {"zh": ["无障碍", "色盲"], "en": ["A11y", "CVD"]}, "section": 8, "href": "lesson-03/#ch-3-8"}, "04.n1": {"zh": "数据转换 宽 → 长", "en": "Wide → long reshape", "summary": {"zh": "宽表转长表是分组绘图的第一步：一条记录一个观测，图才知道该按哪一列分组。", "en": "Wide-to-long reshaping is step one for grouped charts: one observation per row tells the chart what to group by."}, "tags": {"zh": ["整形", "pivot"], "en": ["Reshape", "pivot"]}, "section": 1, "href": "lesson-04/#ch-4-1"}, "04.n2": {"zh": "坐标轴变换 三层", "en": "Three-layer transforms", "summary": {"zh": "线性、对数、序数比例尺决定数值怎么变成像素；坐标轴、网格、刻度要分层画，改主题才不用重写。", "en": "Linear, log and ordinal scales decide how numbers become pixels; axis, grid and ticks are drawn in layers."}, "tags": {"zh": ["比例尺", "坐标轴"], "en": ["Scale", "Axis"]}, "section": 2, "href": "lesson-04/#ch-4-2"}, "04.n3": {"zh": "曲线拟合 10 种", "en": "Ten curve types", "summary": {"zh": "d3-regression 的十种模型，用 R² 判断该信任哪条线——以及 R² 高不等于模型对。", "en": "Ten models in d3-regression; use R² to decide which line to trust — and remember a high R² is not proof."}, "tags": {"zh": ["回归", "拟合"], "en": ["Regression", "Fit"]}, "section": 3, "href": "lesson-04/#ch-4-3"}, "04.n4": {"zh": "倾角感知 45°", "en": "45° slope perception", "summary": {"zh": "人对角度的分辨在 45° 附近最灵敏，斜率图要刻意把主要对比压在这个黄金角附近。", "en": "Angle discrimination peaks around 45°, so slope charts should push the main contrast near that golden angle."}, "tags": {"zh": ["感知", "斜率图"], "en": ["Perception", "Slope"]}, "section": 4, "href": "lesson-04/#ch-4-4"}, "04.n5": {"zh": "等值线 Marching Squares", "en": "Marching Squares", "summary": {"zh": "从标量场网格里提取等值线的经典算法，逐格判断 16 种情形。d3-contour 内置了它。", "en": "The classic algorithm for pulling isolines out of a scalar grid, sixteen cases per cell. d3-contour ships it."}, "tags": {"zh": ["等值线", "算法"], "en": ["Contour", "Algorithm"]}, "section": 5, "href": "lesson-04/#ch-4-5"}, "05.n1": {"zh": "时间属性 5 个", "en": "Five time attributes", "summary": {"zh": "时间点、时间间隔、持续时间、时序、节律。先分清属性语义，再决定画什么图。", "en": "Instant, interval, duration, sequence and rhythm: name the semantics first, then choose the chart."}, "tags": {"zh": ["时间", "语义"], "en": ["Time", "Semantics"]}, "section": 1, "href": "lesson-05/#ch-5-1"}, "05.n2": {"zh": "标准时间可视化 折线图", "en": "Standard line chart", "summary": {"zh": "折线图是时间序列的默认答案，也是衡量其他时间图表值不值得用的参照基线。", "en": "The line chart is the default answer for time series and the baseline every other temporal chart must beat."}, "tags": {"zh": ["折线图", "基线"], "en": ["Line chart", "Baseline"]}, "section": 2, "href": "lesson-05/#ch-5-2"}, "05.n3": {"zh": "日历热图 van Wijk", "en": "Calendar heatmap", "summary": {"zh": "van Wijk 的日历视图把长期数据压进一屏，按月分隔线保留「月」这个最重要的节律。", "en": "Van Wijk's calendar view compresses long series into one screen while month dividers preserve the monthly rhythm."}, "tags": {"zh": ["日历", "热图"], "en": ["Calendar", "Heatmap"]}, "section": 3, "href": "lesson-05/#ch-5-3"}, "05.n4": {"zh": "周期时间 阿基米德螺旋", "en": "Archimedean spiral", "summary": {"zh": "螺旋把周期数据卷成一圈一圈，同一相位落在同一角度上，趋势和季节能同时看见。", "en": "A spiral coils periodic data so equal phases share an angle — trend and season become visible at once."}, "tags": {"zh": ["螺旋", "周期"], "en": ["Spiral", "Cyclic"]}, "section": 4, "href": "lesson-05/#ch-5-4"}, "05.n5": {"zh": "Storyline 时间线叙事", "en": "Storyline narrative", "summary": {"zh": "用横向轨道表达事件与状态变化，适合讲「谁在什么时候做了什么」，而不适合讲精确数值。", "en": "Horizontal tracks express events and state changes — good for who did what when, poor for exact values."}, "tags": {"zh": ["叙事", "事件"], "en": ["Narrative", "Events"]}, "section": 5, "href": "lesson-05/#ch-5-5"}}, "chapterEdges": [["01", "02"], ["01", "03"], ["02", "03"], ["02", "04"], ["02", "05"]], "edges": [["01.n1", "02.n1"], ["01.n3", "02.n3"], ["01.n3", "03.n1"], ["01.n3", "05.n1"], ["01.n5", "02.n4"], ["02.n2", "04.n1"], ["02.n3", "03.n2"], ["02.n4", "04.n2"], ["03.n2", "04.n1"], ["04.n2", "05.n2"], ["01.n1", "01.n2"], ["01.n2", "01.n3"], ["01.n3", "01.n4"], ["01.n4", "01.n5"], ["01.n1", "01.n4"], ["02.n1", "02.n2"], ["02.n2", "02.n3"], ["02.n3", "02.n4"], ["02.n4", "02.n5"], ["02.n5", "02.n2"], ["03.n1", "03.n2"], ["03.n1", "03.n3"], ["03.n2", "03.n4"], ["03.n3", "03.n5"], ["03.n4", "03.n6"], ["03.n5", "03.n6"], ["04.n1", "04.n2"], ["04.n2", "04.n3"], ["04.n2", "04.n4"], ["04.n3", "04.n5"], ["05.n1", "05.n2"], ["05.n2", "05.n3"], ["05.n2", "05.n4"], ["05.n1", "05.n5"]]}</script>
+    </section>
+
+    <section class="portal-section" id="chapters" aria-labelledby="chapters-title">
       <h2 id="chapters-title" class="portal-section__title">
         <span data-lang="zh">全部章节</span><span data-lang="en">All chapters</span>
       </h2>
@@ -789,7 +798,7 @@
       </div>
     </section>
 
-    <section class="portal-section" aria-labelledby="howto-title">
+    <section class="portal-section" id="howto" aria-labelledby="howto-title">
       <h2 id="howto-title" class="portal-section__title">
         <span data-lang="zh">怎么用这套材料</span><span data-lang="en">How to use this</span>
       </h2>
@@ -909,7 +918,7 @@
     </div>
   </footer>
 
-  <script type="application/json" id="tour-data">[{"title": "这是一门什么样的课", "say": "《可视化导论》，中国石油大学（华东），案例驱动，零依赖，浏览器打开就能跑。重构的重点不是换配色，而是让内容的层级和检索路径更清楚。", "selector": ".portal-hero", "hold": 7500}, {"title": "知识图谱", "say": "26 个知识点按章节聚成 5 簇。默认只画总览：哪几章、谁依赖谁。点开一章，它下面的知识点会从章节点旁边展开；点任意一点，右侧就是它的一句话总结和对应的正文小节。", "selector": ".kg", "hold": 8500}, {"title": "每个知识点都落到代码上", "say": "每章都是同样的结构：讲解、关键代码、可运行演示三个标签页。关键代码里用星号标出的就是必须掌握的编程点。", "selector": ".chapter-grid", "hold": 7500}]</script>
+  <script type="application/json" id="tour-data">[{"title": "这是一门什么样的课", "say": "《可视化导论》，中国石油大学（华东），案例驱动，零依赖，浏览器打开就能跑。重构的重点不是换配色，而是让内容的层级和检索路径更清楚。", "selector": ".portal-hero", "hold": 7500}, {"title": "学习路径", "say": "五章不必都从头读到尾。三条路线对应三种起点：完全从零、会写 JavaScript 想尽快出图、只补某个专题。走完的章会在序号上变成对勾，卡片上也会写明「已读几 / 几章」。拿不定就选第一条，它包含全部五章。", "selector": ".route-grid", "hold": 8000}, {"title": "知识图谱", "say": "26 个知识点按章节聚成 5 簇。默认只画总览：哪几章、谁依赖谁。点开一章，它下面的知识点会从章节点旁边展开；点任意一点，右侧就是它的一句话总结和对应的正文小节。", "selector": ".kg", "hold": 8500}, {"title": "每个知识点都落到代码上", "say": "每章都是同样的结构：讲解、关键代码、可运行演示三个标签页。关键代码里用星号标出的就是必须掌握的编程点。", "selector": ".chapter-grid", "hold": 7500}]</script>
 
   <div class="tour-bar" id="tour-bar" data-open="false" role="region" aria-label="自动导览">
     <button class="tour-bar__trigger" type="button" data-tour-start>

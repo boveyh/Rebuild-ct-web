@@ -420,8 +420,12 @@ def href_attr(href):
     return f'href="{href}"'
 
 
-def topbar(depth, crumbs, current, lang_toggle=True):
-    """顶栏：侧栏开关 + 品牌 + 面包屑 + 搜索 / 主题 / 语言
+def topbar(depth, crumbs, current, lang_toggle=True, nav=None, sidebar=True):
+    """顶栏：侧栏开关 + 品牌 + 面包屑（或门户的页内导航） + 搜索 / 主题 / 语言
+
+    nav 传入 [(锚点, 中, 英), ...] 时，用页内导航替换面包屑。门户是一个
+    4000+px 的长页，面包屑只有「课程门户」一项、不提供任何去处 —— 那个
+    位置拿来当板块导航，比留一行只有自己的路径有用。
 
     href 以 `@` 开头表示「相对站点根」——只有 404 页需要：
     该页会被部署在站点根，但地址栏保留的是缺失路径，构建期算不出正确前缀，
@@ -440,6 +444,21 @@ def topbar(depth, crumbs, current, lang_toggle=True):
             crumb_html.append(f'<li><span aria-current="page">{label}</span></li>')
         else:
             crumb_html.append(f"<li>{link(href, label)}</li>")
+
+    if nav:
+        items = "".join(
+            f'<li><a class="topnav__link" href="#{anchor}" data-nav-target="{anchor}">'
+            f'<span data-lang="zh">{zh}</span><span data-lang="en">{en}</span></a></li>'
+            for anchor, zh, en in nav
+        )
+        mid = (f'<nav class="topnav" aria-label="页面板块">'
+               f'<ul class="topnav__list">{items}</ul></nav>')
+    else:
+        # 多行输出只为让构建产物和改动前的形状一致：单行写法功能没问题，
+        # 但会让每个页面都多出一条「格式变了」的 diff，掩盖真正的改动。
+        mid = ('<nav class="breadcrumb" aria-label="面包屑导航">\n'
+               f'        <ol>{"".join(crumb_html)}</ol>\n'
+               '      </nav>')
     lang = ""
     if lang_toggle:
         lang = """
@@ -447,15 +466,19 @@ def topbar(depth, crumbs, current, lang_toggle=True):
           <button type="button" data-lang-btn="zh" aria-pressed="true" aria-label="中文">中</button>
           <button type="button" data-lang-btn="en" aria-pressed="false" aria-label="English">EN</button>
         </div>"""
-    return f"""  <div class="progress-rail" aria-hidden="true"><div class="progress-rail__bar" id="progress-bar"></div></div>
-
-  <header class="topbar">
-    <div class="topbar__inner">
-      <button class="icon-btn sidebar-toggle" id="sidebar-toggle" type="button"
+    # 门户没有侧栏 —— 原来这里也渲染了目录按钮，aria-controls 指向不存在的
+    # #sidebar，点下去毫无反应。没有侧栏就不该有开侧栏的按钮。
+    toggle = ("""<button class="icon-btn sidebar-toggle" id="sidebar-toggle" type="button"
               aria-controls="sidebar" aria-expanded="false">
         <span class="sr-only">打开目录</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-      </button>
+      </button>""" if sidebar else "")
+
+    return f"""  <div class="progress-rail" aria-hidden="true"><div class="progress-rail__bar" id="progress-bar"></div></div>
+
+  <header class="topbar{" topbar--portal" if nav else ""}">
+    <div class="topbar__inner">
+      {toggle}
 
       <a class="topbar__brand" {href_attr(up)}>
         {BRAND_MARK}<span class="brand-text"><span data-lang="zh">可视化导论</span><span data-lang="en">Visualization</span></span>
@@ -463,9 +486,7 @@ def topbar(depth, crumbs, current, lang_toggle=True):
 
       <span class="topbar__divider" aria-hidden="true"></span>
 
-      <nav class="breadcrumb" aria-label="面包屑导航">
-        <ol>{''.join(crumb_html)}</ol>
-      </nav>
+      {mid}
 
       <div class="topbar__actions">
         <button class="search-trigger" type="button" data-search-open data-i18n-aria="search.open">
@@ -1005,7 +1026,7 @@ def routes_html(section_counts):
                 </span>
               </a>
             </li>""")
-        cards.append(f"""        <article class="route" data-route="{r['key']}">
+        cards.append(f"""        <article class="route" data-route="{r['key']}" data-route-steps="{len(r['steps'])}">
           <h3 class="route__title">
             <span data-lang="zh">{r['title']['zh']}</span>
             <span data-lang="en">{r['title']['en']}</span>
@@ -1014,21 +1035,32 @@ def routes_html(section_counts):
             <span data-lang="zh">{r['why']['zh']}</span>
             <span data-lang="en">{r['why']['en']}</span>
           </p>
+          <p class="route__meter" data-route-meter hidden></p>
           <ol class="route__steps">
 {chr(10).join(steps)}
           </ol>
         </article>""")
-    return f"""    <section class="portal-section" aria-labelledby="routes-title">
+    return f"""    <section class="portal-section" id="paths" aria-labelledby="routes-title">
       <h2 id="routes-title" class="portal-section__title">
         <span data-lang="zh">学习路径</span><span data-lang="en">Learning paths</span>
       </h2>
       <p class="portal-section__lead">
-        <span data-lang="zh">五章不必都从头读到尾。按你的目标挑一条，跳过的章随时能回来补。</span>
-        <span data-lang="en">You do not have to read all five in order. Pick the path that matches your goal; skipped chapters stay open.</span>
+        <span data-lang="zh">五章不必都从头读到尾。三条路线对应三种情况：<strong>完全从零</strong>、
+        <strong>会写 JavaScript 想尽快出图</strong>、<strong>只补某个专题</strong>。
+        挑一条照着走，跳过的章随时能回来补，走完的章会在序号上打勾。</span>
+        <span data-lang="en">You do not have to read all five in order. Three routes cover three
+        situations: starting from zero, knowing JavaScript and wanting charts fast, or patching
+        a single topic. Walked chapters get a tick; skipped ones stay open.</span>
       </p>
       <div class="route-grid">
 {chr(10).join(cards)}
       </div>
+      <p class="portal-section__hint">
+        <span data-lang="zh">拿不定选哪条就选第一条，它包含全部五章。想知道某一个知识点被哪几章用到，
+        往下看知识图谱。</span>
+        <span data-lang="en">Unsure? Take the first route — it covers all five chapters. To see where
+        a single concept is used, scroll to the knowledge graph.</span>
+      </p>
     </section>"""
 
 
@@ -2021,17 +2053,19 @@ def kg_html(payload):
     data = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
     n_concepts = len(payload["nodes"])
     n_links = len(payload["edges"]) + len(payload["chapterEdges"])
-    return f"""    <section class="portal-section" aria-labelledby="kg-title">
+    return f"""    <section class="portal-section" id="kg" aria-labelledby="kg-title">
       <h2 id="kg-title" class="portal-section__title">
         <span data-lang="zh">知识图谱</span><span data-lang="en">Knowledge graph</span>
       </h2>
       <p class="portal-section__lead">
         <span data-lang="zh">{n_concepts} 个知识点不是散落的。这张图按章节把它们聚成 {len(payload["chapters"])} 簇：
         点开一章，看它由哪几个点组成；点开一点，看它在整门课里的位置。
-        连线表示知识之间的依赖，也标出了建议的学习顺序。</span>
+        连线表示知识之间的依赖 —— 前一个没懂，后一个就会卡住。
+        要的是「按什么顺序读」，上面那条学习路径更直接。</span>
         <span data-lang="en">{n_concepts} concepts, clustered by chapter. Open a chapter to see
         what it is built from; open a concept to see where it sits in the course.
-        Edges mark dependencies — and the order worth following.</span>
+        Edges mark dependencies: skip the source and the target will not land.
+        For an order to read in, the learning paths above are the shorter answer.</span>
       </p>
 
       <div class="kg" id="kg">
@@ -2082,6 +2116,16 @@ def kg_html(payload):
       </div>
       <script type="application/json" id="kg-data">{data}</script>
     </section>"""
+
+
+# 门户的板块导航：长页里四个可去的地方。顺序即阅读顺序，
+# 和版块的实际排列一致 —— 导航项和版块顺序对不上，读者点两次就迷路。
+PORTAL_NAV = [
+    ("paths", "学习路径", "Learning paths"),
+    ("kg", "知识图谱", "Knowledge graph"),
+    ("chapters", "全部章节", "All chapters"),
+    ("howto", "怎么用", "How to use"),
+]
 
 
 def build_portal(all_sections, demo_counts):
@@ -2190,7 +2234,7 @@ def build_portal(all_sections, demo_counts):
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
 
-{topbar("", [(L("课程门户", "Home"), None)], "")}
+{topbar("", [(L("课程门户", "Home"), None)], "", nav=PORTAL_NAV, sidebar=False)}
 
 {search_layer()}
 
@@ -2235,11 +2279,11 @@ def build_portal(all_sections, demo_counts):
       </dl>
     </section>
 
-{kg}
-
 {routes_html({c['id']: len(all_sections[c['id']]) for c in CHAPTERS})}
 
-    <section class="portal-section" aria-labelledby="chapters-title">
+{kg}
+
+    <section class="portal-section" id="chapters" aria-labelledby="chapters-title">
       <h2 id="chapters-title" class="portal-section__title">
         <span data-lang="zh">全部章节</span><span data-lang="en">All chapters</span>
       </h2>
@@ -2253,7 +2297,7 @@ def build_portal(all_sections, demo_counts):
       </div>
     </section>
 
-    <section class="portal-section" aria-labelledby="howto-title">
+    <section class="portal-section" id="howto" aria-labelledby="howto-title">
       <h2 id="howto-title" class="portal-section__title">
         <span data-lang="zh">怎么用这套材料</span><span data-lang="en">How to use this</span>
       </h2>
