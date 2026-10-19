@@ -406,6 +406,135 @@ try {
   });
   interact.push(["图片可点击放大", ok.ok, JSON.stringify(ok)]);
 } catch (e) { interact.push(["图片放大", false, String(e.message)]); }
+
+//    章末自测：答对与答错都要给出解析，正确项必须被标出来，
+//    回查链接必须指向真实存在的小节（否则读者点了个寂寞）。
+try {
+  await ipage.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2", timeout: 30000 });
+  const ok = await ipage.evaluate(async () => {
+    const items = [...document.querySelectorAll(".quiz__item")];
+    if (!items.length) return { ok: false, why: "没有自测题" };
+    const right = items[0], wrong = items[1];
+    right.querySelector(`.quiz__opt[data-i="${right.dataset.answer}"]`).click();
+    const bad = wrong.dataset.answer === "0" ? "1" : "0";
+    wrong.querySelector(`.quiz__opt[data-i="${bad}"]`).click();
+    await new Promise(r => setTimeout(r, 100));
+    const ref = right.querySelector(".quiz__ref");
+    const target = ref && document.querySelector(ref.getAttribute("href"));
+    return {
+      ok: !!target && /答对了/.test(right.querySelector("[data-quiz-verdict]").textContent) &&
+          /不对/.test(wrong.querySelector("[data-quiz-verdict]").textContent) &&
+          wrong.querySelector(`.quiz__opt[data-i="${wrong.dataset.answer}"]`).dataset.state === "ok",
+      n: items.length,
+      refOk: !!target,
+      score: document.querySelector("[data-quiz-score]").textContent,
+    };
+  });
+  interact.push(["章末自测判分且有回查链接", ok.ok, JSON.stringify(ok)]);
+} catch (e) { interact.push(["章末自测", false, String(e.message)]); }
+
+//    术语互链：正文里点术语要能落到术语表对应词条，且不被筛选器藏起来。
+try {
+  await ipage.goto(BASE + "/lesson-05/", { waitUntil: "networkidle2", timeout: 30000 });
+  const href = await ipage.evaluate(() => document.querySelector(".term-link")?.getAttribute("href"));
+  let ok = { ok: false, why: "没有术语链接" };
+  if (href) {
+    await ipage.goto(BASE + href.replace("../", "/"), { waitUntil: "networkidle2", timeout: 30000 });
+    await new Promise(r => setTimeout(r, 400));
+    ok = await ipage.evaluate(() => {
+      const id = decodeURIComponent(location.hash.slice(1));
+      const el = document.getElementById(id);
+      const box = el?.getBoundingClientRect();
+      return { ok: !!box && box.height > 0 && box.top >= 0 && box.top < innerHeight,
+               target: id, top: box ? Math.round(box.top) : null };
+    });
+  } else ok.href = href;
+  interact.push(["正文术语能跳到术语表词条", ok.ok, JSON.stringify(ok)]);
+} catch (e) { interact.push(["术语互链", false, String(e.message)]); }
+
+/*    演示不得依赖第三方 CDN。
+    d3 原先从 jsDelivr 的 +esm 入口取，那个入口不打包 —— 浏览器实际要发 40 多个
+    模块请求，网络受限时（和部分公司网络）整块演示区就停在「正在加载演示…」。
+    这条断言盯两件事：③ 加载演示期间没有任何站外请求；④ 本地 vendor 包确实被命中。
+    只查 ③ 不够：把 import 改错路径时请求会全部落在站内（404 也在站内）。 */
+try {
+  const dp = await browser.newPage();
+  const external = [];
+  dp.on("request", r => {
+    const u = r.url();
+    if (!u.startsWith(BASE) && !/^(data|blob|about):/.test(u)) external.push(u.slice(0, 90));
+  });
+  await dp.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2", timeout: 30000 });
+  await dp.evaluate(() => document.querySelectorAll('button[data-tab="demo"]').forEach(b => b.click()));
+  await new Promise(r => setTimeout(r, 3000));
+  const seen = await dp.evaluate(() => {
+    const res = performance.getEntriesByType("resource").map(e => e.name);
+    return {
+      vendor: res.filter(u => /vendor\/d3\.esm\.js/.test(u)).length,
+      cdn: res.filter(u => !u.startsWith(location.origin)).length,
+      ready: document.querySelectorAll('.demo-mount[data-ready="1"]').length,
+    };
+  });
+  await dp.close();
+  interact.push([
+    "演示不依赖站外 CDN（d3 走本地）",
+    external.length === 0 && seen.vendor === 1 && seen.cdn === 0 && seen.ready > 0,
+    JSON.stringify({ 站外请求: external.slice(0, 3), ...seen }),
+  ]);
+} catch (e) { interact.push(["演示依赖", false, String(e.message)]); }
+
+/*    色板切换：这不只是"按钮能点"，而是色带真的换了颜色、判语也跟着翻。
+    之前 #seq-bar 把归一化后的 t 喂给了 domain 为 [0,350] 的 scaleSequential，
+    整条带子全部落在 t≈0 那端 —— 一色到底，看上去就像"数据没差异"。
+    所以这里量「不同颜色数」，而不是"有没有子元素"。 */
+try {
+  await ipage.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2", timeout: 30000 });
+  const ok = await ipage.evaluate(async () => {
+    document.querySelectorAll('button[data-tab="demo"]').forEach(b => b.click());
+    await new Promise(r => setTimeout(r, 2600));
+    const bar = document.querySelector("#switch-bar");
+    const seqBar = document.querySelector("#seq-bar");
+    if (!bar || !seqBar) return { ok: false, why: "演示没挂载" };
+    const grab = (el) => [...el.children].map(c => c.style.background);
+    const before = grab(bar);
+    const seq = grab(seqBar);
+    document.querySelector('[data-pal="turbo"]')?.click();
+    await new Promise(r => setTimeout(r, 250));
+    const after = grab(bar);
+    const note = document.querySelector("#switch-note");
+    return {
+      ok: seq.length >= 40 && new Set(seq).size >= 25 &&
+          before.length === after.length && before[0] !== after[0] &&
+          note?.dataset.tone === "bad",
+      cells: seq.length,
+      seqColors: new Set(seq).size,
+      switchColors: new Set(before).size,
+      tone: note?.dataset.tone,
+    };
+  });
+  interact.push(["色板切换真的换了颜色", ok.ok, JSON.stringify(ok)]);
+} catch (e) { interact.push(["色板切换", false, String(e.message)]); }
+
+/*    减弱动效偏好下，段落不该先隐藏再淡入 —— 对前庭敏感的读者来说，
+    淡入本身就是要避开的东西。切到 reduce 后 .reveal 应当一个都不剩。 */
+try {
+  const rp = await browser.newPage();
+  await rp.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+  await rp.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2", timeout: 30000 });
+  await new Promise(r => setTimeout(r, 600));
+  const res = await rp.evaluate(() => ({
+    reveal: document.querySelectorAll(".reveal").length,
+    motion: document.documentElement.getAttribute("data-motion"),
+    chars: document.body.innerText.replace(/\s+/g, "").length,
+  }));
+  await rp.close();
+  interact.push([
+    "减弱动效时不隐藏任何段落",
+    res.reveal === 0 && res.motion === null && res.chars > 3000,
+    JSON.stringify(res),
+  ]);
+} catch (e) { interact.push(["减弱动效", false, String(e.message)]); }
+
 await ipage.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2", timeout: 30000 });
 
 for (const [name, ok, detail] of interact) {
@@ -482,6 +611,54 @@ log((roadmapOk ? "✅ " : "❌ ") + "课程主线按依赖分层（不是一章�
     JSON.stringify({ cols: layout.roadmapCols, nodes: layout.roadmapNodes }));
 
 if (lErr.length) { hardFail += 1; log("❌ 门户页异常：" + lErr.join(" | ")); }
+
+/* ------------------------------------------------- 动效不得吃掉内容 */
+/* 「进入视野才浮现」最容易出的两个事故：
+   ① 跳到页尾时，中间的段落从来没和视口相交，IO 不会为它们触发 → 永久隐形；
+   ② 打印时没有滚动这回事，没滚到的段落直接印成白纸。
+   两条都量一下，别只测"动画看起来挺顺"。 */
+log("\n" + "-".repeat(76));
+log("动效（不应以任何方式影响内容可见性）");
+log("-".repeat(76));
+
+const apage = await browser.newPage();
+const aErr = [];
+apage.on("pageerror", e => aErr.push(String(e.message).split("\n")[0]));
+await apage.setViewport({ width: 1440, height: 900 });
+await apage.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2" });
+await new Promise(r => setTimeout(r, 700));
+
+const beforeScroll = await apage.evaluate(() => {
+  const items = [...document.querySelectorAll(".reveal")];
+  const last = items[items.length - 1];
+  return { total: items.length, lastOpacity: last ? getComputedStyle(last).opacity : "n/a" };
+});
+
+await apage.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" }));
+await new Promise(r => setTimeout(r, 1200));
+const afterJump = await apage.evaluate(() => ({
+  hidden: document.querySelectorAll(".reveal:not(.is-in)").length,
+  total: document.querySelectorAll(".reveal").length,
+}));
+
+// 重新加载后直接切打印媒体，避免上一步的滚动已经把它们放出来
+await apage.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2" });
+await new Promise(r => setTimeout(r, 500));
+await apage.emulateMediaType("print");
+// 等过渡走完：切媒体类型时 opacity 从 0 过渡到 1，立刻读会拿到 0.46 这种中间值
+await new Promise(r => setTimeout(r, 700));
+const printCheck = await apage.evaluate(() => {
+  const items = [...document.querySelectorAll(".reveal")];
+  const hidden = items.filter(el => Number(getComputedStyle(el).opacity) < 0.99).length;
+  return { total: items.length, hiddenInPrint: hidden };
+});
+
+const motionOk = beforeScroll.total > 0 && afterJump.hidden === 0 && printCheck.hiddenInPrint === 0;
+if (!motionOk) hardFail += 1;
+log((motionOk ? "✅ " : "❌ ") + "跳转滚动后无隐形段落 / 打印时全部可见  " +
+    JSON.stringify({ ...beforeScroll, ...afterJump, ...printCheck }));
+if (aErr.length) { hardFail += 1; log("❌ 动效页面异常：" + aErr.join(" | ")); }
+await apage.close();
 
 /* ------------------------------------------------- 窄屏 + 打印媒体回归 */
 log("\n" + "-".repeat(76));

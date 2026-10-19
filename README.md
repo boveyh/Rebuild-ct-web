@@ -144,14 +144,15 @@ NODE_PATH=C:/Users/<you>/.workbuddy/binaries/node/workspace/node_modules \
 ```
 
 **当前状态：静态审计 0 问题；35/35 页面在真实浏览器中零报错、零失败请求；
-交互与布局断言 15/15 通过；6 类页面 × 3 档窄屏共 18 个组合零横向溢出（含关系图容器内不横滚）。**
+交互与布局断言 18/18 通过；6 类页面 × 3 档窄屏共 18 个组合零横向溢出（含关系图容器内不横滚）。**
 
 ---
 
 ## 技术栈
 
-纯 HTML + CSS + ES Modules。**零构建、零依赖。**
-D3.js v7 走 CDN（jsDelivr）。`python -m http.server` 即可运行。
+纯 HTML + CSS + ES Modules。**零构建、零依赖、零外部请求。**
+D3.js v7 内置在 `assets/js/vendor/`（ESM 与 UMD 各一份），断网也能把 27 个演示跑完；
+`python -m http.server` 即可运行。
 
 设计系统有 128 个 CSS 变量，分三层：原始色阶 → 语义令牌 → 组件。
 换主题只动语义层。

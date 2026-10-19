@@ -19,7 +19,11 @@
       "zh_def": "Stevens 四种测量尺度里最弱的一种：只允许判断相等或不等，没有任何顺序。姓名、性别都属于这一类。",
       "zh_why": "名义数据只能用色相、形状这类定性通道编码 —— 给性别做平均值是没有意义的。",
       "en_def": "The weakest of Stevens' four scales: only equality can be tested.",
-      "en_why": "Nominal data belongs on qualitative channels such as hue and shape."
+      "en_why": "Nominal data belongs on qualitative channels such as hue and shape.",
+      "alias": [
+        "名义型",
+        "定类"
+      ]
     },
     {
       "id": "ordinal",
@@ -29,7 +33,11 @@
       "zh_def": "值之间有顺序，但相邻两级的差不一定相等。学历（本科 / 硕士 / 博士）是典型例子。",
       "zh_why": "差不一定相等，所以序数数据很适合用亮度、饱和度这类顺序通道，而不适合用位置。",
       "en_def": "Values are ordered but the gaps between them need not be equal.",
-      "en_why": "Ordered channels such as brightness suit ordinal data better than position."
+      "en_why": "Ordered channels such as brightness suit ordinal data better than position.",
+      "alias": [
+        "序数型",
+        "定序"
+      ]
     },
     {
       "id": "interval-ratio",
@@ -39,7 +47,10 @@
       "zh_def": "区间尺度支持加减（摄氏温度），比率尺度还支持乘除（年龄、价格）。唯一的区别是有没有「真零点」。",
       "zh_why": "0°C 不等于没有温度，所以不能说 20°C 是 10°C 的两倍；0 元才等于没有钱。这条决定了什么时候可以算比值。",
       "en_def": "Interval supports addition; ratio additionally supports multiplication. The difference is the true zero.",
-      "en_why": "0°C is not 'no temperature', so ratios of Celsius values are meaningless."
+      "en_why": "0°C is not 'no temperature', so ratios of Celsius values are meaningless.",
+      "alias": [
+        "区间尺度"
+      ]
     },
     {
       "id": "channel",
@@ -169,7 +180,10 @@
       "zh_def": "数据空间（语义）→ 坐标系空间（几何）→ 屏幕空间（像素）。每一层只负责一件事。",
       "zh_why": "初学者常把这三种变换揉在一起写，于是改一处就崩一片。分层之后，比例尺该做什么、什么不该做，就清楚了。",
       "en_def": "Data space (meaning) → coordinate space (geometry) → screen space (pixels).",
-      "en_why": "Keeping the three layers separate stops a change in one from breaking the others."
+      "en_why": "Keeping the three layers separate stops a change in one from breaking the others.",
+      "alias": [
+        "坐标变换"
+      ]
     },
     {
       "id": "cleveland",
@@ -209,7 +223,10 @@
       "zh_def": "把一年按「行 = 年 / 列 = 周」摆成网格，用颜色表示每天的值。",
       "zh_why": "它牺牲了精确的数值比较，换来整年的模式识别 —— 这是布局设计里典型的「用精度换结构」。",
       "en_def": "A calendar grid with years as rows and weeks as columns, coloured by daily value.",
-      "en_why": "A classic trade: precision for pattern recognition."
+      "en_why": "A classic trade: precision for pattern recognition.",
+      "alias": [
+        "van Wijk"
+      ]
     },
     {
       "id": "archimedean-spiral",

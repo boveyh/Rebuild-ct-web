@@ -19,7 +19,7 @@
 //   5.5 Storyline    → d-5-5 storyline
 // =========================================
 
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from "../vendor/d3.esm.js";
 
 const DEMOS = {};
 

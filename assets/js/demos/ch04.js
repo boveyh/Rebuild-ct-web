@@ -19,7 +19,7 @@
 //   4.5 等值线         → d-4-5 marching-squares
 // =========================================
 
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from "../vendor/d3.esm.js";
 
 const DEMOS = {};
 

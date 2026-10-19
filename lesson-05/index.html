@@ -151,20 +151,25 @@
     <div class="sidebar-scrim" id="sidebar-scrim" data-open="false" aria-hidden="true"></div>
 
     <main class="main" id="main">
-      <div class="content">
-        <div class="page-head">
+      <div class="content" style="--ch-accent: var(--viz-5)">
+        <div class="page-head page-head--chapter">
+          <span class="page-head__chapter" aria-hidden="true">05</span>
           <p class="page-head__eyebrow">Chapter 05 · Time-Series Data</p>
           <h1>第 5 章 时序数据可视化</h1>
           <p class="page-head__lead">
             <span data-lang="zh">时间的 5 个属性决定了它需要用哪些非标准布局来画：折线之外，还有日历热图、阿基米德螺旋，以及能表现多角色叙事的 Storyline。</span>
             <span data-lang="en">The five attributes of time explain why it needs non-standard layouts: beyond line charts there are calendar heatmaps, Archimedean spirals and narrative storylines.</span>
           </p>
-          <div class="page-head__meta">
-            <dl><dt>来源</dt><dd>对应你的文档 6 · 时序数据可视化</dd></dl>
-            <dl><dt>时长</dt><dd>约 45 分钟</dd></dl>
-            <dl><dt>小节</dt><dd>5</dd></dl>
-            <dl><dt>关键代码</dt><dd>42 处</dd></dl>
-          </div>
+          <ul class="chapter-stats">
+            <li><strong>5</strong><span data-lang="zh">个小节</span><span data-lang="en">sections</span></li>
+            <li><strong>45</strong><span data-lang="zh">分钟</span><span data-lang="en">min</span></li>
+            <li><strong>42</strong><span data-lang="zh">处关键代码</span><span data-lang="en">key snippets</span></li>
+            <li><strong>5</strong><span data-lang="zh">项学习目标</span><span data-lang="en">objectives</span></li>
+          </ul>
+          <p class="page-head__source">
+            <span data-lang="zh">来源 · 对应你的文档 6 · 时序数据可视化</span>
+            <span data-lang="en">Source · Source doc 6 · Time-series visualization</span>
+          </p>
         </div>
 
       <section class="objectives" aria-labelledby="objectives-title">
@@ -173,12 +178,6 @@
             <span data-lang="zh">学完这一章，你应该能够</span>
             <span data-lang="en">By the end of this chapter you should be able to</span>
           </h2>
-          <div class="objectives__meta">
-            <span>5 项目标</span>
-            <span>约 45 分钟</span>
-            <span>5 个小节</span>
-            <span>42 处关键代码</span>
-          </div>
         </div>
         <ul class="objectives__list">
             <li><span data-lang="zh">说出时间的 5 个核心属性，并解释「独立于空间」这一条为什么让时间如此特别</span><span data-lang="en">List the five core attributes of time and explain why 'independent of space' makes time special</span></li>
@@ -477,7 +476,7 @@
                       <h3 data-lang="zh">嵌入陈为教材理论</h3>
                       <h3 data-lang="en">Embedding Chen Wei's Textbook Theory</h3>
                       <ul>
-                        <li data-lang="zh"><strong>日历热图 (Calendar Heatmap)</strong>：<strong>van Wijk 2008</strong> 提出，x = 周（年内的第几周），y = 星期几，颜色 = 数值。</li>
+                        <li data-lang="zh"><strong>日历热图 (Calendar Heatmap)</strong>：<strong><a class="term-link" href="../glossary.html#term-van-wijk" title="查术语表">van Wijk</a> 2008</strong> 提出，x = 周（年内的第几周），y = 星期几，颜色 = 数值。</li>
                         <li data-lang="en"><strong>Calendar Heatmap</strong>: proposed by <strong>van Wijk 2008</strong>, x = week (week-of-year), y = day of week, color = value.</li>
                         <li data-lang="zh"><strong>适用场景</strong>：长时序（年）+ 周期性（星期 / 月）+ 异常检测（节假日、工作日 vs 周末）。</li>
                         <li data-lang="en"><strong>Use cases</strong>: long time series (years) + periodicity (weekday / month) + anomaly detection (holidays, weekday vs weekend).</li>
@@ -605,7 +604,7 @@
              aria-labelledby="t-ch-5-4-explain" data-active="false">
           <h3 data-lang="zh">你的原案例</h3>
                       <h3 data-lang="en">Your Original Case</h3>
-                      <p data-lang="zh">原 6.2.3 节用阿基米德螺旋（等速螺旋）布局日期，每个回路代表 1 年 / 1 月 / 1 周。每个日期对应螺旋上的一个扇环。</p>
+                      <p data-lang="zh">原 6.2.3 节用<a class="term-link" href="../glossary.html#term-archimedean-spiral" title="查术语表">阿基米德螺旋</a>（等速螺旋）布局日期，每个回路代表 1 年 / 1 月 / 1 周。每个日期对应螺旋上的一个扇环。</p>
                       <p data-lang="en">Original section 6.2.3 used an Archimedean spiral (uniform-velocity spiral) to lay out dates, with each loop representing 1 year / 1 month / 1 week. Each date corresponds to a sector ring on the spiral.</p>
                       <h3 data-lang="zh">嵌入陈为教材理论</h3>
                       <h3 data-lang="en">Embedding Chen Wei's Textbook Theory</h3>
@@ -727,7 +726,7 @@
              aria-labelledby="t-ch-5-5-explain" data-active="false">
           <h3 data-lang="zh">你的原案例</h3>
                       <h3 data-lang="en">Your Original Case</h3>
-                      <p data-lang="zh">原 6.2.4 节用《侏罗纪公园》5 个角色（Alan / T-REX / Raptors / Malcolm / Dilophosaurus）做 Storyline 时间线。事件层用红色半透明圆圈标注关键冲突。</p>
+                      <p data-lang="zh">原 6.2.4 节用《侏罗纪公园》5 个角色（Alan / T-REX / Raptors / Malcolm / Dilophosaurus）做 <a class="term-link" href="../glossary.html#term-storyline" title="查术语表">Storyline</a> 时间线。事件层用红色半透明圆圈标注关键冲突。</p>
                       <p data-lang="en">Original section 6.2.4 used five characters from <em>Jurassic Park</em> (Alan / T-REX / Raptors / Malcolm / Dilophosaurus) to build a Storyline timeline. The event layer marks key conflicts with semi-transparent red circles.</p>
                       <h3 data-lang="zh">嵌入陈为教材理论</h3>
                       <h3 data-lang="en">Embedding Chen Wei's Textbook Theory</h3>
@@ -848,6 +847,96 @@
         </div>
         </div>
       </section>
+
+        <section class="quiz" aria-labelledby="quiz-title">
+          <div class="quiz__head">
+            <p class="quiz__eyebrow">Self-check</p>
+            <h2 class="quiz__title" id="quiz-title">
+              <span data-lang="zh">自测 · 4 题</span>
+              <span data-lang="en">Self-check · 4 questions</span>
+            </h2>
+            <p class="quiz__lead">
+              <span data-lang="zh">选一个答案，立刻看解析。答错的那题，解析末尾有回到对应小节的链接。</span>
+              <span data-lang="en">Pick an answer to see the explanation. Each one links back to the section it came from.</span>
+            </p>
+            <p class="quiz__score" data-quiz-score hidden></p>
+          </div>
+          <ol class="quiz__list">
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">01</span>
+              <span class="quiz__qtext"><span data-lang="zh">van Wijk 的日历热图主要利用了时间的哪个性质？</span><span data-lang="en">Which property of time does van Wijk's calendar heatmap exploit?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 1 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">周期性</span><span data-lang="en">Cyclicality</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">单向性</span><span data-lang="en">Directionality</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">层级性</span><span data-lang="en">Hierarchy</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">连续性</span><span data-lang="en">Continuity</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">按周 × 星期排成网格，同一星期的数据落在同一列，周期规律立刻显形。这是把「周期」这个性质直接编进布局。</span><span data-lang="en">Arranging weeks by weekday puts the same weekday in the same column, making weekly rhythm visible. The layout encodes cyclicality directly.</span></p>
+              <a class="quiz__ref" href="#sec-ch-5-3"><span data-lang="zh">复习 5.3 日历热图（van Wijk）</span><span data-lang="en">Review 5.3 日历热图（van Wijk）</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">02</span>
+              <span class="quiz__qtext"><span data-lang="zh">阿基米德螺旋布局适合什么场景？</span><span data-lang="en">When is an Archimedean spiral layout appropriate?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 2 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">长周期事件序列，避免首尾被切断</span><span data-lang="en">Long event sequences that would otherwise be cut at the ends</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">只有两个时间点</span><span data-lang="en">Only two time points</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">类别占比</span><span data-lang="en">Part-to-whole proportions</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">地理分布</span><span data-lang="en">Geographic distribution</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">直线时间轴放不下长序列，螺旋把时间绕成圈，一年的结尾紧接下一年的开头，周期性也顺带看出来了。</span><span data-lang="en">A straight axis cannot hold long series; a spiral wraps the year so December meets January, and the yearly cycle becomes visible as well.</span></p>
+              <a class="quiz__ref" href="#sec-ch-5-4"><span data-lang="zh">复习 5.4 周期时间可视化（阿基米德螺旋）</span><span data-lang="en">Review 5.4 周期时间可视化（阿基米德螺旋）</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">03</span>
+              <span class="quiz__qtext"><span data-lang="zh">连续时间序列为什么优先用折线而不是柱状？</span><span data-lang="en">Why prefer a line over bars for continuous time series?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 3 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">斜率能直接读出变化率</span><span data-lang="en">The slope reads directly as rate of change</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">占的空间更小</span><span data-lang="en">It uses less space</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">颜色更好看</span><span data-lang="en">It looks better</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">能避免零基线问题</span><span data-lang="en">It avoids baseline issues</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">时间连续时，相邻点的连接本身就是信息——陡就是涨得快。柱状图把每个点隔开，反而丢掉了「变化率」这条线索。</span><span data-lang="en">With continuous time the segment between points carries meaning: steep means fast change. Bars isolate each point and throw that away.</span></p>
+              <a class="quiz__ref" href="#sec-ch-5-2"><span data-lang="zh">复习 5.2 标准时间可视化（折线图）</span><span data-lang="en">Review 5.2 标准时间可视化（折线图）</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">04</span>
+              <span class="quiz__qtext"><span data-lang="zh">Storyline 主要解决哪类时间数据？</span><span data-lang="en">What kind of temporal data is Storyline designed for?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 4 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">多实体之间随时间合并、分裂的关系</span><span data-lang="en">Many entities merging and splitting over time</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">单一变量的趋势</span><span data-lang="en">A single variable's trend</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">地理坐标</span><span data-lang="en">Geographic coordinates</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">类别占比</span><span data-lang="en">Part-to-whole proportions</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">它把每个实体画成一条泳道，实体间的合流、分叉用曲线连起来——这正是普通折线画不出来的那部分关系。</span><span data-lang="en">Each entity gets a lane, and merges or splits are drawn as connectors — exactly the relationships a plain line chart cannot show.</span></p>
+              <a class="quiz__ref" href="#sec-ch-5-5"><span data-lang="zh">复习 5.5 Storyline 时间线（侏罗纪公园）</span><span data-lang="en">Review 5.5 Storyline 时间线（侏罗纪公园）</span></a>
+            </div>
+          </li>
+          </ol>
+        </section>
+
 
 
 

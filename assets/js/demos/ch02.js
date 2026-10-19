@@ -13,7 +13,7 @@
 // lesson.js —— Doc-02 集成教学页面交互逻辑
 // 1) 章节切换  2) Tab 切换  3) 4 个 Demo 注入
 
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from "../vendor/d3.esm.js";
 
 // =============================================================
 // 数据加载辅助函数（修复 loadStudents 未定义 bug · 2026-09-09）

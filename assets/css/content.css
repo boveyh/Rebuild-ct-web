@@ -39,11 +39,19 @@
   font-size: var(--fs-xs);
   font-weight: var(--fw-semibold);
   letter-spacing: 0.02em;
-  color: var(--brand-text);
+  color: var(--ch-accent, var(--brand-text));
   background: var(--brand-bg);
   border: 1px solid var(--brand-border);
   border-radius: var(--radius-sm);
   font-variant-numeric: tabular-nums;
+}
+
+/* 身份色只染"编号"这一层，不碰正文 —— 章节之间靠这一处差别区分就够了 */
+@supports (color: color-mix(in srgb, red 10%, transparent)) {
+  .section__num {
+    background: color-mix(in srgb, var(--ch-accent, var(--brand)) 11%, transparent);
+    border-color: color-mix(in srgb, var(--ch-accent, var(--brand)) 30%, transparent);
+  }
 }
 
 .section__title {
@@ -807,6 +815,14 @@ html[data-theme="dark"] .analogy strong { color: var(--a-200); }
   list-style: none;
 }
 
+/* 六条目标竖着排要占掉半屏，两列排开一行就能扫完 */
+@media (min-width: 900px) {
+  .objectives__list {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-3) var(--sp-8);
+  }
+}
+
 .objectives__list li {
   display: flex;
   align-items: flex-start;
@@ -1085,3 +1101,211 @@ h3:hover > .heading-anchor,
   .lab-callout { flex-direction: column; align-items: flex-start; }
   .lab-callout__cta { width: 100%; justify-content: center; }
 }
+
+/* ================================================================ 自测 */
+.quiz {
+  margin-block: var(--sp-10);
+  padding: var(--sp-6);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-lg);
+}
+
+.quiz__eyebrow {
+  margin: 0 0 var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--ch-accent, var(--brand-text));
+}
+
+.quiz__title {
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-lg);
+}
+
+.quiz__lead {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+.quiz__score {
+  display: inline-block;
+  margin-top: var(--sp-3);
+  padding: var(--sp-1) var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--brand-text);
+  background: var(--brand-bg);
+  border: 1px solid var(--brand-border);
+  border-radius: var(--radius-full);
+}
+
+.quiz__list {
+  display: grid;
+  gap: var(--sp-6);
+  margin: var(--sp-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quiz__q {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  margin: 0 0 var(--sp-3);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+}
+
+.quiz__num {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--ch-accent, var(--brand-text));
+}
+
+.quiz__options {
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.quiz__opt {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  font: inherit;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  text-align: left;
+  color: var(--text-1);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) ease, background-color var(--dur-fast) ease;
+}
+
+.quiz__opt:hover:not(:disabled) {
+  border-color: var(--border-3);
+  background: var(--bg-raised);
+}
+
+.quiz__opt:disabled { cursor: default; }
+
+.quiz__key {
+  flex: none;
+  width: 18px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--text-3);
+}
+
+/* 对错用「边框 + 图标色」表达，不靠红绿区分 —— 第 3 章自己就在讲色觉缺陷，
+   这里更不该把"对不对"编码成红绿两色。 */
+.quiz__opt[data-state="ok"] {
+  border-color: var(--ok-600, #2f8f4e);
+  background: color-mix(in srgb, var(--ok-600, #2f8f4e) 8%, var(--bg-surface));
+}
+
+.quiz__opt[data-state="bad"] {
+  border-color: var(--err-600, #b42318);
+  background: color-mix(in srgb, var(--err-600, #b42318) 7%, var(--bg-surface));
+}
+
+.quiz__opt[data-state="ok"] .quiz__key::before { content: "✓ "; }
+.quiz__opt[data-state="bad"] .quiz__key::before { content: "✕ "; }
+
+.quiz__why {
+  margin-top: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+  color: var(--text-2);
+  background: var(--bg-inset);
+  border-left: 2px solid var(--ch-accent, var(--brand));
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.quiz__why p { margin: 0; }
+.quiz__why p + p { margin-top: var(--sp-2); }
+
+.quiz__verdict {
+  font-weight: var(--fw-semibold);
+  color: var(--text-1);
+}
+
+.quiz__ref {
+  display: inline-block;
+  margin-top: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--brand-text);
+}
+
+/* ================================================= 演示里的参数切换 */
+/* 演示区里要放"按钮"时，实心品牌色太抢眼 —— 一排实心按钮会把图压下去。
+   这里做成轻量的分段选择，只有当前项带品牌色。 */
+.demo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: var(--sp-3) 0;
+}
+
+.demo-controls .demo-btn {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-2);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.demo-controls .demo-btn:hover {
+  background: var(--bg-raised);
+  border-color: var(--border-3);
+  filter: none;
+}
+
+.demo-controls .demo-btn.is-active {
+  color: var(--brand-text);
+  background: var(--brand-bg);
+  border-color: var(--brand);
+}
+
+.demo-bar {
+  display: flex;
+  gap: 2px;
+  margin-top: var(--sp-2);
+}
+
+.demo-bar > div {
+  flex: 1 1 0;
+  height: 46px;
+  border-radius: 2px;
+}
+
+.demo-verdict {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+}
+
+.demo-verdict[data-tone="ok"] { color: var(--ok-600); }
+.demo-verdict[data-tone="bad"] { color: var(--err-600); }
+
+/* 演示里的「错误示范」说明文字。用令牌而不是写死 #dc2626：
+   深色主题下同一个红必须换一档才读得清。
+   选择器叠成两个类，是因为正文段落的 `.prose p` 比单个类更具体，
+   否则这条颜色会被它按回去。 */
+.demo-hint.demo-hint--bad { color: var(--err-600); }

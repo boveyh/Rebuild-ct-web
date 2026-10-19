@@ -151,20 +151,25 @@
     <div class="sidebar-scrim" id="sidebar-scrim" data-open="false" aria-hidden="true"></div>
 
     <main class="main" id="main">
-      <div class="content">
-        <div class="page-head">
+      <div class="content" style="--ch-accent: var(--viz-1)">
+        <div class="page-head page-head--chapter">
+          <span class="page-head__chapter" aria-hidden="true">01</span>
           <p class="page-head__eyebrow">Chapter 01 · Data</p>
           <h1>第 1 章 数据</h1>
           <p class="page-head__lead">
             <span data-lang="zh">从 DeepSeek 合成的新生数据出发，把「数据是什么」拆成四件可操作的事：怎么装载、怎么定义、怎么分类、怎么变换。</span>
             <span data-lang="en">Starting from a DeepSeek-synthesized freshman dataset, breaking 'what is data' into four actionable tasks: loading, defining, classifying and transforming.</span>
           </p>
-          <div class="page-head__meta">
-            <dl><dt>来源</dt><dd>对应你的文档 3 · 数据</dd></dl>
-            <dl><dt>时长</dt><dd>约 45 分钟</dd></dl>
-            <dl><dt>小节</dt><dd>5</dd></dl>
-            <dl><dt>关键代码</dt><dd>13 处</dd></dl>
-          </div>
+          <ul class="chapter-stats">
+            <li><strong>5</strong><span data-lang="zh">个小节</span><span data-lang="en">sections</span></li>
+            <li><strong>45</strong><span data-lang="zh">分钟</span><span data-lang="en">min</span></li>
+            <li><strong>13</strong><span data-lang="zh">处关键代码</span><span data-lang="en">key snippets</span></li>
+            <li><strong>5</strong><span data-lang="zh">项学习目标</span><span data-lang="en">objectives</span></li>
+          </ul>
+          <p class="page-head__source">
+            <span data-lang="zh">来源 · 对应你的文档 3 · 数据</span>
+            <span data-lang="en">Source · Source doc 3 · Data</span>
+          </p>
         </div>
 
       <section class="objectives" aria-labelledby="objectives-title">
@@ -173,12 +178,6 @@
             <span data-lang="zh">学完这一章，你应该能够</span>
             <span data-lang="en">By the end of this chapter you should be able to</span>
           </h2>
-          <div class="objectives__meta">
-            <span>5 项目标</span>
-            <span>约 45 分钟</span>
-            <span>5 个小节</span>
-            <span>13 处关键代码</span>
-          </div>
         </div>
         <ul class="objectives__list">
             <li><span data-lang="zh">说清 DIKW 金字塔的四级，并指出可视化主要停在「信息」这一级，很难跨到「智慧」</span><span data-lang="en">Explain the four levels of the DIKW pyramid and why visualization mostly stops at Information</span></li>
@@ -516,7 +515,7 @@
                       <ul>
                         <li data-lang="zh"><strong>类别型属性</strong>：符号或名称，无顺序关系（性别、姓名）</li>
                         <li data-lang="en"><strong>Categorical Attribute</strong>: a symbol or name with no ordering (gender, name)</li>
-                        <li data-lang="zh"><strong>序数型属性</strong>：属性值有顺序（学位：本科/硕士/博士）</li>
+                        <li data-lang="zh"><strong><a class="term-link" href="../glossary.html#term-ordinal" title="查术语表">序数型</a>属性</strong>：属性值有顺序（学位：本科/硕士/博士）</li>
                         <li data-lang="en"><strong>Ordinal Attribute</strong>: attribute values have an order (degree: bachelor's/master's/doctorate)</li>
                         <li data-lang="zh"><strong>数值型属性</strong>：定量方法（年龄、价格）</li>
                         <li data-lang="en"><strong>Numerical Attribute</strong>: quantitative method (age, price)</li>
@@ -544,12 +543,12 @@
                           <tr><td>Ratio</td><td>+ Add/Subtract/Multiply/Divide</td><td>Age, Price</td><td>Numerical</td></tr>
                         </tbody>
                       </table>
-                      <p data-lang="zh"><strong>关键区别</strong>：区间尺度没有"真零点"（0°C 不是"没有温度"）；比率尺度有真零点（0 元 = 没有钱）。</p>
+                      <p data-lang="zh"><strong>关键区别</strong>：<a class="term-link" href="../glossary.html#term-interval-ratio" title="查术语表">区间尺度</a>没有"真零点"（0°C 不是"没有温度"）；比率尺度有真零点（0 元 = 没有钱）。</p>
                       <p data-lang="en"><strong>Key Difference</strong>: The interval scale has no 'true zero point' (0°C is not 'no temperature'); the ratio scale has a true zero (0 yuan = no money).</p>
 
                       <h3 data-lang="zh">嵌入理论：Mackinlay 视觉通道排序（1986）</h3>
                       <h3 data-lang="en">Embedded Theory: Mackinlay Visual Channel Ranking (1986)</h3>
-                      <p data-lang="zh">Mackinlay 提出视觉通道分 3 档：</p>
+                      <p data-lang="zh">Mackinlay 提出<a class="term-link" href="../glossary.html#term-channel" title="查术语表">视觉通道</a>分 3 档：</p>
                       <p data-lang="en">Mackinlay proposes dividing visual channels into 3 tiers:</p>
                       <table data-lang="zh" class="theory-table">
                         <th scope="col"ead><tr><th scope="col">档次</th><th scope="col">通道</th><th scope="col">适合的属性</th></tr></thead>
@@ -858,7 +857,7 @@
                         <tbody>
                           <tr><td><code>createElement</code> 后逐个 append</td><td><code>.data(arr).join(...)</code> 一行</td></tr>
                           <tr><td>全量重绘</td><td>增量更新（性能好）</td></tr>
-                          <tr><td>元素身份丢失</td><td>key 函数保留稳定身份（动画自然）</td></tr>
+                          <tr><td>元素身份丢失</td><td><a class="term-link" href="../glossary.html#term-key-function" title="查术语表">key 函数</a>保留稳定身份（动画自然）</td></tr>
                           <tr><td>与数据流脱节</td><td>与函数式数据流天然契合</td></tr>
                         </tbody>
                       </table>
@@ -946,6 +945,96 @@
         </div>
         </div>
       </section>
+
+        <section class="quiz" aria-labelledby="quiz-title">
+          <div class="quiz__head">
+            <p class="quiz__eyebrow">Self-check</p>
+            <h2 class="quiz__title" id="quiz-title">
+              <span data-lang="zh">自测 · 4 题</span>
+              <span data-lang="en">Self-check · 4 questions</span>
+            </h2>
+            <p class="quiz__lead">
+              <span data-lang="zh">选一个答案，立刻看解析。答错的那题，解析末尾有回到对应小节的链接。</span>
+              <span data-lang="en">Pick an answer to see the explanation. Each one links back to the section it came from.</span>
+            </p>
+            <p class="quiz__score" data-quiz-score hidden></p>
+          </div>
+          <ol class="quiz__list">
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">01</span>
+              <span class="quiz__qtext"><span data-lang="zh">DIKW 金字塔里，可视化最常把数据抬升到哪一层？</span><span data-lang="en">In the DIKW pyramid, which level does visualization most often lift data to?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 1 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">信息</span><span data-lang="en">Information</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">知识</span><span data-lang="en">Knowledge</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">智慧</span><span data-lang="en">Wisdom</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">数据本身</span><span data-lang="en">The raw data level</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">可视化的主战场是「数据 → 信息」：把原始观察组织成能被读懂的图形。少数设计能帮助读者形成知识，但它跨不到「智慧」——那一步要靠人结合领域判断。</span><span data-lang="en">Visualization mostly works at data → information. A few designs help build knowledge, but none reach wisdom — that step needs domain judgement by a human.</span></p>
+              <a class="quiz__ref" href="#sec-ch-1-2"><span data-lang="zh">复习 1.2 数据定义</span><span data-lang="en">Review 1.2 数据定义</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="2">
+            <p class="quiz__q">
+              <span class="quiz__num">02</span>
+              <span class="quiz__qtext"><span data-lang="zh">气温 18°C、27°C 属于哪种测量尺度？</span><span data-lang="en">Temperatures of 18°C and 27°C are measured on which scale?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 2 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">定类（nominal）</span><span data-lang="en">Nominal</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">定序（ordinal）</span><span data-lang="en">Ordinal</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">定距（interval）</span><span data-lang="en">Interval</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">定比（ratio）</span><span data-lang="en">Ratio</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">摄氏度可以加减（温差有意义），但 0°C 不代表「没有温度」，所以不能做乘除——这是定距。换成开尔文才有绝对零点，才是定比。</span><span data-lang="en">Celsius supports addition but its zero is arbitrary, so ratios are meaningless — that is interval. Kelvin has an absolute zero and is ratio.</span></p>
+              <a class="quiz__ref" href="#sec-ch-1-3"><span data-lang="zh">复习 1.3 数据属性</span><span data-lang="en">Review 1.3 数据属性</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">03</span>
+              <span class="quiz__qtext"><span data-lang="zh">要比较一组数值的大小，下面哪个视觉通道编码得最准确？</span><span data-lang="en">To compare magnitudes, which visual channel encodes them most accurately?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 3 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">共同尺度上的位置</span><span data-lang="en">Position on a common scale</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">颜色的色相</span><span data-lang="en">Hue</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">面积</span><span data-lang="en">Area</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">纹理密度</span><span data-lang="en">Texture density</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">Mackinlay 的通道排序里，位置最精确，长度次之，面积和色相都要差得多。所以「比大小」优先用位置（散点、条形），而不是靠颜色深浅让人猜。</span><span data-lang="en">In Mackinlay's ranking, position is the most accurate channel, then length; area and hue are far less precise. Use position when the task is comparison.</span></p>
+              <a class="quiz__ref" href="#sec-ch-1-3"><span data-lang="zh">复习 1.3 数据属性</span><span data-lang="en">Review 1.3 数据属性</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">04</span>
+              <span class="quiz__qtext"><span data-lang="zh">D3 里 selection.join() 主要省掉了什么？</span><span data-lang="en">What does D3's selection.join() mostly save you from writing?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 4 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">进入 / 更新 / 退出三态的样板代码</span><span data-lang="en">The enter / update / exit boilerplate</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">比例尺的定义</span><span data-lang="en">Scale definitions</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">数据请求</span><span data-lang="en">Data requests</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">事件绑定</span><span data-lang="en">Event binding</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">join() 把 enter、update、exit 三态合成一处声明。它不管数据从哪来，也不管比例尺怎么定——那两件事仍然要自己写。</span><span data-lang="en">join() collapses enter, update and exit into a single declaration. It does not fetch data or define scales.</span></p>
+              <a class="quiz__ref" href="#sec-ch-1-5"><span data-lang="zh">复习 1.5 D3 数据选择器</span><span data-lang="en">Review 1.5 D3 数据选择器</span></a>
+            </div>
+          </li>
+          </ol>
+        </section>
+
 
 
         <aside class="lab-callout">

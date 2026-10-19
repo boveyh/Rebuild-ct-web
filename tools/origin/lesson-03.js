@@ -242,9 +242,12 @@ window.DEMOS["d-3-2"] = async function (mount) {
     62,66,70,74,78,82,86,90,94,98,102,106,110,114,115,122,126,130,135,140,
     145,150,160,170,180,200,220,240,280,350
   ];
-  const seq = d3.scaleSequential(d3.interpolateViridis).domain([0, 350]);
-  const div = d3.interpolateRdBu;
-  const cat = d3.scaleOrdinal(d3.schemeTableau10);
+  /* 这一节只做「取值 → 颜色」的映射，不涉及比例尺刻度，所以统一用
+     interpolator（t ∈ [0,1] → 颜色）。别和 scaleSequential 混用：后者的
+     入参是 domain 里的原始值，把归一化后的 t 喂进去，整条带子都会落在
+     t≈0 那一端，看起来就是一种死板的单色。 */
+  const seq = (t) => d3.interpolateViridis(t);
+  const div = (t) => d3.interpolateRdBu(t);
 
   mount.innerHTML = `
     <h4>📘 colormap 三类选择</h4>
@@ -267,34 +270,85 @@ window.DEMOS["d-3-2"] = async function (mount) {
     <div id="seq-bar"></div>
 
     <h4 style="margin-top:14px">⚠ 错误示例：发散型 RdBu 画有序数据</h4>
-    <p class="demo-hint" style="color:#dc2626">用 RdBu（发散型）画"50 州谋杀率"会让"中段 100 附近的州看上去"接近白色"——但 100 没有任何语义意义，纯属误导。</p>
+    <p class="demo-hint demo-hint--bad">用 RdBu（发散型）画「50 州谋杀率」，取值落在中段的州会被染成接近白色。可 100 在这组数据里没有任何特殊含义——白色是色板凭空造出来的「中点」。</p>
     <div id="div-bar"></div>
+
+    <h4 style="margin-top:18px">🕹 换一套色板，看同一组数据变成什么样</h4>
+    <p class="demo-hint">数据一个没变，只换 colormap。注意中点有没有被造出来、以及读者会误读出什么。</p>
+    <div class="demo-controls" role="group" aria-label="切换 colormap">
+      <button type="button" class="demo-btn is-active" data-pal="viridis">Viridis · 顺序型</button>
+      <button type="button" class="demo-btn" data-pal="blues">Blues · 顺序型</button>
+      <button type="button" class="demo-btn" data-pal="turbo">Turbo · 彩虹</button>
+      <button type="button" class="demo-btn" data-pal="rdbu">RdBu · 发散型</button>
+    </div>
+    <div id="switch-bar" class="demo-bar"></div>
+    <p class="demo-verdict" id="switch-note"></p>
   `;
 
-  function strip(id, scale, n = 16) {
+  /* strip/bar 收的都是「t ∈ [0,1] → 颜色」的函数。
+     定性型没有连续可言，直接按格子序号轮色板。 */
+  function strip(id, fn, n = 16) {
     const el = mount.querySelector("#" + id);
     el.innerHTML = "";
     for (let i = 0; i < n; i++) {
       const d = document.createElement("div");
-      d.style.background = typeof scale === "function" ? scale(i / (n - 1)) : scale(i / (n - 1));
+      d.style.background = fn(i / (n - 1), i);
       el.appendChild(d);
     }
   }
-  strip("strip-seq", d3.scaleSequential(d3.interpolateViridis));
-  strip("strip-div", d3.interpolateRdBu);
-  strip("strip-cat", d3.scaleOrdinal(d3.schemeTableau10));
+  strip("strip-seq", (t) => seq(t));
+  strip("strip-div", (t) => div(t));
+  strip("strip-cat", (t, i) => d3.schemeTableau10[i % d3.schemeTableau10.length]);
 
-  function bar(id, scale) {
+  function bar(id, fn) {
     const el = mount.querySelector("#" + id);
     el.innerHTML = "";
-    sample.forEach((v, i) => {
+    sample.forEach((v) => {
       const d = document.createElement("div");
-      d.style.cssText = `display:inline-block;width:14px;height:50px;background:${typeof scale === "function" ? scale(v / 350) : scale(1 - v / 350)};`;
+      d.style.cssText = `display:inline-block;width:14px;height:50px;background:${fn(v / 350)};`;
       el.appendChild(d);
     });
   }
   bar("seq-bar", seq);
   bar("div-bar", div);
+
+  /* 可切换的色板。这组数据的语义是「有序、无中点」（0 起、350 止的
+     谋杀率），所以顺序型是对的；发散型会凭空造出一个中点，彩虹则
+     制造出数据里并不存在的「条纹」。让读者自己切一遍，比读一段说理管用。 */
+  const PALETTES = {
+    viridis: { fn: (t) => d3.interpolateViridis(t),
+               note: "顺序型 ✓　亮度单调递增，灰度打印和色盲读者都还能读出高低。" },
+    blues:   { fn: (t) => d3.interpolateBlues(t),
+               note: "顺序型 ✓　单色相同样单调，但浅端与背景对比偏弱，取值低的州容易糊在一起。" },
+    turbo:   { fn: (t) => d3.interpolateTurbo(t),
+               note: "彩虹色 ✗　亮度和色相同时跳变，会在数据里造出并不存在的「条纹」，人眼还会把黄色误当成峰值。" },
+    rdbu:    { fn: (t) => d3.interpolateRdBu(1 - t),
+               note: "发散型 ✗　它替读者宣布「有一个中点」，可这组数据没有中点的语义。" },
+  };
+
+  const switchBar = mount.querySelector("#switch-bar");
+  const switchNote = mount.querySelector("#switch-note");
+
+  function paint(key) {
+    const pal = PALETTES[key];
+    switchBar.innerHTML = "";
+    sample.forEach((v) => {
+      const cell = document.createElement("div");
+      cell.style.background = pal.fn(v / 350);
+      cell.title = String(v);
+      switchBar.appendChild(cell);
+    });
+    switchNote.textContent = pal.note;
+    switchNote.dataset.tone = key === "viridis" || key === "blues" ? "ok" : "bad";
+    mount.querySelectorAll("[data-pal]").forEach((b) => {
+      b.classList.toggle("is-active", b.dataset.pal === key);
+    });
+  }
+
+  mount.querySelectorAll("[data-pal]").forEach((btn) => {
+    btn.addEventListener("click", () => paint(btn.dataset.pal));
+  });
+  paint("viridis");
 };
 
 // =========================================

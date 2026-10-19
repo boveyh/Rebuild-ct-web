@@ -151,20 +151,25 @@
     <div class="sidebar-scrim" id="sidebar-scrim" data-open="false" aria-hidden="true"></div>
 
     <main class="main" id="main">
-      <div class="content">
-        <div class="page-head">
+      <div class="content" style="--ch-accent: var(--viz-4)">
+        <div class="page-head page-head--chapter">
+          <span class="page-head__chapter" aria-hidden="true">04</span>
           <p class="page-head__eyebrow">Chapter 04 · Low-Dimensional Data</p>
           <h1>第 4 章 低维数据可视化</h1>
           <p class="page-head__lead">
             <span data-lang="zh">以 Crime 数据为主线，讲坐标变换的三层职责、十种曲线拟合的手感差异、Cleveland 的 45° 黄金角，以及等值线提取算法。</span>
             <span data-lang="en">Using the Crime dataset to cover the three layers of coordinate transforms, ten curve interpolations, Cleveland's 45° sweet spot and contour extraction.</span>
           </p>
-          <div class="page-head__meta">
-            <dl><dt>来源</dt><dd>对应你的文档 5 · 低维数据可视化</dd></dl>
-            <dl><dt>时长</dt><dd>约 45 分钟</dd></dl>
-            <dl><dt>小节</dt><dd>5</dd></dl>
-            <dl><dt>关键代码</dt><dd>26 处</dd></dl>
-          </div>
+          <ul class="chapter-stats">
+            <li><strong>5</strong><span data-lang="zh">个小节</span><span data-lang="en">sections</span></li>
+            <li><strong>45</strong><span data-lang="zh">分钟</span><span data-lang="en">min</span></li>
+            <li><strong>26</strong><span data-lang="zh">处关键代码</span><span data-lang="en">key snippets</span></li>
+            <li><strong>5</strong><span data-lang="zh">项学习目标</span><span data-lang="en">objectives</span></li>
+          </ul>
+          <p class="page-head__source">
+            <span data-lang="zh">来源 · 对应你的文档 5 · 低维数据可视化</span>
+            <span data-lang="en">Source · Source doc 5 · Low-dimensional visualization</span>
+          </p>
         </div>
 
       <section class="objectives" aria-labelledby="objectives-title">
@@ -173,12 +178,6 @@
             <span data-lang="zh">学完这一章，你应该能够</span>
             <span data-lang="en">By the end of this chapter you should be able to</span>
           </h2>
-          <div class="objectives__meta">
-            <span>5 项目标</span>
-            <span>约 45 分钟</span>
-            <span>5 个小节</span>
-            <span>26 处关键代码</span>
-          </div>
         </div>
         <ul class="objectives__list">
             <li><span data-lang="zh">把宽格式的 Crime 数据转成长格式，并说清为什么可视化常常需要长格式</span><span data-lang="en">Reshape wide-format Crime data into long format, and say why visualization usually wants long format</span></li>
@@ -358,7 +357,7 @@
                             <li><code>scaleBand</code>：类别轴（柱状图）</li>
                           </ul>
                         </li>
-                        <li data-lang="en"><strong>Scale selection</strong>:
+                        <li data-lang="en"><strong><a class="term-link" href="../glossary.html#term-scale" title="查术语表">Scale</a> selection</strong>:
                           <ul>
                             <li><code>scaleLinear</code>: uniform distribution, most common</li>
                             <li><code>scaleLog</code>: spans orders of magnitude (population from 530k to 27M)</li>
@@ -653,7 +652,7 @@
              aria-labelledby="t-ch-4-5-explain" data-active="false">
           <h3 data-lang="zh">你的原案例</h3>
                       <h3 data-lang="en">Your Original Case</h3>
-                      <p data-lang="zh">原 5.2.2 节用 Marching Squares 提取 Crime 数据的等值线。原始代码是截图占位。</p>
+                      <p data-lang="zh">原 5.2.2 节用 <a class="term-link" href="../glossary.html#term-marching-squares" title="查术语表">Marching Squares</a> 提取 Crime 数据的等值线。原始代码是截图占位。</p>
                       <p data-lang="en">Section 5.2.2 used Marching Squares to extract isocontours from Crime data. The original code was a screenshot placeholder.</p>
                       <h3 data-lang="zh">嵌入陈为教材理论</h3>
                       <h3 data-lang="en">Embedded Theory</h3>
@@ -729,6 +728,96 @@
         </div>
         </div>
       </section>
+
+        <section class="quiz" aria-labelledby="quiz-title">
+          <div class="quiz__head">
+            <p class="quiz__eyebrow">Self-check</p>
+            <h2 class="quiz__title" id="quiz-title">
+              <span data-lang="zh">自测 · 4 题</span>
+              <span data-lang="en">Self-check · 4 questions</span>
+            </h2>
+            <p class="quiz__lead">
+              <span data-lang="zh">选一个答案，立刻看解析。答错的那题，解析末尾有回到对应小节的链接。</span>
+              <span data-lang="en">Pick an answer to see the explanation. Each one links back to the section it came from.</span>
+            </p>
+            <p class="quiz__score" data-quiz-score hidden></p>
+          </div>
+          <ol class="quiz__list">
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">01</span>
+              <span class="quiz__qtext"><span data-lang="zh">平行坐标最适合回答什么问题？</span><span data-lang="en">What question is a parallel coordinates plot best at answering?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 1 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">多个数值维度之间的关系与聚类</span><span data-lang="en">Relationships and clusters across several numeric dimensions</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">各类别的占比</span><span data-lang="en">Part-to-whole proportions</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">地理位置分布</span><span data-lang="en">Geographic distribution</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">单一变量的分布</span><span data-lang="en">The distribution of a single variable</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">每个维度一根竖轴、每个样本一条折线，交叉和走向就是多维关系。维度一多，散点矩阵会爆炸，平行坐标还能压在一屏里。</span><span data-lang="en">One vertical axis per dimension, one polyline per record: crossings and slopes reveal multi-dimensional structure without an exploding scatter matrix.</span></p>
+              <a class="quiz__ref" href="#sec-ch-4-2"><span data-lang="zh">复习 4.2 坐标轴变换</span><span data-lang="en">Review 4.2 坐标轴变换</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">02</span>
+              <span class="quiz__qtext"><span data-lang="zh">Marching Squares 用来做什么？</span><span data-lang="en">What is Marching Squares used for?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 2 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">从标量场里提取等值线</span><span data-lang="en">Extracting contour lines from a scalar field</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">对数据排序</span><span data-lang="en">Sorting data</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">做聚类</span><span data-lang="en">Clustering</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">拟合回归</span><span data-lang="en">Fitting a regression</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">它在每个网格单元里判断四个角与阈值的大小关系，按 16 种情形连线，逐格推进就拼出了等值线。</span><span data-lang="en">It compares the four corners of each cell against the threshold and emits one of 16 segment patterns; marching cell by cell yields the contour.</span></p>
+              <a class="quiz__ref" href="#sec-ch-4-5"><span data-lang="zh">复习 4.5 等值线（Marching Squares）</span><span data-lang="en">Review 4.5 等值线（Marching Squares）</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">03</span>
+              <span class="quiz__qtext"><span data-lang="zh">「45° 黄金角」说的是什么？</span><span data-lang="en">What does the "45° golden angle" refer to?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 3 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">斜率在 45° 附近时，人最容易分辨差别</span><span data-lang="en">Slopes near 45° are the easiest to discriminate</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">颜色在色环上的最佳夹角</span><span data-lang="en">The ideal angle between two hues</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">坐标轴的最佳倾角</span><span data-lang="en">The best axis tilt</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">标签旋转角度</span><span data-lang="en">The best label rotation</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">人对角度的辨别在 45° 附近最敏感，接近水平或垂直时两条线就容易混。所以调纵横比、把关键变化调到 45° 附近，是折线图常用的手法。</span><span data-lang="en">Angle discrimination peaks around 45° and degrades near horizontal or vertical. Adjusting the aspect ratio to put the key change near 45° is a standard trick.</span></p>
+              <a class="quiz__ref" href="#sec-ch-4-4"><span data-lang="zh">复习 4.4 倾角感知（45° 黄金角）</span><span data-lang="en">Review 4.4 倾角感知（45° 黄金角）</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">04</span>
+              <span class="quiz__qtext"><span data-lang="zh">几万个点叠在一起，看不出密度分布，最直接的处理是？</span><span data-lang="en">Tens of thousands of points overlap into a blob. The most direct fix is:</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 4 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">分箱聚合或调低点的不透明度</span><span data-lang="en">Bin the points or lower their opacity</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">把点画得更大</span><span data-lang="en">Draw bigger points</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">换一套更鲜艳的颜色</span><span data-lang="en">Use more vivid colours</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">删掉一半数据</span><span data-lang="en">Delete half the data</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">过度绘制（overplotting）是问题本身。六边形分箱、密度等高线、透明度叠加都是在回答「哪里更密」，换颜色和放大点只会让糊得更厉害。</span><span data-lang="en">Overplotting is the problem. Hexbinning, density contours and alpha blending all answer "where is it denser"; bigger points or new colours just smear it further.</span></p>
+              <a class="quiz__ref" href="#sec-ch-4-1"><span data-lang="zh">复习 4.1 数据转换</span><span data-lang="en">Review 4.1 数据转换</span></a>
+            </div>
+          </li>
+          </ol>
+        </section>
+
 
 
 

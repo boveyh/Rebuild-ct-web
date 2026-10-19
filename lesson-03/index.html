@@ -154,20 +154,25 @@
     <div class="sidebar-scrim" id="sidebar-scrim" data-open="false" aria-hidden="true"></div>
 
     <main class="main" id="main">
-      <div class="content">
-        <div class="page-head">
+      <div class="content" style="--ch-accent: var(--viz-3)">
+        <div class="page-head page-head--chapter">
+          <span class="page-head__chapter" aria-hidden="true">03</span>
           <p class="page-head__eyebrow">Chapter 03 · Color</p>
           <h1>第 3 章 色彩专题</h1>
           <p class="page-head__lead">
             <span data-lang="zh">八节把配色一次讲透：颜色空间、colormap 选型、色系规则、科研经典色板、色觉缺陷检测。学完可以直接拿去做论文图。</span>
             <span data-lang="en">Eight sections covering color end to end: color spaces, colormap choice, harmony rules, research-grade palettes and colour-vision-deficiency testing.</span>
           </p>
-          <div class="page-head__meta">
-            <dl><dt>来源</dt><dd>独立专题 · 颜色是可视化的基础</dd></dl>
-            <dl><dt>时长</dt><dd>约 55 分钟</dd></dl>
-            <dl><dt>小节</dt><dd>8</dd></dl>
-            <dl><dt>关键代码</dt><dd>28 处</dd></dl>
-          </div>
+          <ul class="chapter-stats">
+            <li><strong>8</strong><span data-lang="zh">个小节</span><span data-lang="en">sections</span></li>
+            <li><strong>55</strong><span data-lang="zh">分钟</span><span data-lang="en">min</span></li>
+            <li><strong>28</strong><span data-lang="zh">处关键代码</span><span data-lang="en">key snippets</span></li>
+            <li><strong>6</strong><span data-lang="zh">项学习目标</span><span data-lang="en">objectives</span></li>
+          </ul>
+          <p class="page-head__source">
+            <span data-lang="zh">来源 · 独立专题 · 颜色是可视化的基础</span>
+            <span data-lang="en">Source · Standalone topic · color as a foundation</span>
+          </p>
         </div>
 
       <section class="objectives" aria-labelledby="objectives-title">
@@ -176,12 +181,6 @@
             <span data-lang="zh">学完这一章，你应该能够</span>
             <span data-lang="en">By the end of this chapter you should be able to</span>
           </h2>
-          <div class="objectives__meta">
-            <span>6 项目标</span>
-            <span>约 55 分钟</span>
-            <span>8 个小节</span>
-            <span>28 处关键代码</span>
-          </div>
         </div>
         <ul class="objectives__list">
             <li><span data-lang="zh">说清 RGB / HSL / Lab / HCL 四种颜色空间各自擅长什么，以及为什么 Lab 叫「感知均匀」</span><span data-lang="en">Explain what RGB / HSL / Lab / HCL each excel at, and why Lab is called perceptually uniform</span></li>
@@ -244,7 +243,7 @@
              aria-labelledby="t-ch-3-1-explain" data-active="false">
           <h3 data-lang="zh">为什么要学颜色模型？</h3>
                       <h3 data-lang="en">Why learn color models?</h3>
-                      <p data-lang="zh">设计 colormap 时，<strong>不能直接用 RGB 插值</strong>——因为 RGB 不是感知均匀的（255,0,0 与 0,255,0 "看上去"亮度差很多）。你需要感知均匀的颜色空间（Lab / HCL）来插值，才能得到平滑的渐变。</p>
+                      <p data-lang="zh">设计 colormap 时，<strong>不能直接用 RGB 插值</strong>——因为 RGB 不是感知均匀的（255,0,0 与 0,255,0 "看上去"亮度差很多）。你需要感知均匀的<a class="term-link" href="../glossary.html#term-color-space" title="查术语表">颜色空间</a>（Lab / HCL）来插值，才能得到平滑的渐变。</p>
                       <p data-lang="en">When designing a colormap, <strong>do not interpolate directly in RGB</strong>—because RGB is not perceptually uniform (255,0,0 and 0,255,0 "look" very different in lightness). You need a perceptually uniform color space (Lab / HCL) to interpolate and get smooth gradients.</p>
                       <h3 data-lang="zh">4 大颜色空间</h3>
                       <h3 data-lang="en">The 4 major color spaces</h3>
@@ -928,7 +927,7 @@
                       <h3 data-lang="en">3 "classic paper figure" cases</h3>
                       <ul>
                         <li data-lang="zh"><strong>图 1：5 类别散点（Wong 配色）</strong>——Nature 风格</li>
-                        <li data-lang="en"><strong>Figure 1: 5-category scatter (Wong palette)</strong>—Nature style</li>
+                        <li data-lang="en"><strong>Figure 1: 5-category scatter (<a class="term-link" href="../glossary.html#term-wong-palette" title="查术语表">Wong palette</a>)</strong>—Nature style</li>
                         <li data-lang="zh"><strong>图 2：顺序型热图（Viridis）</strong>——最常见的科研图</li>
                         <li data-lang="en"><strong>Figure 2: Sequential heatmap (Viridis)</strong>—the most common scientific figure</li>
                         <li data-lang="zh"><strong>图 3：红绿对比（错误案例）</strong>——常见但严重</li>
@@ -982,6 +981,96 @@
         </div>
         </div>
       </section>
+
+        <section class="quiz" aria-labelledby="quiz-title">
+          <div class="quiz__head">
+            <p class="quiz__eyebrow">Self-check</p>
+            <h2 class="quiz__title" id="quiz-title">
+              <span data-lang="zh">自测 · 4 题</span>
+              <span data-lang="en">Self-check · 4 questions</span>
+            </h2>
+            <p class="quiz__lead">
+              <span data-lang="zh">选一个答案，立刻看解析。答错的那题，解析末尾有回到对应小节的链接。</span>
+              <span data-lang="en">Pick an answer to see the explanation. Each one links back to the section it came from.</span>
+            </p>
+            <p class="quiz__score" data-quiz-score hidden></p>
+          </div>
+          <ol class="quiz__list">
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">01</span>
+              <span class="quiz__qtext"><span data-lang="zh">要表示「相对 0 的正负偏离」（如利润盈亏），该用哪类 colormap？</span><span data-lang="en">Which colormap type fits values that deviate around zero, such as profit and loss?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 1 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">发散型（diverging）</span><span data-lang="en">Diverging</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">顺序型（sequential）</span><span data-lang="en">Sequential</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">定性型（qualitative）</span><span data-lang="en">Qualitative</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">灰度</span><span data-lang="en">Greyscale</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">发散型有明确的「中点」，两端相反色相，读者一眼能看出谁在 0 的两侧。顺序型只有一个方向，会把负值混进「也是低值」里。</span><span data-lang="en">A diverging map has an explicit midpoint with opposite hues at each end, so the sign is visible at a glance. A sequential map has only one direction.</span></p>
+              <a class="quiz__ref" href="#sec-ch-3-2"><span data-lang="zh">复习 3.2 colormap 三类选择</span><span data-lang="en">Review 3.2 colormap 三类选择</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">02</span>
+              <span class="quiz__qtext"><span data-lang="zh">Lab 被称为「感知均匀」，指的是？</span><span data-lang="en">What does it mean that Lab is perceptually uniform?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 2 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">相同的数值差对应相近的视觉差异</span><span data-lang="en">Equal numeric steps look like equal perceptual steps</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">能表示的颜色更多</span><span data-lang="en">It can represent more colours</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">整体更亮</span><span data-lang="en">It is brighter overall</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">更适合打印</span><span data-lang="en">It prints better</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">在 RGB 里同样加 20，深色区几乎看不出来、亮色区跳一大截。Lab 把这种非线性摊平了，所以能做「等步长就等观感」的色板。</span><span data-lang="en">In RGB a +20 step is invisible in dark areas and huge in bright ones. Lab flattens that non-linearity, which is what makes evenly-stepped palettes possible.</span></p>
+              <a class="quiz__ref" href="#sec-ch-3-1"><span data-lang="zh">复习 3.1 颜色模型基础</span><span data-lang="en">Review 3.1 颜色模型基础</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">03</span>
+              <span class="quiz__qtext"><span data-lang="zh">给 5 个部门各配一种颜色，应该选？</span><span data-lang="en">To give five departments one colour each, choose:</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 3 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">定性型 colormap</span><span data-lang="en">A qualitative colormap</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">顺序型 colormap</span><span data-lang="en">A sequential colormap</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">发散型 colormap</span><span data-lang="en">A diverging colormap</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">单色渐变</span><span data-lang="en">A single-hue ramp</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">部门之间没有大小顺序，颜色不该暗示「谁更重」。定性色板让每种颜色等权，渐变会把类别误读成程度。</span><span data-lang="en">Departments have no order, so colour must not imply magnitude. Qualitative palettes give each category equal weight; ramps read as degree.</span></p>
+              <a class="quiz__ref" href="#sec-ch-3-2"><span data-lang="zh">复习 3.2 colormap 三类选择</span><span data-lang="en">Review 3.2 colormap 三类选择</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">04</span>
+              <span class="quiz__qtext"><span data-lang="zh">只靠红 / 绿区分两类数据，最主要的风险是？</span><span data-lang="en">What is the main risk of distinguishing two categories only by red vs green?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 4 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">红绿色盲读者分不出来</span><span data-lang="en">Readers with red-green colour blindness cannot tell them apart</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">打印会偏色</span><span data-lang="en">Printing shifts the colours</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">颜色不够鲜艳</span><span data-lang="en">The colours are not vivid enough</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">对比度太高</span><span data-lang="en">Contrast is too high</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">红绿色盲是最常见的色觉缺陷。把两类编码成红绿，等于对这部分读者直接抹掉了这条信息——换成蓝橙，或再加形状、位置做冗余编码。</span><span data-lang="en">Red-green deficiency is the most common form. Encoding two categories as red vs green erases that distinction for those readers. Use blue/orange, or add shape or position as redundancy.</span></p>
+              <a class="quiz__ref" href="#sec-ch-3-8"><span data-lang="zh">复习 3.8 CVD 论文图测</span><span data-lang="en">Review 3.8 CVD 论文图测</span></a>
+            </div>
+          </li>
+          </ol>
+        </section>
+
 
 
 

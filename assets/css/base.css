@@ -19,6 +19,45 @@ html {
   html { scroll-behavior: auto; }
 }
 
+/* ============================================================ 进入视野 */
+/* 只有脚本把 data-motion 写到 <html> 之后，这些规则才生效。
+   脚本没跑 / 被拦截 / 中途报错，正文就是正常可见的 —— 动效永远不该
+   成为内容能不能读的前提。 */
+html[data-motion="1"] .reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 460ms cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 460ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+html[data-motion="1"] .reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* 同排卡片依次入场，差 60ms —— 五张卡同时淡入会像闪了一下 */
+html[data-motion="1"] .chapter-grid .chapter-card:nth-child(2),
+html[data-motion="1"] .chapter-grid .chapter-card:nth-child(3) { transition-delay: 60ms; }
+html[data-motion="1"] .chapter-grid .chapter-card:nth-child(4),
+html[data-motion="1"] .chapter-grid .chapter-card:nth-child(5) { transition-delay: 120ms; }
+html[data-motion="1"] .chapter-grid .chapter-card:nth-child(6) { transition-delay: 180ms; }
+
+/* 打印时没有「滚动进入」这回事：没滚到的段落会印成白纸 */
+@media print {
+  html[data-motion="1"] .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-motion="1"] .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 body {
   font-family: var(--font-sans);
   font-size: var(--fs-base);

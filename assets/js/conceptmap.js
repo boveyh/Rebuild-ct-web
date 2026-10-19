@@ -302,6 +302,32 @@
     });
 
     host.appendChild(svg);
+
+    /* 首次绘制时让节点依次浮上来、连线随后淡入。
+       用 WAAPI 而不是给 SVG 写 CSS class：图每次切主题/语言都会重绘，
+       CSS 动画不会重放，而这里可以显式控制「只在第一次播」。
+       动效可关，且不影响任何数据 —— 图本身在动画开始前就已完整。 */
+    if (opts.animate && !reducedMotion() && svg.animate) {
+      var groups = svg.querySelectorAll("g");
+      for (var gi = 0; gi < groups.length; gi++) {
+        groups[gi].animate(
+          [{ opacity: 0, transform: "translateY(5px)" }, { opacity: 1, transform: "none" }],
+          { duration: 340, delay: 40 + gi * 55, easing: "cubic-bezier(.22,.61,.36,1)", fill: "backwards" }
+        );
+      }
+      var lines = svg.querySelectorAll("path[marker-end]");
+      for (var li = 0; li < lines.length; li++) {
+        lines[li].animate(
+          [{ opacity: 0 }, { opacity: 0.9 }],
+          { duration: 320, delay: li * 70, fill: "backwards" }
+        );
+      }
+    }
+  }
+
+  function reducedMotion() {
+    return !!(window.matchMedia &&
+              window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   }
 
   function init() {
@@ -335,8 +361,11 @@
       return host.clientWidth > 0 && host.clientWidth < BREAK;
     }
 
+    var first = true;
     function draw() {
       opts.tree = treeMode();
+      opts.animate = first;      // 只在首帧播一次，切主题/语言重绘时不再重播
+      first = false;
       render(host, data, opts);
     }
     draw();

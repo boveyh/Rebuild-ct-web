@@ -169,6 +169,8 @@ ZH, EN = I18N["zh-CN"], I18N["en-US"]
 META = json.loads(read(DATA / "chapters.json"))
 SITE = META["site"]
 CHAPTERS = META["chapters"]
+GLOSSARY_TERMS = json.loads(read(DATA / "glossary.json"))["terms"]
+QUIZ = json.loads(read(DATA / "quiz.json"))["chapters"]
 
 RESOURCE_DIR = ROOT / "supplementary"
 
@@ -739,10 +741,106 @@ def fix_table_scope(html: str) -> str:
     )
 
 
+# --------------------------------------------------------- 术语互链
+# 正文提到「视觉通道」「colormap」时，读者往往正需要定义；而术语表在
+# 另一页、只能靠搜索找到。这里把每个术语在正文里的**首次出现**链过去，
+# 术语表反向列出「出现在哪些小节」，两处连成一张网。
+
+TERM_SKIP_TAGS = {"a", "code", "pre", "script", "style", "button",
+                  "h1", "h2", "h3", "h4", "h5", "h6", "textarea", "svg"}
+VOID_TAGS = {"br", "img", "hr", "input", "meta", "link", "source", "col",
+             "area", "base", "embed", "param", "track", "wbr"}
+
+
+def term_labels(term):
+    """一个术语在正文里可能用的几种写法：中文名、英文名、别名。
+    别名来自 glossary.json 的 alias 字段 —— 正文写「定序」而词条叫「序数尺度」，
+    不补别名就永远匹配不上。"""
+    labels = [term["zh"], term.get("en") or ""]
+    labels += term.get("alias") or []
+    return [x for x in labels if x and len(x) >= 2]
+
+
+def _link_in_text(text: str, used: set, budget: list) -> str:
+    """在一个纯文本片段里，给还没用过的术语各链一次。"""
+    spans = []
+    for term in GLOSSARY_TERMS:
+        if term["id"] in used:
+            continue
+        for label in term_labels(term):
+            if not label or len(label) < 2:
+                continue
+            pos = text.find(label)
+            if pos >= 0:
+                spans.append((pos, pos + len(label), term["id"]))
+    if not spans:
+        return text
+
+    spans.sort(key=lambda s: (s[0], -(s[1] - s[0])))
+    out, cursor = [], 0
+    for start, end, tid in spans:
+        if budget[0] <= 0:
+            break
+        if start < cursor or tid in used:
+            continue
+        out.append(text[cursor:start])
+        out.append(f'<a class="term-link" href="../glossary.html#term-{tid}" '
+                   f'title="查术语表">{text[start:end]}</a>')
+        used.add(tid)
+        budget[0] -= 1
+        cursor = end
+    out.append(text[cursor:])
+    return "".join(out)
+
+
+def link_terms(html: str, limit: int = 3) -> str:
+    """只在文本节点上动手，代码块 / 已有链接 / 标题一律跳过。
+
+    代码块尤其不能碰：把 `channel` 换成 `<a>channel</a>`，学生复制出来的
+    就不再是能跑的代码了。每节最多链 limit 处 —— 满屏蓝字会把正文读成链接表。
+    """
+    if not html:
+        return html
+    used: set = set()
+    budget = [limit]
+    stack: list = []
+    out = []
+    for part in re.split(r"(<[^>]*>)", html):
+        if part.startswith("<"):
+            m = re.match(r"</?\s*([a-zA-Z0-9]+)", part)
+            tag = (m.group(1).lower() if m else "")
+            if part.startswith("</"):
+                if tag in stack:
+                    cut = len(stack) - 1 - stack[::-1].index(tag)
+                    del stack[cut:]
+            elif tag and not part.endswith("/>") and tag not in VOID_TAGS:
+                stack.append(tag)
+            out.append(part)
+        elif not part.strip() or budget[0] <= 0 or any(t in TERM_SKIP_TAGS for t in stack):
+            out.append(part)
+        else:
+            out.append(_link_in_text(part, used, budget))
+    return "".join(out)
+
+
+def term_usage(all_sections):
+    """术语出现在哪些小节（术语表里做反向索引）。"""
+    usage: dict = {}
+    for ch in CHAPTERS:
+        for sec in all_sections[ch["id"]]:
+            text = re.sub(r"<[^>]+>", " ", sec["panels"].get("explain", ""))
+            for term in GLOSSARY_TERMS:
+                if any(label in text for label in term_labels(term)):
+                    usage.setdefault(term["id"], []).append((ch, sec))
+    return usage
+
+
 def panel_html(section, name):
     sid = section["id"]
     pid = f"p-{sid}-{name}"
     inner = section["panels"].get(name, "").strip()
+    if name == "explain":
+        inner = link_terms(inner)
     if name == "demo":
         inner = RE_OLD_MOUNT.sub("", inner)
         inner = RE_OLD_PLACEHOLDER.sub("", inner)
@@ -804,6 +902,41 @@ def section_html(section, first):
       </section>"""
 
 
+# 每章一个身份色，取自 Wong 色板（和图里的 --viz-* 同一套）。
+# 章首的大号章号、小节编号、统计数字都用它 —— 不然五个章节页长得一模一样，
+# 翻章时读者找不到"换了一章"的信号。
+CHAPTER_ACCENT = {
+    "01": "viz-1",
+    "02": "viz-2",
+    "03": "viz-3",
+    "04": "viz-4",
+    "05": "viz-5",
+}
+
+
+def chapter_stats(ch):
+    """章首的关键数字条。数字用等宽字体放大，单位跟在后面 —— 一屏之内就能
+    判断"这章要花多久、有多少代码"，不用读完铅字段落。"""
+    rows = [
+        (ch["_sections"], "个小节", "sections"),
+        (ch["minutes"], "分钟", "min"),
+        (ch["_stars"], "处关键代码", "key snippets"),
+        (len(ch["objectives"]["zh"]), "项学习目标", "objectives"),
+    ]
+    items = "\n".join(
+        f'            <li><strong>{n}</strong>'
+        f'<span data-lang="zh">{z}</span><span data-lang="en">{e}</span></li>'
+        for n, z, e in rows
+    )
+    return f"""          <ul class="chapter-stats">
+{items}
+          </ul>
+          <p class="page-head__source">
+            <span data-lang="zh">来源 · {ch['source']['zh']}</span>
+            <span data-lang="en">Source · {ch['source']['en']}</span>
+          </p>"""
+
+
 def objectives_html(ch):
     items = "\n".join(
         f'            <li><span data-lang="zh">{z}</span><span data-lang="en">{e}</span></li>'
@@ -815,12 +948,6 @@ def objectives_html(ch):
             <span data-lang="zh">学完这一章，你应该能够</span>
             <span data-lang="en">By the end of this chapter you should be able to</span>
           </h2>
-          <div class="objectives__meta">
-            <span>{len(ch['objectives']['zh'])} 项目标</span>
-            <span>约 {ch['minutes']} 分钟</span>
-            <span>{ch['_sections']} 个小节</span>
-            <span>{ch['_stars']} 处关键代码</span>
-          </div>
         </div>
         <ul class="objectives__list">
 {items}
@@ -869,6 +996,67 @@ def lab_callout(ch):
         </aside>"""
 
 
+def quiz_html(ch):
+    """章末自测。题目只考本章正文讲过的内容，答错给解析 + 回查小节的链接。
+
+    刻意不做「提交后统一判分」：选完立刻出解析，读者的注意力还在那道题上。
+    """
+    items_data = QUIZ.get(ch["id"], [])
+    if not items_data:
+        return ""
+
+    by_sid = {s["id"]: s for s in ch["_section_data"]}
+    items = []
+    for qi, q in enumerate(items_data, 1):
+        sec = by_sid.get(q.get("section"))
+        ref = (f'<a class="quiz__ref" href="#sec-{sec["id"]}">'
+               f'<span data-lang="zh">复习 {sec["num"]} {sec["title"]["zh"]}</span>'
+               f'<span data-lang="en">Review {sec["num"]} {sec["title"]["en"]}</span></a>'
+               if sec else "")
+        opts = "\n".join(
+            f'              <button class="quiz__opt" type="button" data-i="{oi}">'
+            f'<span class="quiz__key">{"ABCD"[oi]}</span>'
+            f'<span class="quiz__text">'
+            f'<span data-lang="zh">{o["zh"]}</span>'
+            f'<span data-lang="en">{o["en"]}</span></span></button>'
+            for oi, o in enumerate(q["options"])
+        )
+        items.append(f"""          <li class="quiz__item" data-answer="{q['answer']}">
+            <p class="quiz__q">
+              <span class="quiz__num">{qi:02d}</span>
+              <span class="quiz__qtext"><span data-lang="zh">{q['q']['zh']}</span><span data-lang="en">{q['q']['en']}</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 {qi} 题选项">
+{opts}
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">{q['why']['zh']}</span><span data-lang="en">{q['why']['en']}</span></p>
+              {ref}
+            </div>
+          </li>""")
+
+    return f"""        <section class="quiz" aria-labelledby="quiz-title">
+          <div class="quiz__head">
+            <p class="quiz__eyebrow">Self-check</p>
+            <h2 class="quiz__title" id="quiz-title">
+              <span data-lang="zh">自测 · {len(items_data)} 题</span>
+              <span data-lang="en">Self-check · {len(items_data)} questions</span>
+            </h2>
+            <p class="quiz__lead">
+              <span data-lang="zh">选一个答案，立刻看解析。答错的那题，解析末尾有回到对应小节的链接。</span>
+              <span data-lang="en">Pick an answer to see the explanation. Each one links back to the section it came from.</span>
+            </p>
+            <p class="quiz__score" data-quiz-score hidden></p>
+          </div>
+          <ol class="quiz__list">
+{chr(10).join(items)}
+          </ol>
+        </section>
+"""
+
+
 def build_lesson(ch):
     slug = ch["slug"]
     sections = ch["_section_data"]
@@ -904,20 +1092,16 @@ def build_lesson(ch):
 {sidebar(CHAPTERS, slug, sections)}
 
     <main class="main" id="main">
-      <div class="content">
-        <div class="page-head">
+      <div class="content" style="--ch-accent: var(--{CHAPTER_ACCENT[ch['id']]})">
+        <div class="page-head page-head--chapter">
+          <span class="page-head__chapter" aria-hidden="true">{ch['num']:02d}</span>
           <p class="page-head__eyebrow">Chapter {ch['num']:0>2} · {ch['title']['en']}</p>
           <h1>第 {ch['num']} 章 {ch['title']['zh']}</h1>
           <p class="page-head__lead">
             <span data-lang="zh">{ch['lead']['zh']}</span>
             <span data-lang="en">{ch['lead']['en']}</span>
           </p>
-          <div class="page-head__meta">
-            <dl><dt>来源</dt><dd>{ch['source']['zh']}</dd></dl>
-            <dl><dt>时长</dt><dd>约 {ch['minutes']} 分钟</dd></dl>
-            <dl><dt>小节</dt><dd>{ch['_sections']}</dd></dl>
-            <dl><dt>关键代码</dt><dd>{ch['_stars']} 处</dd></dl>
-          </div>
+{chapter_stats(ch)}
         </div>
 
 {objectives_html(ch)}
@@ -932,6 +1116,8 @@ def build_lesson(ch):
         </figure>
 
 {chr(10).join(section_html(s, "explain" if i == 0 else None) for i, s in enumerate(sections))}
+
+{quiz_html(ch)}
 
 {lab_callout(ch)}
 
@@ -1229,6 +1415,12 @@ def build_demos():
                              f"抽取规则需要调整")
 
         assert "import * as d3" in src, f"lesson-{cid} 缺少 d3 导入"
+        # 原站从 jsDelivr 的 +esm 入口取 d3，那个入口不打包：浏览器实际要发
+        # 40 多个模块请求。网络受限或 CDN 一抖动，整块演示区就是「正在加载演示…」
+        # 永远停在那儿。这里统一换成仓库内置的单文件版本（assets/js/vendor/d3.esm.js），
+        # 离线也能读，首屏少 40 次往返。
+        src = re.sub(r'^import \* as d3 from ["\'][^"\']+["\'];',
+                     'import * as d3 from "../vendor/d3.esm.js";', src, flags=re.M)
 
         body = DEMO_HEADER.format(num=ch["num"], size=original_size, count=n_reg) + src
         body += "\n\nexport default DEMOS;\n"
@@ -1975,8 +2167,20 @@ def build_404():
 def build_glossary(all_sections):
     data = json.loads(read(DATA / "glossary.json"))
     items = []
+    usage = term_usage(all_sections)
     for term in data["terms"]:
         ch = next(c for c in CHAPTERS if c["id"] == term["ch"])
+        seen = usage.get(term["id"], [])
+        shown = seen[:4]
+        links = " ".join(
+            f'<a href="{c["slug"]}/index.html#sec-{s["id"]}">{s["num"]}</a>'
+            for c, s in shown
+        )
+        more = f'<span class="term-card__more">等 {len(seen)} 处</span>' if len(seen) > 4 else ""
+        seen_html = (f"""
+          <p class="term-card__seen">
+            <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span>{links}{more}
+          </p>""" if seen else "")
         items.append(f"""        <li class="term-card" id="term-{term['id']}" data-term-ch="{term['ch']}">
           <div class="term-card__head">
             <h2>{term['zh']}<span class="term-card__en">{term['en']}</span></h2>
@@ -1989,7 +2193,7 @@ def build_glossary(all_sections):
           <p class="term-card__why">
             <span data-lang="zh">{term['zh_why']}</span>
             <span data-lang="en">{term['en_why']}</span>
-          </p>
+          </p>{seen_html}
         </li>""")
 
     html = f"""{head("术语表 · 《可视化导论》",

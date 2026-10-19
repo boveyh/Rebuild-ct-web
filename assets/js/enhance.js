@@ -350,6 +350,138 @@
     }, true);
   }
 
+  /* ======================================= 6. 进入视野时轻轻浮现 */
+  /* 动效只负责观感，不承载任何信息。所以有两条硬约束：
+     ① 初始隐藏必须由脚本打标记（html[data-motion="1"] 之后 CSS 才生效），
+        不能在样式表里默认 opacity:0 —— 那样脚本一旦没跑，整页正文就是空的；
+     ② 打印媒体下强制可见，否则没滚到的段落会印成白纸。 */
+  function enhanceMotion() {
+    var reduce = window.matchMedia &&
+                 window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+
+    var targets = $$(".section, .objectives, .figure, .lab-callout, .quiz, " +
+                     ".lesson-pager, .chapter-card, .portal-extra");
+    if (!targets.length) return;
+
+    doc.documentElement.setAttribute("data-motion", "1");
+
+    var pending = targets.slice();
+    var queued = false;
+
+    /* 判定用「位置」而不是 IntersectionObserver 的进入事件。
+       原因：跳到页尾（End 键、锚点、搜索结果直达）时，中间那些段落
+       只是被"跳过去"了，从未与视口相交，IO 不会为它们触发 —— 它们会
+       永远停在 opacity:0，整章看起来像被删掉了。
+       所以只要元素顶部越过视口下沿就放行，不管它是滚过去的还是跳过去的。 */
+    function sweep() {
+      queued = false;
+      var vh = window.innerHeight || doc.documentElement.clientHeight;
+      for (var i = pending.length - 1; i >= 0; i--) {
+        if (pending[i].getBoundingClientRect().top < vh * 0.99) {
+          pending[i].classList.add("is-in");
+          pending.splice(i, 1);
+        }
+      }
+      if (!pending.length && observer) observer.disconnect();
+    }
+
+    var observer = null;
+    targets.forEach(function (el) { el.classList.add("reveal"); });
+    if ("IntersectionObserver" in window) {
+      observer = new IntersectionObserver(function () {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(sweep);
+      }, { rootMargin: "0px 0px -6% 0px", threshold: 0.04 });
+      targets.forEach(function (el) { observer.observe(el); });
+    }
+
+    window.addEventListener("scroll", function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(sweep);
+    }, { passive: true });
+
+    sweep();
+  }
+
+  /* ============================================== 7. 章末自测 */
+  /* 选完立刻判分：不收集、不上传、不存分数 —— 这是一份自查工具，
+     不是考试。答错只给解析和回查链接，不做任何惩罚性提示。
+     判分文案按当前语言即时生成，切语言时会重画一次 —— 否则中文模式下
+     答过的题，切到英文仍挂着「答对了」。 */
+  function enhanceQuiz() {
+    var items = $$(".quiz__item");
+    if (!items.length) return;
+
+    var scoreBox = $("[data-quiz-score]");
+    var isEn = function () {
+      return (doc.documentElement.getAttribute("data-locale") || "zh") === "en";
+    };
+
+    function verdictText(ok, ans) {
+      var letter = "ABCD"[ans];
+      if (ok) return isEn() ? "Correct." : "答对了。";
+      return isEn() ? "Not quite — the answer is " + letter + "."
+                    : "不对，正确答案是 " + letter + "。";
+    }
+
+    function refreshScore() {
+      if (!scoreBox) return;
+      var answered = 0, right = 0;
+      items.forEach(function (item) {
+        var picked = $('.quiz__opt[data-picked="1"]', item);
+        if (!picked) return;
+        answered += 1;
+        if (picked.getAttribute("data-i") === item.getAttribute("data-answer")) right += 1;
+      });
+      if (!answered) { scoreBox.hidden = true; return; }
+      scoreBox.hidden = false;
+      scoreBox.textContent = isEn()
+        ? "Answered " + answered + " / " + items.length + " · correct " + right
+        : "已答 " + answered + " / " + items.length + " 题 · 答对 " + right + " 题";
+    }
+
+    function redraw() {
+      items.forEach(function (item) {
+        var picked = $('.quiz__opt[data-picked="1"]', item);
+        var verdict = $("[data-quiz-verdict]", item);
+        if (!picked || !verdict) return;
+        var ans = Number(item.getAttribute("data-answer"));
+        verdict.textContent = verdictText(picked.getAttribute("data-i") === String(ans), ans);
+      });
+      refreshScore();
+    }
+
+    items.forEach(function (item) {
+      var answer = item.getAttribute("data-answer");
+      var opts = $$(".quiz__opt", item);
+      var why = $(".quiz__why", item);
+
+      opts.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          if (item.getAttribute("data-done")) return;
+          item.setAttribute("data-done", "1");
+          btn.setAttribute("data-picked", "1");
+
+          opts.forEach(function (b) {
+            b.disabled = true;
+            // 正确项永远标出来：读者要的是「正确答案是哪个」，
+            // 而不是只看自己错没错
+            if (b.getAttribute("data-i") === answer) b.setAttribute("data-state", "ok");
+          });
+          if (btn.getAttribute("data-i") !== answer) btn.setAttribute("data-state", "bad");
+
+          if (why) why.hidden = false;
+          redraw();
+        });
+      });
+    });
+
+    doc.addEventListener("wb:locale", redraw);
+  }
+
   /* ============================================================== 启动 */
   function boot() {
     try {
@@ -362,6 +494,13 @@
     } catch (e) {
       // 增强失败不能影响正文阅读
       if (window.console) console.warn("[enhance]", e);
+    }
+    // 动效单独兜底：它坏了不该连累上面任何一项
+    try { enhanceMotion(); } catch (e) {
+      if (window.console) console.warn("[enhance:motion]", e);
+    }
+    try { enhanceQuiz(); } catch (e) {
+      if (window.console) console.warn("[enhance:quiz]", e);
     }
   }
 

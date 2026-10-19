@@ -233,8 +233,8 @@ REGRESSION_HTML = """<!DOCTYPE html>
        所以如果 d3 先加载，随后会被 d3-regression 整个抹掉，
        页面报 "d3.scaleLinear is not a function"。
        正确顺序：先插件，再本体。 -->
-  <script src="https://unpkg.com/d3-regression@1.3.10/dist/d3-regression.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="../assets/js/vendor/d3-regression.min.js"></script>
+  <script src="../assets/js/vendor/d3.min.js"></script>
   <style>
     :root { --ink:#1b2330; --muted:#6b7686; --grid:#e3e8ef; --bg:#fff; --accent:#3d4bc0; }
     @media (prefers-color-scheme: dark) {
@@ -332,7 +332,7 @@ YEARCALENDAR_HTML = """<!DOCTYPE html>
   <meta charset="utf-8" />
   <title>van Wijk 日历热图 · 2022–2025</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="../assets/js/vendor/d3.min.js"></script>
   <style>
     :root {
       --bg:#fff; --ink:#1a2230; --muted:#6b7686; --panel:#f7f9fc; --line:#e2e8f0;

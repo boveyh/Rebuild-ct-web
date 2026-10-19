@@ -150,20 +150,25 @@
     <div class="sidebar-scrim" id="sidebar-scrim" data-open="false" aria-hidden="true"></div>
 
     <main class="main" id="main">
-      <div class="content">
-        <div class="page-head">
+      <div class="content" style="--ch-accent: var(--viz-2)">
+        <div class="page-head page-head--chapter">
+          <span class="page-head__chapter" aria-hidden="true">02</span>
           <p class="page-head__eyebrow">Chapter 02 · Visualization Workflow</p>
           <h1>第 2 章 数据可视化流程</h1>
           <p class="page-head__lead">
             <span data-lang="zh">把「拿到一张表」到「画出一张图」之间那段平时看不见的路，用 Card 的四阶段模型摊开：原数据 → 数据表 → 视觉结构 → 视图。</span>
             <span data-lang="en">Laying out the usually invisible path from 'a table' to 'a chart' with Card's four-stage model: raw data → data tables → visual structures → views.</span>
           </p>
-          <div class="page-head__meta">
-            <dl><dt>来源</dt><dd>对应你的文档 4 · 数据可视化流程</dd></dl>
-            <dl><dt>时长</dt><dd>约 40 分钟</dd></dl>
-            <dl><dt>小节</dt><dd>4</dd></dl>
-            <dl><dt>关键代码</dt><dd>14 处</dd></dl>
-          </div>
+          <ul class="chapter-stats">
+            <li><strong>4</strong><span data-lang="zh">个小节</span><span data-lang="en">sections</span></li>
+            <li><strong>40</strong><span data-lang="zh">分钟</span><span data-lang="en">min</span></li>
+            <li><strong>14</strong><span data-lang="zh">处关键代码</span><span data-lang="en">key snippets</span></li>
+            <li><strong>5</strong><span data-lang="zh">项学习目标</span><span data-lang="en">objectives</span></li>
+          </ul>
+          <p class="page-head__source">
+            <span data-lang="zh">来源 · 对应你的文档 4 · 数据可视化流程</span>
+            <span data-lang="en">Source · Source doc 4 · Workflow</span>
+          </p>
         </div>
 
       <section class="objectives" aria-labelledby="objectives-title">
@@ -172,12 +177,6 @@
             <span data-lang="zh">学完这一章，你应该能够</span>
             <span data-lang="en">By the end of this chapter you should be able to</span>
           </h2>
-          <div class="objectives__meta">
-            <span>5 项目标</span>
-            <span>约 40 分钟</span>
-            <span>4 个小节</span>
-            <span>14 处关键代码</span>
-          </div>
         </div>
         <ul class="objectives__list">
             <li><span data-lang="zh">用 Card 的 D → T → V → R 模型拆解任意一张图表的生成链路</span><span data-lang="en">Decompose any chart into Card's D → T → V → R pipeline</span></li>
@@ -241,7 +240,7 @@
                       <h3 data-lang="en">Your Original Case</h3>
                       <p data-lang="zh">
                         <strong>3 个可视化流程模型</strong>：① 参考 Card 1999 模型绘制流程图（Box Flowcharts）→
-                        ② Mackinlay 自动化准则 → ③ van Wijk 模型（含交互反馈）。
+                        ② Mackinlay 自动化准则 → ③ <a class="term-link" href="../glossary.html#term-van-wijk" title="查术语表">van Wijk</a> 模型（含交互反馈）。
                       </p>
                       <p data-lang="en">
                         <strong>3 visualization pipeline models</strong>: ① Reference the Card 1999 model for box flowcharts &rarr;
@@ -262,14 +261,14 @@
                         </thead>
                         <tbody>
                           <tr>
-                            <td><strong>Card 数据流模型</strong></td>
+                            <td><strong><a class="term-link" href="../glossary.html#term-card-model" title="查术语表">Card 数据流模型</a></strong></td>
                             <td>Card, Mackinlay &amp; Shneiderman, 1999</td>
                             <td>原始数据 → 数据表 → 视觉结构 → 视图（嵌套变换 D→T→V→C/L/S）</td>
                           </tr>
                           <tr>
                             <td><strong>Mackinlay 自动化准则</strong></td>
                             <td>Mackinlay 1986</td>
-                            <td>对每种数据类型，自动选「量化准确性最高」的视觉通道（如：数值→位置、类别→色调）</td>
+                            <td>对每种数据类型，自动选「量化准确性最高」的<a class="term-link" href="../glossary.html#term-channel" title="查术语表">视觉通道</a>（如：数值→位置、类别→色调）</td>
                           </tr>
                           <tr>
                             <td><strong>van Wijk 反馈模型</strong></td>
@@ -423,7 +422,7 @@
                       <h3 data-lang="en">Your Original Case</h3>
                       <p data-lang="zh">
                         用新生数据按 "专业 / 班级" 做 <strong>rollup 分桶聚合</strong>。
-                        你演示的核心是 d3.rollup 的链式调用 —— 一个函数完成多维度分组。
+                        你演示的核心是 <a class="term-link" href="../glossary.html#term-rollup" title="查术语表">d3.rollup</a> 的链式调用 —— 一个函数完成多维度分组。
                       </p>
                       <p data-lang="en">
                         Use the freshman data to do <strong>rollup bucketed aggregation</strong> by &ldquo;major / class&rdquo;.
@@ -626,7 +625,7 @@
                       <p data-lang="zh">
                         接上一节 <strong>2.2 数据变换</strong>，我们有了"数据表"。本节的 <strong>2.3</strong> 是第二段箭头
                         <strong>「数据表 → 视觉结构」</strong> —— 也就是 <strong>视觉映射（Visual Mapping）</strong>。
-                        它回答一个核心问题：<em>数据里每个属性，该用哪个视觉通道来表达？</em>
+                        它回答一个核心问题：<em>数据里每个属性，该用哪个<a class="term-link" href="../glossary.html#term-channel" title="查术语表">视觉通道</a>来表达？</em>
                       </p>
                       <p data-lang="en">
                         Following the <strong>2.2 data transformation</strong>, we now have a &ldquo;data table.&rdquo; Section <strong>2.3</strong> is the second arrow,
@@ -895,7 +894,7 @@
                       <p data-lang="zh">
                         接上节 <strong>2.3 视觉映射</strong>，我们有了"视觉结构"。本节 <strong>2.4</strong> 是最后两段箭头：
                         <strong>「视觉结构 → 视图」（渲染）</strong> 和 <strong>「视图 ↔ 用户」（交互反馈）</strong>。
-                        Card 模型的 V 层，加上 van Wijk 的反馈环，都落在这里。
+                        Card 模型的 V 层，加上 <a class="term-link" href="../glossary.html#term-van-wijk" title="查术语表">van Wijk</a> 的反馈环，都落在这里。
                       </p>
                       <p data-lang="en">
                         Following the <strong>2.3 visual mapping</strong>, we now have a &ldquo;visual structure.&rdquo; Section <strong>2.4</strong> covers the last two arrows:
@@ -1077,6 +1076,96 @@
         </div>
         </div>
       </section>
+
+        <section class="quiz" aria-labelledby="quiz-title">
+          <div class="quiz__head">
+            <p class="quiz__eyebrow">Self-check</p>
+            <h2 class="quiz__title" id="quiz-title">
+              <span data-lang="zh">自测 · 4 题</span>
+              <span data-lang="en">Self-check · 4 questions</span>
+            </h2>
+            <p class="quiz__lead">
+              <span data-lang="zh">选一个答案，立刻看解析。答错的那题，解析末尾有回到对应小节的链接。</span>
+              <span data-lang="en">Pick an answer to see the explanation. Each one links back to the section it came from.</span>
+            </p>
+            <p class="quiz__score" data-quiz-score hidden></p>
+          </div>
+          <ol class="quiz__list">
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">01</span>
+              <span class="quiz__qtext"><span data-lang="zh">Card 的数据流模型里，「视图」之后还接了什么？</span><span data-lang="en">In Card's pipeline model, what comes after the view?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 1 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">用户交互，形成回路</span><span data-lang="en">User interaction, closing the loop</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">数据采集</span><span data-lang="en">Data acquisition</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">数据存储</span><span data-lang="en">Data storage</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">流程到此结束</span><span data-lang="en">Nothing — the pipeline ends there</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">数据 → 变换 → 视觉映射 → 视图，然后用户操作又改回变换或映射参数，构成回路。没有这一环，可视化就只是一张静态图。</span><span data-lang="en">Data → transform → encode → view, then the user's actions feed back into transforms or encodings. Without that loop it is just a static picture.</span></p>
+              <a class="quiz__ref" href="#sec-ch-2-1"><span data-lang="zh">复习 2.1 数据可视化流程</span><span data-lang="en">Review 2.1 数据可视化流程</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">02</span>
+              <span class="quiz__qtext"><span data-lang="zh">d3.rollup 做多层聚合，返回的是什么结构？</span><span data-lang="en">What does d3.rollup return for a multi-level aggregation?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 2 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">嵌套的 Map</span><span data-lang="en">Nested Maps</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">扁平的数组</span><span data-lang="en">A flat array</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">CSV 文本</span><span data-lang="en">CSV text</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">单个数值</span><span data-lang="en">A single number</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">rollup 每个键值层都返回 Map，层层嵌套正好对应「城市 → 区 → 街道」。想变回平铺结构得自己递归展开。</span><span data-lang="en">Each level is a Map, nesting naturally into city → district → street. Flattening it back is your job.</span></p>
+              <a class="quiz__ref" href="#sec-ch-2-2"><span data-lang="zh">复习 2.2 数据分类树（d3.rollup 多层聚合）</span><span data-lang="en">Review 2.2 数据分类树（d3.rollup 多层聚合）</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">03</span>
+              <span class="quiz__qtext"><span data-lang="zh">Reingold–Tilford 树布局的核心保证是什么？</span><span data-lang="en">What does the Reingold–Tilford tree layout guarantee?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 3 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">同层子树互不重叠，且父节点居中于子节点</span><span data-lang="en">Sibling subtrees never overlap, and parents are centred over their children</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">边最短</span><span data-lang="en">Shortest possible edges</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">总高度最小</span><span data-lang="en">Minimum total height</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">节点数最少</span><span data-lang="en">Fewest nodes</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">它按左右轮廓推进，保证兄弟子树紧凑又不相交；父节点落在子节点的中间，读者不需要靠连线去猜归属。</span><span data-lang="en">It walks the left and right contours so subtrees stay compact without overlapping, and centres each parent over its children.</span></p>
+              <a class="quiz__ref" href="#sec-ch-2-3"><span data-lang="zh">复习 2.3 树布局（Reingold-Tilford 算法）</span><span data-lang="en">Review 2.3 树布局（Reingold-Tilford 算法）</span></a>
+            </div>
+          </li>
+          <li class="quiz__item" data-answer="0">
+            <p class="quiz__q">
+              <span class="quiz__num">04</span>
+              <span class="quiz__qtext"><span data-lang="zh">把事件监听挂在父节点上（事件委托），最大的好处是？</span><span data-lang="en">What is the main benefit of delegating events to a parent node?</span></span>
+            </p>
+            <div class="quiz__options" role="group"
+                 aria-label="第 4 题选项">
+              <button class="quiz__opt" type="button" data-i="0"><span class="quiz__key">A</span><span class="quiz__text"><span data-lang="zh">后插入的子节点不用再逐个绑定</span><span data-lang="en">Later-inserted children need no new bindings</span></span></button>
+              <button class="quiz__opt" type="button" data-i="1"><span class="quiz__key">B</span><span class="quiz__text"><span data-lang="zh">渲染速度更快</span><span data-lang="en">Faster rendering</span></span></button>
+              <button class="quiz__opt" type="button" data-i="2"><span class="quiz__key">C</span><span class="quiz__text"><span data-lang="zh">内存一定更小</span><span data-lang="en">Always less memory</span></span></button>
+              <button class="quiz__opt" type="button" data-i="3"><span class="quiz__key">D</span><span class="quiz__text"><span data-lang="zh">能阻止冒泡</span><span data-lang="en">It stops propagation</span></span></button>
+            </div>
+            <div class="quiz__why" hidden>
+              <p class="quiz__verdict" data-quiz-verdict></p>
+              <p><span data-lang="zh">数据一变就要重绘子节点时，逐个绑定必然会漏。挂在父节点上，事件靠冒泡上来，新节点天然被覆盖。</span><span data-lang="en">When data changes redraw the children, per-node bindings get lost. With delegation the event bubbles to the parent, so new nodes work automatically.</span></p>
+              <a class="quiz__ref" href="#sec-ch-2-4"><span data-lang="zh">复习 2.4 树形列表渲染（classed + 事件委托）</span><span data-lang="en">Review 2.4 树形列表渲染（classed + 事件委托）</span></a>
+            </div>
+          </li>
+          </ol>
+        </section>
+
 
 
 

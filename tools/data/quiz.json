@@ -1,0 +1,375 @@
+{
+  "_note": "每章 4 道自测题。answer 是正确选项的下标；section 指向要复习的小节 id（ch-1-3 形式），渲染时转成 #sec-<id>。题目只考章节正文里明确讲过的东西，不做超纲发挥。",
+  "chapters": {
+    "01": [
+      {
+        "q": {
+          "zh": "DIKW 金字塔里，可视化最常把数据抬升到哪一层？",
+          "en": "In the DIKW pyramid, which level does visualization most often lift data to?"
+        },
+        "options": [
+          { "zh": "信息", "en": "Information" },
+          { "zh": "知识", "en": "Knowledge" },
+          { "zh": "智慧", "en": "Wisdom" },
+          { "zh": "数据本身", "en": "The raw data level" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "可视化的主战场是「数据 → 信息」：把原始观察组织成能被读懂的图形。少数设计能帮助读者形成知识，但它跨不到「智慧」——那一步要靠人结合领域判断。",
+          "en": "Visualization mostly works at data → information. A few designs help build knowledge, but none reach wisdom — that step needs domain judgement by a human."
+        },
+        "section": "ch-1-2"
+      },
+      {
+        "q": {
+          "zh": "气温 18°C、27°C 属于哪种测量尺度？",
+          "en": "Temperatures of 18°C and 27°C are measured on which scale?"
+        },
+        "options": [
+          { "zh": "定类（nominal）", "en": "Nominal" },
+          { "zh": "定序（ordinal）", "en": "Ordinal" },
+          { "zh": "定距（interval）", "en": "Interval" },
+          { "zh": "定比（ratio）", "en": "Ratio" }
+        ],
+        "answer": 2,
+        "why": {
+          "zh": "摄氏度可以加减（温差有意义），但 0°C 不代表「没有温度」，所以不能做乘除——这是定距。换成开尔文才有绝对零点，才是定比。",
+          "en": "Celsius supports addition but its zero is arbitrary, so ratios are meaningless — that is interval. Kelvin has an absolute zero and is ratio."
+        },
+        "section": "ch-1-3"
+      },
+      {
+        "q": {
+          "zh": "要比较一组数值的大小，下面哪个视觉通道编码得最准确？",
+          "en": "To compare magnitudes, which visual channel encodes them most accurately?"
+        },
+        "options": [
+          { "zh": "共同尺度上的位置", "en": "Position on a common scale" },
+          { "zh": "颜色的色相", "en": "Hue" },
+          { "zh": "面积", "en": "Area" },
+          { "zh": "纹理密度", "en": "Texture density" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "Mackinlay 的通道排序里，位置最精确，长度次之，面积和色相都要差得多。所以「比大小」优先用位置（散点、条形），而不是靠颜色深浅让人猜。",
+          "en": "In Mackinlay's ranking, position is the most accurate channel, then length; area and hue are far less precise. Use position when the task is comparison."
+        },
+        "section": "ch-1-3"
+      },
+      {
+        "q": {
+          "zh": "D3 里 selection.join() 主要省掉了什么？",
+          "en": "What does D3's selection.join() mostly save you from writing?"
+        },
+        "options": [
+          { "zh": "进入 / 更新 / 退出三态的样板代码", "en": "The enter / update / exit boilerplate" },
+          { "zh": "比例尺的定义", "en": "Scale definitions" },
+          { "zh": "数据请求", "en": "Data requests" },
+          { "zh": "事件绑定", "en": "Event binding" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "join() 把 enter、update、exit 三态合成一处声明。它不管数据从哪来，也不管比例尺怎么定——那两件事仍然要自己写。",
+          "en": "join() collapses enter, update and exit into a single declaration. It does not fetch data or define scales."
+        },
+        "section": "ch-1-5"
+      }
+    ],
+    "02": [
+      {
+        "q": {
+          "zh": "Card 的数据流模型里，「视图」之后还接了什么？",
+          "en": "In Card's pipeline model, what comes after the view?"
+        },
+        "options": [
+          { "zh": "用户交互，形成回路", "en": "User interaction, closing the loop" },
+          { "zh": "数据采集", "en": "Data acquisition" },
+          { "zh": "数据存储", "en": "Data storage" },
+          { "zh": "流程到此结束", "en": "Nothing — the pipeline ends there" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "数据 → 变换 → 视觉映射 → 视图，然后用户操作又改回变换或映射参数，构成回路。没有这一环，可视化就只是一张静态图。",
+          "en": "Data → transform → encode → view, then the user's actions feed back into transforms or encodings. Without that loop it is just a static picture."
+        },
+        "section": "ch-2-1"
+      },
+      {
+        "q": {
+          "zh": "d3.rollup 做多层聚合，返回的是什么结构？",
+          "en": "What does d3.rollup return for a multi-level aggregation?"
+        },
+        "options": [
+          { "zh": "嵌套的 Map", "en": "Nested Maps" },
+          { "zh": "扁平的数组", "en": "A flat array" },
+          { "zh": "CSV 文本", "en": "CSV text" },
+          { "zh": "单个数值", "en": "A single number" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "rollup 每个键值层都返回 Map，层层嵌套正好对应「城市 → 区 → 街道」。想变回平铺结构得自己递归展开。",
+          "en": "Each level is a Map, nesting naturally into city → district → street. Flattening it back is your job."
+        },
+        "section": "ch-2-2"
+      },
+      {
+        "q": {
+          "zh": "Reingold–Tilford 树布局的核心保证是什么？",
+          "en": "What does the Reingold–Tilford tree layout guarantee?"
+        },
+        "options": [
+          { "zh": "同层子树互不重叠，且父节点居中于子节点", "en": "Sibling subtrees never overlap, and parents are centred over their children" },
+          { "zh": "边最短", "en": "Shortest possible edges" },
+          { "zh": "总高度最小", "en": "Minimum total height" },
+          { "zh": "节点数最少", "en": "Fewest nodes" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "它按左右轮廓推进，保证兄弟子树紧凑又不相交；父节点落在子节点的中间，读者不需要靠连线去猜归属。",
+          "en": "It walks the left and right contours so subtrees stay compact without overlapping, and centres each parent over its children."
+        },
+        "section": "ch-2-3"
+      },
+      {
+        "q": {
+          "zh": "把事件监听挂在父节点上（事件委托），最大的好处是？",
+          "en": "What is the main benefit of delegating events to a parent node?"
+        },
+        "options": [
+          { "zh": "后插入的子节点不用再逐个绑定", "en": "Later-inserted children need no new bindings" },
+          { "zh": "渲染速度更快", "en": "Faster rendering" },
+          { "zh": "内存一定更小", "en": "Always less memory" },
+          { "zh": "能阻止冒泡", "en": "It stops propagation" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "数据一变就要重绘子节点时，逐个绑定必然会漏。挂在父节点上，事件靠冒泡上来，新节点天然被覆盖。",
+          "en": "When data changes redraw the children, per-node bindings get lost. With delegation the event bubbles to the parent, so new nodes work automatically."
+        },
+        "section": "ch-2-4"
+      }
+    ],
+    "03": [
+      {
+        "q": {
+          "zh": "要表示「相对 0 的正负偏离」（如利润盈亏），该用哪类 colormap？",
+          "en": "Which colormap type fits values that deviate around zero, such as profit and loss?"
+        },
+        "options": [
+          { "zh": "发散型（diverging）", "en": "Diverging" },
+          { "zh": "顺序型（sequential）", "en": "Sequential" },
+          { "zh": "定性型（qualitative）", "en": "Qualitative" },
+          { "zh": "灰度", "en": "Greyscale" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "发散型有明确的「中点」，两端相反色相，读者一眼能看出谁在 0 的两侧。顺序型只有一个方向，会把负值混进「也是低值」里。",
+          "en": "A diverging map has an explicit midpoint with opposite hues at each end, so the sign is visible at a glance. A sequential map has only one direction."
+        },
+        "section": "ch-3-2"
+      },
+      {
+        "q": {
+          "zh": "Lab 被称为「感知均匀」，指的是？",
+          "en": "What does it mean that Lab is perceptually uniform?"
+        },
+        "options": [
+          { "zh": "相同的数值差对应相近的视觉差异", "en": "Equal numeric steps look like equal perceptual steps" },
+          { "zh": "能表示的颜色更多", "en": "It can represent more colours" },
+          { "zh": "整体更亮", "en": "It is brighter overall" },
+          { "zh": "更适合打印", "en": "It prints better" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "在 RGB 里同样加 20，深色区几乎看不出来、亮色区跳一大截。Lab 把这种非线性摊平了，所以能做「等步长就等观感」的色板。",
+          "en": "In RGB a +20 step is invisible in dark areas and huge in bright ones. Lab flattens that non-linearity, which is what makes evenly-stepped palettes possible."
+        },
+        "section": "ch-3-1"
+      },
+      {
+        "q": {
+          "zh": "给 5 个部门各配一种颜色，应该选？",
+          "en": "To give five departments one colour each, choose:"
+        },
+        "options": [
+          { "zh": "定性型 colormap", "en": "A qualitative colormap" },
+          { "zh": "顺序型 colormap", "en": "A sequential colormap" },
+          { "zh": "发散型 colormap", "en": "A diverging colormap" },
+          { "zh": "单色渐变", "en": "A single-hue ramp" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "部门之间没有大小顺序，颜色不该暗示「谁更重」。定性色板让每种颜色等权，渐变会把类别误读成程度。",
+          "en": "Departments have no order, so colour must not imply magnitude. Qualitative palettes give each category equal weight; ramps read as degree."
+        },
+        "section": "ch-3-2"
+      },
+      {
+        "q": {
+          "zh": "只靠红 / 绿区分两类数据，最主要的风险是？",
+          "en": "What is the main risk of distinguishing two categories only by red vs green?"
+        },
+        "options": [
+          { "zh": "红绿色盲读者分不出来", "en": "Readers with red-green colour blindness cannot tell them apart" },
+          { "zh": "打印会偏色", "en": "Printing shifts the colours" },
+          { "zh": "颜色不够鲜艳", "en": "The colours are not vivid enough" },
+          { "zh": "对比度太高", "en": "Contrast is too high" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "红绿色盲是最常见的色觉缺陷。把两类编码成红绿，等于对这部分读者直接抹掉了这条信息——换成蓝橙，或再加形状、位置做冗余编码。",
+          "en": "Red-green deficiency is the most common form. Encoding two categories as red vs green erases that distinction for those readers. Use blue/orange, or add shape or position as redundancy."
+        },
+        "section": "ch-3-8"
+      }
+    ],
+    "04": [
+      {
+        "q": {
+          "zh": "平行坐标最适合回答什么问题？",
+          "en": "What question is a parallel coordinates plot best at answering?"
+        },
+        "options": [
+          { "zh": "多个数值维度之间的关系与聚类", "en": "Relationships and clusters across several numeric dimensions" },
+          { "zh": "各类别的占比", "en": "Part-to-whole proportions" },
+          { "zh": "地理位置分布", "en": "Geographic distribution" },
+          { "zh": "单一变量的分布", "en": "The distribution of a single variable" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "每个维度一根竖轴、每个样本一条折线，交叉和走向就是多维关系。维度一多，散点矩阵会爆炸，平行坐标还能压在一屏里。",
+          "en": "One vertical axis per dimension, one polyline per record: crossings and slopes reveal multi-dimensional structure without an exploding scatter matrix."
+        },
+        "section": "ch-4-2"
+      },
+      {
+        "q": {
+          "zh": "Marching Squares 用来做什么？",
+          "en": "What is Marching Squares used for?"
+        },
+        "options": [
+          { "zh": "从标量场里提取等值线", "en": "Extracting contour lines from a scalar field" },
+          { "zh": "对数据排序", "en": "Sorting data" },
+          { "zh": "做聚类", "en": "Clustering" },
+          { "zh": "拟合回归", "en": "Fitting a regression" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "它在每个网格单元里判断四个角与阈值的大小关系，按 16 种情形连线，逐格推进就拼出了等值线。",
+          "en": "It compares the four corners of each cell against the threshold and emits one of 16 segment patterns; marching cell by cell yields the contour."
+        },
+        "section": "ch-4-5"
+      },
+      {
+        "q": {
+          "zh": "「45° 黄金角」说的是什么？",
+          "en": "What does the \"45° golden angle\" refer to?"
+        },
+        "options": [
+          { "zh": "斜率在 45° 附近时，人最容易分辨差别", "en": "Slopes near 45° are the easiest to discriminate" },
+          { "zh": "颜色在色环上的最佳夹角", "en": "The ideal angle between two hues" },
+          { "zh": "坐标轴的最佳倾角", "en": "The best axis tilt" },
+          { "zh": "标签旋转角度", "en": "The best label rotation" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "人对角度的辨别在 45° 附近最敏感，接近水平或垂直时两条线就容易混。所以调纵横比、把关键变化调到 45° 附近，是折线图常用的手法。",
+          "en": "Angle discrimination peaks around 45° and degrades near horizontal or vertical. Adjusting the aspect ratio to put the key change near 45° is a standard trick."
+        },
+        "section": "ch-4-4"
+      },
+      {
+        "q": {
+          "zh": "几万个点叠在一起，看不出密度分布，最直接的处理是？",
+          "en": "Tens of thousands of points overlap into a blob. The most direct fix is:"
+        },
+        "options": [
+          { "zh": "分箱聚合或调低点的不透明度", "en": "Bin the points or lower their opacity" },
+          { "zh": "把点画得更大", "en": "Draw bigger points" },
+          { "zh": "换一套更鲜艳的颜色", "en": "Use more vivid colours" },
+          { "zh": "删掉一半数据", "en": "Delete half the data" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "过度绘制（overplotting）是问题本身。六边形分箱、密度等高线、透明度叠加都是在回答「哪里更密」，换颜色和放大点只会让糊得更厉害。",
+          "en": "Overplotting is the problem. Hexbinning, density contours and alpha blending all answer \"where is it denser\"; bigger points or new colours just smear it further."
+        },
+        "section": "ch-4-1"
+      }
+    ],
+    "05": [
+      {
+        "q": {
+          "zh": "van Wijk 的日历热图主要利用了时间的哪个性质？",
+          "en": "Which property of time does van Wijk's calendar heatmap exploit?"
+        },
+        "options": [
+          { "zh": "周期性", "en": "Cyclicality" },
+          { "zh": "单向性", "en": "Directionality" },
+          { "zh": "层级性", "en": "Hierarchy" },
+          { "zh": "连续性", "en": "Continuity" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "按周 × 星期排成网格，同一星期的数据落在同一列，周期规律立刻显形。这是把「周期」这个性质直接编进布局。",
+          "en": "Arranging weeks by weekday puts the same weekday in the same column, making weekly rhythm visible. The layout encodes cyclicality directly."
+        },
+        "section": "ch-5-3"
+      },
+      {
+        "q": {
+          "zh": "阿基米德螺旋布局适合什么场景？",
+          "en": "When is an Archimedean spiral layout appropriate?"
+        },
+        "options": [
+          { "zh": "长周期事件序列，避免首尾被切断", "en": "Long event sequences that would otherwise be cut at the ends" },
+          { "zh": "只有两个时间点", "en": "Only two time points" },
+          { "zh": "类别占比", "en": "Part-to-whole proportions" },
+          { "zh": "地理分布", "en": "Geographic distribution" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "直线时间轴放不下长序列，螺旋把时间绕成圈，一年的结尾紧接下一年的开头，周期性也顺带看出来了。",
+          "en": "A straight axis cannot hold long series; a spiral wraps the year so December meets January, and the yearly cycle becomes visible as well."
+        },
+        "section": "ch-5-4"
+      },
+      {
+        "q": {
+          "zh": "连续时间序列为什么优先用折线而不是柱状？",
+          "en": "Why prefer a line over bars for continuous time series?"
+        },
+        "options": [
+          { "zh": "斜率能直接读出变化率", "en": "The slope reads directly as rate of change" },
+          { "zh": "占的空间更小", "en": "It uses less space" },
+          { "zh": "颜色更好看", "en": "It looks better" },
+          { "zh": "能避免零基线问题", "en": "It avoids baseline issues" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "时间连续时，相邻点的连接本身就是信息——陡就是涨得快。柱状图把每个点隔开，反而丢掉了「变化率」这条线索。",
+          "en": "With continuous time the segment between points carries meaning: steep means fast change. Bars isolate each point and throw that away."
+        },
+        "section": "ch-5-2"
+      },
+      {
+        "q": {
+          "zh": "Storyline 主要解决哪类时间数据？",
+          "en": "What kind of temporal data is Storyline designed for?"
+        },
+        "options": [
+          { "zh": "多实体之间随时间合并、分裂的关系", "en": "Many entities merging and splitting over time" },
+          { "zh": "单一变量的趋势", "en": "A single variable's trend" },
+          { "zh": "地理坐标", "en": "Geographic coordinates" },
+          { "zh": "类别占比", "en": "Part-to-whole proportions" }
+        ],
+        "answer": 0,
+        "why": {
+          "zh": "它把每个实体画成一条泳道，实体间的合流、分叉用曲线连起来——这正是普通折线画不出来的那部分关系。",
+          "en": "Each entity gets a lane, and merges or splits are drawn as connectors — exactly the relationships a plain line chart cannot show."
+        },
+        "section": "ch-5-5"
+      }
+    ]
+  }
+}

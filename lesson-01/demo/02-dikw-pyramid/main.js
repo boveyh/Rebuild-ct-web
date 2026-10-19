@@ -1,7 +1,7 @@
 // Demo 2 · DIKW 金字塔
 // 对应讲义 3.2 数据定义 —— 嵌入陈为 Ch1 拓展理论
 
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from "../../../assets/js/vendor/d3.esm.js";
 
 const LAYERS = [
   {

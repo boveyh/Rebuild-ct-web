@@ -665,6 +665,81 @@ body.tour-on .site-footer { opacity: 0.35; transition: opacity var(--dur-slow) v
 /* 页面级标题区 */
 .page-head { margin-bottom: var(--sp-8); }
 
+/* 章节页的章首：右上角一枚大号章号做水印，下面一排关键数字。
+   五个章节页原本长得完全一样，翻章时除了标题没有别的信号；
+   章号 + 身份色让"换了一章"这件事一眼可见。 */
+.page-head--chapter {
+  position: relative;
+  padding-top: var(--sp-2);
+}
+
+.page-head__chapter {
+  position: absolute;
+  top: -0.28em;
+  right: -0.02em;
+  font-family: var(--font-mono);
+  font-size: 148px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--ch-accent, var(--brand));
+  opacity: 0.11;
+  pointer-events: none;
+  user-select: none;
+}
+
+.chapter-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3) var(--sp-6);
+  margin: var(--sp-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chapter-stats li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin: 0;
+}
+
+.chapter-stats strong {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ch-accent, var(--brand-text));
+  font-variant-numeric: tabular-nums;
+}
+
+.chapter-stats span {
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.page-head__source {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+@media (max-width: 900px) {
+  .page-head__chapter { font-size: 108px; opacity: 0.09; }
+}
+
+/* 四个数字竖着排会掉成 3+1，最后一项孤零零一行；两列排正好 2×2 */
+@media (max-width: 560px) {
+  .page-head__chapter { font-size: 84px; right: 0; top: -0.1em; }
+  .chapter-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-3) var(--sp-4);
+  }
+  .chapter-stats strong { font-size: 1.25rem; }
+}
+
 .page-head__eyebrow {
   display: inline-flex;
   align-items: center;
