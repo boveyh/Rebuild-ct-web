@@ -169,6 +169,7 @@ ZH, EN = I18N["zh-CN"], I18N["en-US"]
 META = json.loads(read(DATA / "chapters.json"))
 SITE = META["site"]
 CHAPTERS = META["chapters"]
+KG = json.loads(read(DATA / "kg.json"))
 GLOSSARY_TERMS = json.loads(read(DATA / "glossary.json"))["terms"]
 QUIZ = json.loads(read(DATA / "quiz.json"))["chapters"]
 
@@ -1932,6 +1933,157 @@ def hero_art():
     """
 
 
+def kg_payload(all_sections):
+    """把 kg.json 与 chapters.json 合成前端要的那一份数据。
+
+    两份数据必须逐条对上：知识点 id、名称、小节号、边的两端。
+    任何一处对不上直接抛错 —— 图和正文悄悄脱节是最难发现的问题，
+    与其让它悄悄错，不如让构建当场失败。
+    """
+    nodes = {}
+    for ch in CHAPTERS:
+        cid, num = ch["id"], ch["num"]
+        sec_count = len(all_sections[cid])
+        for n in ch["concept"]["nodes"]:
+            key = f'{cid}.{n["id"]}'
+            meta = KG["nodes"].get(key)
+            if meta is None:
+                raise SystemExit(f"[kg] kg.json 缺少知识点 {key}（{n['zh']}）")
+            if meta["zh"] != n["zh"]:
+                raise SystemExit(
+                    f"[kg] 名称不一致 {key}：chapters.json 是「{n['zh']}」，"
+                    f"kg.json 是「{meta['zh']}」")
+            if not 1 <= meta["section"] <= sec_count:
+                raise SystemExit(
+                    f"[kg] {key} 的 section={meta['section']} 越界"
+                    f"（第 {num} 章只有 {sec_count} 节）")
+            nodes[key] = {
+                "zh": n["zh"],
+                "en": n["en"],
+                "summary": meta["summary"],
+                "tags": meta["tags"],
+                "section": meta["section"],
+                "href": f'{ch["slug"]}/#ch-{num}-{meta["section"]}',
+            }
+
+    extra = set(KG["nodes"]) - set(nodes)
+    if extra:
+        raise SystemExit(f"[kg] kg.json 里有课程中不存在的知识点：{sorted(extra)}")
+
+    chapter_ids = {ch["id"] for ch in CHAPTERS}
+    for a, b in KG["chapterEdges"]:
+        if a not in chapter_ids or b not in chapter_ids:
+            raise SystemExit(f"[kg] chapterEdges 端点不是章：{a} → {b}")
+
+    # 知识点之间的关系 = 手写的跨章依赖 + 各章自己的 concept 依赖边。
+    # 后者在 chapters.json 里是 n1/n2 这种章内编号，这里统一加上章前缀，
+    # 否则展开一章后这些点会全是孤岛 —— 章内依赖才是这棵树的主干。
+    links = [list(e) for e in KG["edges"]]
+    for ch in CHAPTERS:
+        conf = ch["concept"]
+        for a, b in conf.get("edges", []):
+            links.append([f'{ch["id"]}.{a}', f'{ch["id"]}.{b}'])
+        if conf.get("loop"):
+            a, b = conf["loop"]
+            links.append([f'{ch["id"]}.{a}', f'{ch["id"]}.{b}'])
+
+    for a, b in links:
+        if a not in nodes or b not in nodes:
+            raise SystemExit(f"[kg] edges 端点是未知知识点：{a} → {b}")
+
+    return {
+        "root": {
+            "zh": KG["root"]["zh"],
+            "en": KG["root"]["en"],
+            "summary": KG["root"]["summary"],
+            "tags": KG["root"]["tags"],
+            "href": f'{CHAPTERS[0]["slug"]}/',
+        },
+        "chapters": [{
+            "id": ch["id"],
+            "num": ch["num"],
+            "title": ch["title"],
+            "short": ch["short"],
+            "summary": KG["chapters"][ch["id"]]["summary"],
+            "tags": KG["chapters"][ch["id"]]["tags"],
+            "sections": len(all_sections[ch["id"]]),
+            "href": f'{ch["slug"]}/',
+        } for ch in CHAPTERS],
+        "nodes": nodes,
+        "chapterEdges": KG["chapterEdges"],
+        "edges": links,
+    }
+
+
+def kg_html(payload):
+    """知识图谱的外壳。面板内容全部由 kg.js 渲染：同一份数据要出两种语言，
+    在 Python 里拼两套 DOM 只会让模板翻倍，还会和 JS 的取词逻辑各走一路。"""
+    data = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
+    n_concepts = len(payload["nodes"])
+    n_links = len(payload["edges"]) + len(payload["chapterEdges"])
+    return f"""    <section class="portal-section" aria-labelledby="kg-title">
+      <h2 id="kg-title" class="portal-section__title">
+        <span data-lang="zh">知识图谱</span><span data-lang="en">Knowledge graph</span>
+      </h2>
+      <p class="portal-section__lead">
+        <span data-lang="zh">{n_concepts} 个知识点不是散落的。这张图按章节把它们聚成 {len(payload["chapters"])} 簇：
+        点开一章，看它由哪几个点组成；点开一点，看它在整门课里的位置。
+        连线表示知识之间的依赖，也标出了建议的学习顺序。</span>
+        <span data-lang="en">{n_concepts} concepts, clustered by chapter. Open a chapter to see
+        what it is built from; open a concept to see where it sits in the course.
+        Edges mark dependencies — and the order worth following.</span>
+      </p>
+
+      <div class="kg" id="kg">
+        <div class="kg__bar">
+          <nav class="kg__crumbs" aria-label="图谱位置">
+            <button class="kg__crumb" type="button" data-kg-home>
+              <span data-lang="zh">可视化导论</span><span data-lang="en">Visualization</span>
+            </button>
+            <span class="kg__sep" aria-hidden="true">/</span>
+            <span class="kg__crumb is-current" data-kg-crumb>
+              <span data-lang="zh">总览</span><span data-lang="en">Overview</span>
+            </span>
+          </nav>
+          <p class="kg__count" data-kg-count></p>
+          <div class="kg__actions">
+            <button class="kg-btn" type="button" data-kg-up>
+              <span data-lang="zh">返回上一级</span><span data-lang="en">Go up</span>
+            </button>
+            <button class="kg-btn" type="button" data-kg-root>
+              <span data-lang="zh">回到根节点</span><span data-lang="en">Back to root</span>
+            </button>
+            <button class="kg-btn" type="button" data-kg-all>
+              <span data-lang="zh">展开全部</span><span data-lang="en">Expand all</span>
+            </button>
+            <button class="kg-btn" type="button" data-kg-relayout>
+              <span data-lang="zh">重排位置</span><span data-lang="en">Re-layout</span>
+            </button>
+          </div>
+        </div>
+        <div class="kg__body">
+          <div class="kg__canvas">
+            <svg class="kg__svg" aria-label="课程知识图谱"></svg>
+            <p class="kg__loading">
+              <span data-lang="zh">正在装配图谱…</span><span data-lang="en">Assembling the graph…</span>
+            </p>
+            <p class="kg__hint">
+              <span data-lang="zh">拖动空白处平移 · 滚轮缩放 · 点节点看详情，双击章节展开或收起</span>
+              <span data-lang="en">Drag to pan · scroll to zoom · click a node for details, double-click a chapter to toggle</span>
+            </p>
+          </div>
+          <aside class="kg__panel" aria-live="polite">
+            <p class="kg__panel-desc">
+              <span data-lang="zh">{n_concepts} 个知识点 · {n_links} 条关系，正在装配…</span>
+              <span data-lang="en">{n_concepts} concepts · {n_links} relations, assembling…</span>
+            </p>
+          </aside>
+        </div>
+      </div>
+      <script type="application/json" id="kg-data">{data}</script>
+    </section>"""
+
+
 def build_portal(all_sections, demo_counts):
     total_sections = sum(len(v) for v in all_sections.values())
     total_stars = sum(c["_stars"] for c in CHAPTERS)
@@ -2027,17 +2179,13 @@ def build_portal(all_sections, demo_counts):
           </span>
         </div>""")
 
-    roadmap = json.dumps({
-        "nodes": [{"id": c["id"], "zh": c["title"]["zh"], "en": c["title"]["en"],
-                   "num": c["num"]} for c in CHAPTERS],
-        "edges": [["01", "02"], ["02", "04"], ["01", "03"], ["02", "03"], ["02", "05"]],
-    }, ensure_ascii=False)
+    kg = kg_html(kg_payload(all_sections))
 
     tour = json.dumps(META["portalTour"], ensure_ascii=False)
 
     html = f"""{head("《可视化导论》· 课程门户",
                "中国石油大学（华东）《可视化导论》课程：案例驱动，零依赖，浏览器打开即用。",
-               "", extra_css=("portal",), extra_js=("conceptmap", "portal"),
+               "", extra_css=("portal", "kg"), extra_js=("kg", "portal"),
                path="/")}
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
@@ -2087,23 +2235,7 @@ def build_portal(all_sections, demo_counts):
       </dl>
     </section>
 
-    <section class="portal-section" aria-labelledby="roadmap-title">
-      <h2 id="roadmap-title" class="portal-section__title">
-        <span data-lang="zh">课程主线</span><span data-lang="en">Course roadmap</span>
-      </h2>
-      <p class="portal-section__lead">
-        <span data-lang="zh">五章不是并列的。先用「数据」把地基打好，再用「流程」把整条链路串起来，
-        中间单列一章讲颜色，最后用「低维」和「时序」两类数据做实战。箭头表示建议的学习顺序。</span>
-        <span data-lang="en">The five chapters form a path, not a list. Start with data,
-        then the pipeline, take colour as a standalone topic, and finish with low-dimensional
-        and time-series practice.</span>
-      </p>
-      <div class="roadmap" id="roadmap" role="img" aria-label="课程章节依赖关系图"></div>
-      <p class="portal-section__hint">
-        <span data-lang="zh">节点可以拖动：哪条箭头看不清楚，就把挡路的节点挪开；双击节点回到原位。</span>
-        <span data-lang="en">Drag a node out of the way if an arrow is hard to follow; double-click it to snap back.</span>
-      </p>
-    </section>
+{kg}
 
 {routes_html({c['id']: len(all_sections[c['id']]) for c in CHAPTERS})}
 
@@ -2224,7 +2356,6 @@ def build_portal(all_sections, demo_counts):
 
 {site_footer("")}
 
-  <script type="application/json" id="roadmap-data">{roadmap}</script>
   <script type="application/json" id="tour-data">{tour}</script>
 {close_page(tour=True)}"""
 

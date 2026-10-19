@@ -153,25 +153,6 @@
   text-align: center;
 }
 
-/* =========================================================== 课程主线图 */
-.roadmap {
-  /* 图是 svg，宽度由节点数决定（三层只占 553px）。不居中的话整块挤在
-     卡片左侧，右边空出一大片，看起来像没画完。
-     居中用子元素的自动外边距，而不是 justify-content: center ——
-     后者在窄屏（图比卡片宽）会把左侧一起推到可视区外，而且滚不回来。 */
-  display: flex;
-  padding: var(--sp-6);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-2);
-  border-radius: var(--radius-lg);
-  overflow-x: auto;
-}
-
-.roadmap > svg {
-  margin-inline: auto;   /* 有富余时居中；不够宽时自动归零，从左边开始滚 */
-  flex: 0 0 auto;
-}
-
 /* ============================================================ 章节卡片 */
 .chapter-grid {
   display: grid;
@@ -993,24 +974,6 @@ html[data-theme="dark"] .demo-mount[data-state="error"] .demo-state { color: #f0
   .portal-hero::before { background-size: 40px 40px; }
   .portal-stats dd { font-size: var(--fs-xl); }
   .chapter-grid { grid-template-columns: 1fr; }
-  .roadmap { padding: var(--sp-3); }
-}
-
-/* ============================================ 术语互链（正文 ↔ 术语表） */
-/* 正文里的术语不用常规链接色：满屏蓝字会把阅读节奏打散。
-   改用同色虚线底边 —— 看得出"可以点"，但不抢注意力。 */
-.term-link {
-  color: inherit;
-  text-decoration: underline dotted;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  text-decoration-color: color-mix(in srgb, var(--brand) 45%, transparent);
-}
-
-.term-link:hover,
-.term-link:focus-visible {
-  color: var(--brand-text);
-  text-decoration-style: solid;
 }
 
 /* 术语表里每条反向列出「出现在哪几节」 */

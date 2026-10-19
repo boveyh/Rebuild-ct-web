@@ -1377,3 +1377,23 @@ h3:hover > .heading-anchor,
    选择器叠成两个类，是因为正文段落的 `.prose p` 比单个类更具体，
    否则这条颜色会被它按回去。 */
 .demo-hint.demo-hint--bad { color: var(--err-600); }
+
+/* ============================================ 术语互链（正文 ↔ 术语表）
+   正文里的术语不用常规链接色：满屏蓝字会把阅读节奏打散。
+   改用同色虚线底边 —— 看得出「可以点」，但不抢注意力。
+
+   这条规则原来写在 portal.css 里，而章节页只加载 base/content/shell/tokens，
+   于是每章正文里那几个术语链接一直没有样式（审计的「样式未加载」抓到的）。 */
+.term-link {
+  color: inherit;
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--brand) 45%, transparent);
+}
+
+.term-link:hover,
+.term-link:focus-visible {
+  color: var(--brand-text);
+  text-decoration-style: solid;
+}

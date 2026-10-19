@@ -767,8 +767,7 @@ const layout = await lpage.evaluate(() => {
   }
   const motif = document.querySelector(".chapter-card__motif");
   const r = motif?.getBoundingClientRect();
-  const rmNodes = [...document.querySelectorAll("#roadmap svg g")];
-  const rmCols = [...new Set(rmNodes.map(g => Math.round(g.getBoundingClientRect().left)))];
+  const kg = document.getElementById("kg");
   return {
     chapterGrid: columns(".chapter-grid"),
     stats: columns(".portal-stats"),
@@ -778,8 +777,7 @@ const layout = await lpage.evaluate(() => {
       ".chapter-card__motif rect, .chapter-card__motif circle, .chapter-card__motif path"
     ).length,
     motifBox: r ? Math.round(r.width) + "x" + Math.round(r.height) : "缺失",
-    roadmapCols: rmCols.length,
-    roadmapNodes: rmNodes.length,
+    kgShell: !!kg && !!kg.querySelector(".kg__canvas") && !!kg.querySelector(".kg__panel"),
   };
 });
 
@@ -789,18 +787,98 @@ const layoutOk =
   layout.stats.cols >= 4 &&
   layout.howto.cols >= 4 &&
   layout.motifs === 5 &&
-  layout.motifShapes >= 20;
+  layout.motifShapes >= 20 &&
+  layout.kgShell;
 if (!layoutOk) hardFail += 1;
 log((layoutOk ? "✅ " : "❌ ") + "章节网格 / 统计条 / 使用说明真的排开了  " + JSON.stringify(layout));
 
-/* 主线图曾经是「一章一列」——五章排成一条直线，读者会以为必须按顺序一路学完，
-   而 03/04/05 其实是挂在 02 下面的并列支线。这里只要「列数少于节点数」就能
-   抓住退化成直线的情况，不必把 3 这个数字写死（章节数将来可能变）。 */
-const roadmapOk = layout.roadmapNodes >= 3 && layout.roadmapCols >= 2 &&
-                  layout.roadmapCols < layout.roadmapNodes;
-if (!roadmapOk) hardFail += 1;
-log((roadmapOk ? "✅ " : "❌ ") + "课程主线按依赖分层（不是一章一列）  " +
-    JSON.stringify({ cols: layout.roadmapCols, nodes: layout.roadmapNodes }));
+/* ------------------------------------------------------------ 知识图谱 */
+/* 图谱是懒加载的：滚进视口才动态 import d3，再跑力导向。所以这里必须先
+   滚过去、等它装完，否则量到的是一块空 SVG ——「元素在但没画」正是这类
+   检查最容易放过的情况。 */
+log("\n" + "-".repeat(76));
+log("知识图谱（装配 / 展开 / 详情 / 不越界）");
+log("-".repeat(76));
+
+let kgFail = 0;
+try {
+  await lpage.evaluate(() => document.getElementById("kg")?.scrollIntoView({ block: "center" }));
+  await new Promise(r => setTimeout(r, 3200));
+
+  const kgInit = await lpage.evaluate(() => {
+    const kg = document.getElementById("kg");
+    const nodes = [...kg.querySelectorAll("g.kg-node")];
+    return {
+      ready: kg.classList.contains("is-ready"),
+      nodes: nodes.length,
+      concepts: nodes.filter(n => n.classList.contains("kg-node--concept")).length,
+      links: kg.querySelectorAll("g.kg-link").length,
+      title: (kg.querySelector(".kg__panel-title")?.textContent || "").trim(),
+      descLen: (kg.querySelector(".kg__panel-desc")?.textContent || "").trim().length,
+      stats: [...kg.querySelectorAll(".kg__stats dd")].map(d => d.textContent),
+      count: (kg.querySelector("[data-kg-count]")?.textContent || "").trim(),
+    };
+  });
+  /* 默认就要展开一章：如果一张「知识图谱」打开只有五个章节方块，
+     它还是课程目录。所以这里要求概念节点至少 4 颗已就位。 */
+  const initOk = kgInit.ready && kgInit.nodes >= 10 && kgInit.concepts >= 4 &&
+                 kgInit.links >= 8 && kgInit.title.length > 0 && kgInit.descLen > 20 &&
+                 kgInit.stats.length === 4;
+  if (!initOk) kgFail += 1;
+  log((initOk ? "✅ " : "❌ ") + "装配完成且默认展开一章  " + JSON.stringify(kgInit));
+
+  const kgClick = await lpage.evaluate(async () => {
+    const kg = document.getElementById("kg");
+    const before = (kg.querySelector(".kg__panel-title")?.textContent || "").trim();
+    // 点一颗知识点（不是章节）：详情要跟着换，统计要从章级的 6 变成 1
+    const target = [...kg.querySelectorAll("g.kg-node--concept")][1];
+    target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await new Promise(r => setTimeout(r, 380));
+    return {
+      before,
+      after: (kg.querySelector(".kg__panel-title")?.textContent || "").trim(),
+      nodes: [...kg.querySelectorAll(".kg__stats dd")].map(d => d.textContent),
+      crumb: (kg.querySelector("[data-kg-crumb]")?.textContent || "").trim(),
+      href: kg.querySelector(".kg__panel-acts a")?.getAttribute("href") || "",
+    };
+  });
+  const clickOk = kgClick.after && kgClick.after !== kgClick.before &&
+                  kgClick.nodes[0] === "1" && /#ch-\d+-\d+$/.test(kgClick.href);
+  if (!clickOk) kgFail += 1;
+  log((clickOk ? "✅ " : "❌ ") + "点知识点换详情并给出小节锚点  " + JSON.stringify(kgClick));
+
+  const kgAll = await lpage.evaluate(async () => {
+    const kg = document.getElementById("kg");
+    kg.querySelector("[data-kg-all]").click();
+    await new Promise(r => setTimeout(r, 2600));
+    const box = kg.querySelector(".kg__svg").getBoundingClientRect();
+    const off = [...kg.querySelectorAll("g.kg-node")].filter(g => {
+      const c = g.querySelector(".kg-node__dot").getBoundingClientRect();
+      const cx = c.x + c.width / 2, cy = c.y + c.height / 2;
+      return cx < box.left - 2 || cx > box.right + 2 || cy < box.top - 2 || cy > box.bottom + 2;
+    }).length;
+    const t = kg.querySelector(".kg-view")?.getAttribute("transform") || "";
+    const k = (/scale\(([\d.]+)\)/.exec(t) || [])[1];
+    return {
+      nodes: kg.querySelectorAll("g.kg-node").length,
+      off,
+      k: k ? +k : 1,
+      far: kg.querySelector(".kg-view")?.classList.contains("is-far") === true,
+      labels: [...kg.querySelectorAll(".kg-node__label")]
+        .filter(el => getComputedStyle(el).opacity !== "0").length,
+    };
+  });
+  /* 全部展开时 32 个点必须都在画布内（fitView 生效），
+     同时标签要让位给章节名 —— 32 个标签叠在一起等于没有标签。 */
+  const allOk = kgAll.nodes >= 28 && kgAll.off === 0 && kgAll.far &&
+                kgAll.labels > 0 && kgAll.labels <= 12 && kgAll.k >= 0.5;
+  if (!allOk) kgFail += 1;
+  log((allOk ? "✅ " : "❌ ") + "全部展开后不越界、标签自动让位  " + JSON.stringify(kgAll));
+} catch (e) {
+  kgFail += 1;
+  log("❌ 知识图谱检查失败：" + String(e.message).split("\n")[0]);
+}
+if (kgFail) hardFail += 1;
 
 if (lErr.length) { hardFail += 1; log("❌ 门户页异常：" + lErr.join(" | ")); }
 
@@ -837,8 +915,10 @@ const afterJump = await apage.evaluate(() => ({
 await apage.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2" });
 await new Promise(r => setTimeout(r, 500));
 await apage.emulateMediaType("print");
-// 等过渡走完：切媒体类型时 opacity 从 0 过渡到 1，立刻读会拿到 0.46 这种中间值
-await new Promise(r => setTimeout(r, 700));
+/* 等过渡走完：切媒体类型时 opacity 从 0 过渡到 1，立刻读会拿到 0.46 这种中间值。
+   这个等待要留足 —— 脚本连跑十几个页面之后 CPU 是紧的，700ms 会偶发读不到 1，
+   表现成「打印丢段落」的假警报（同一段单独跑永远是通过的）。 */
+await new Promise(r => setTimeout(r, 1500));
 const printCheck = await apage.evaluate(() => {
   const items = [...document.querySelectorAll(".reveal")];
   const hidden = items.filter(el => Number(getComputedStyle(el).opacity) < 0.99).length;
@@ -877,9 +957,9 @@ for (const np of NARROW_PAGES) {
       const de = document.documentElement;
       return {
         overflow: de.scrollWidth - de.clientWidth,
-        // 概念图 / 主线图曾经在窄屏上要横向滚动才看得全，而横滚没有任何提示，
+        // 概念图 / 知识图谱曾经在窄屏上要横向滚动才看得全，而横滚没有任何提示，
         // 读者看到头两个节点就以为图到此为止。容器内滚动量必须为 0。
-        mapScroll: [...document.querySelectorAll("#roadmap, #concept-map")]
+        mapScroll: [...document.querySelectorAll("#kg, #concept-map")]
           .map(h => Math.round(h.scrollWidth - h.clientWidth)),
         culprit: (() => {
           // 找不到是谁撑出去的，等于没说 —— 顺手把最右边那个元素也带出来

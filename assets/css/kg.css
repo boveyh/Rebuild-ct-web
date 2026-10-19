@@ -1,0 +1,569 @@
+/* ============================================================================
+   kg.css —— 门户「知识图谱」
+   ----------------------------------------------------------------------------
+   布局是「画布 + 详情栏」两栏：左边看结构，右边读总结。两栏同高，
+   详情栏独立滚动 —— 面板内容多寡不影响画布高度，切换节点时画面不会跳。
+
+   颜色全部走 CSS 变量：深浅主题、章节配色都不需要 JS 参与，
+   唯一由 JS 注入的是每个节点的 --kg-c（它所属章节的色相）。
+   ========================================================================= */
+
+.kg {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+
+/* ------------------------------------------------------------- 顶部工具条 */
+.kg__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--border-1);
+  background: var(--bg-raised);
+}
+
+.kg__crumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+.kg__crumb {
+  padding: 2px 4px;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  cursor: pointer;
+}
+
+.kg__crumb:hover { color: var(--brand); }
+
+.kg__crumb.is-current {
+  color: var(--text-1);
+  font-weight: var(--fw-semibold);
+  cursor: default;
+}
+
+.kg__sep { color: var(--border-3); }
+
+.kg__count {
+  margin: 0 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.kg__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  line-height: 1.4;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out),
+              background-color var(--dur-fast) var(--ease-out);
+}
+
+.kg-btn:hover {
+  color: var(--text-1);
+  border-color: var(--brand-border);
+  background: var(--brand-bg);
+  text-decoration: none;
+}
+
+.kg-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--bg-surface);
+  border-color: var(--border-2);
+  color: var(--text-2);
+}
+
+.kg-btn--primary {
+  background: var(--brand-solid);
+  border-color: var(--brand-solid);
+  color: var(--text-inverse);
+}
+
+.kg-btn--primary:hover {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--text-inverse);
+}
+
+/* ------------------------------------------------------------------ 主体 */
+.kg__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 322px;
+  align-items: stretch;
+  /* 高度定死：面板内容多寡不该改变画布高度。之前让它随内容伸缩，
+     点一个长词条画布会整块变高，力导向的中心跟着移动，图会晃一下。 */
+  height: clamp(540px, 64vh, 680px);
+}
+
+.kg__canvas {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  /* 点阵底纹：给「无限画布」一点空间感，又不至于抢走节点 */
+  background-image: radial-gradient(circle at 1px 1px, var(--border-2) 1px, transparent 0);
+  background-size: 22px 22px;
+  background-position: -1px -1px;
+  overflow: hidden;
+}
+
+.kg__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+}
+
+.kg__svg:active { cursor: grabbing; }
+
+.kg__hint,
+.kg__loading {
+  position: absolute;
+  left: 50%;
+  bottom: var(--sp-3);
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  color: var(--text-3);
+  box-shadow: var(--shadow-1);
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.kg__loading {
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  border-style: dashed;
+}
+
+.kg__loading[hidden] { display: none; }
+
+/* ------------------------------------------------------------------ 节点 */
+.kg svg text {
+  font-family: var(--font-sans);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.kg-node { cursor: grab; outline: none; }
+
+.kg-node.is-drag { cursor: grabbing; }
+
+.kg-node__dot {
+  fill: var(--kg-c, var(--brand));
+  fill-opacity: 0.82;
+  stroke: var(--bg-surface);
+  stroke-width: 1.5;
+  transition: fill-opacity var(--dur-fast) var(--ease-out),
+              stroke-width var(--dur-fast) var(--ease-out);
+}
+
+.kg-node--root .kg-node__dot {
+  fill: var(--brand-solid);
+  fill-opacity: 1;
+  stroke: var(--brand-bg);
+  stroke-width: 6;
+}
+
+.kg-node--chapter .kg-node__dot {
+  fill: var(--kg-c, var(--brand));
+  fill-opacity: 1;
+  stroke-width: 2;
+}
+
+.kg-node__halo {
+  fill: var(--kg-c, var(--brand));
+  fill-opacity: 0;
+  transition: fill-opacity var(--dur-base) var(--ease-out);
+}
+
+.kg-node__num {
+  fill: var(--text-inverse);
+  font-size: 11px;
+  font-weight: var(--fw-bold);
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.kg-node__cell { fill: var(--text-inverse); opacity: 0.9; }
+
+.kg-node__label {
+  fill: var(--text-2);
+  font-size: 11px;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--bg-surface);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+  transition: fill var(--dur-fast) var(--ease-out);
+}
+
+.kg-node--root .kg-node__label,
+.kg-node--chapter .kg-node__label {
+  fill: var(--text-1);
+  font-size: 12.5px;
+  font-weight: var(--fw-semibold);
+}
+
+.kg-node:hover .kg-node__dot,
+.kg-node:focus-visible .kg-node__dot {
+  stroke-width: 3;
+}
+
+.kg-node:focus-visible .kg-node__halo { fill-opacity: 0.18; }
+
+.kg-node.is-hi .kg-node__halo { fill-opacity: 0.1; }
+.kg-node.is-hi .kg-node__dot { fill-opacity: 1; }
+.kg-node.is-hi .kg-node__label { fill: var(--text-1); }
+
+.kg-node.is-sel .kg-node__halo { fill-opacity: 0.16; }
+
+.kg-node.is-sel .kg-node__dot {
+  fill-opacity: 1;
+  stroke: var(--kg-c, var(--brand));
+  stroke-width: 2.5;
+  stroke-opacity: 0.35;
+}
+
+.kg-node.is-sel .kg-node__label {
+  fill: var(--text-1);
+  font-weight: var(--fw-semibold);
+}
+
+.kg-node.is-dim { opacity: 0.26; }
+.kg-node.is-dim .kg-node__label { opacity: 0; }
+
+/* 语义缩放：图缩小到读不清字时，概念标签先让位，只留章节名。
+   鼠标停在哪颗上，哪颗的标签再浮出来 —— 这比把 26 个标签叠在一起强。 */
+.kg-view.is-far .kg-node--concept .kg-node__label { opacity: 0; }
+
+.kg-view.is-far .kg-node--concept.is-hi .kg-node__label,
+.kg-view.is-far .kg-node--concept:hover .kg-node__label,
+.kg-view.is-far .kg-node--concept.is-sel .kg-node__label {
+  opacity: 1;
+  font-size: 13.5px;   /* 缩小状态下按屏幕像素补回来 */
+}
+
+/* 淡出时别把「被拖起来的那颗」也一起淡掉 */
+.kg-node.is-drag { opacity: 1 !important; }
+
+/* -------------------------------------------------------------------- 边 */
+.kg-link__base {
+  fill: none;
+  stroke: var(--border-3);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  transition: stroke var(--dur-fast) var(--ease-out);
+}
+
+.kg-link__flow {
+  fill: none;
+  stroke: var(--kg-c, var(--brand));
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-dasharray: 5 9;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* root → 章：只表示「归属」，虚线短点、没有箭头，不参与阅读顺序 */
+.kg-link--owner .kg-link__base {
+  stroke: var(--border-2);
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+}
+
+/* 章 → 知识点：展开后从章节点伸出的「枝」，很淡，只用来把这一簇串在章上 */
+.kg-link--member .kg-link__base {
+  stroke: var(--kg-c, var(--brand));
+  stroke-width: 1;
+  stroke-opacity: 0.45;
+}
+
+/* 章 → 章：原来的课程主线，虚线 + 箭头 + 常驻的流动光点 */
+.kg-link--path .kg-link__base {
+  stroke: var(--brand-border);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+
+.kg-link--path .kg-link__flow {
+  opacity: 0.9;
+  stroke: var(--brand);
+  animation: kg-flow 1.15s linear infinite;
+}
+
+.kg-link--concept .kg-link__base { stroke-width: 1.3; }
+
+/* 选中或悬停时，与它相连的边走光；其余压暗 */
+.kg-link.is-hi .kg-link__base {
+  stroke: var(--kg-c, var(--brand));
+  stroke-width: 1.8;
+}
+
+.kg-link.is-hi .kg-link__flow {
+  opacity: 1;
+  animation: kg-flow 0.95s linear infinite;
+}
+
+.kg-link.is-dim { opacity: 0.2; }
+.kg-link.is-dim .kg-link__flow { opacity: 0; }
+
+@keyframes kg-flow {
+  to { stroke-dashoffset: -42; }   /* 6+14 / 5+9 的整数倍，跳帧会露馅 */
+}
+
+/* ------------------------------------------------------------------ 面板 */
+.kg__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  height: 100%;
+  padding: var(--sp-4) var(--sp-4) var(--sp-5);
+  border-left: 1px solid var(--border-1);
+  background: var(--bg-raised);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.kg__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.kg__eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.kg__badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--brand-bg);
+  color: var(--brand-text);
+  font-size: 10.5px;
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+}
+
+.kg__panel-title {
+  margin: 0;
+  font-size: var(--fs-xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-1);
+}
+
+.kg__panel-desc {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  color: var(--text-2);
+}
+
+.kg__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+}
+
+.kg__tag {
+  padding: 2px 8px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--text-2);
+  background: var(--bg-surface);
+}
+
+/* 四格统计：对齐截图里的「节点数 / 关系数 / 可展开 / 可进入」 */
+.kg__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: var(--sp-3) 0;
+  border-top: 1px solid var(--border-1);
+  border-bottom: 1px solid var(--border-1);
+  background: var(--border-1);
+}
+
+.kg__stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 6px;
+  background: var(--bg-raised);
+  text-align: center;
+}
+
+.kg__stats dt {
+  order: 2;
+  font-size: 10.5px;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.kg__stats dd {
+  order: 1;
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+}
+
+.kg__panel-sub {
+  margin: var(--sp-1) 0 0;
+  padding-left: 8px;
+  border-left: 2px solid var(--brand-border);
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-2);
+}
+
+.kg__attrs {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+}
+
+.kg__attrs > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--border-1);
+  font-size: var(--fs-xs);
+}
+
+.kg__attrs > div:last-child { border-bottom: 0; }
+
+.kg__attrs dt { color: var(--text-3); flex: 0 0 auto; }
+
+.kg__attrs dd {
+  margin: 0;
+  color: var(--text-1);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.kg__attrs dd.is-mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-2);
+}
+
+.kg__panel-acts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-2);
+  margin-top: auto;
+  padding-top: var(--sp-2);
+}
+
+.kg__panel-acts .kg-btn {
+  padding: 7px 10px;
+  font-size: var(--fs-xs);
+}
+
+/* --------------------------------------------------------------- 响应式 */
+@media (max-width: 1020px) {
+  .kg__body {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+
+  .kg__canvas { height: 440px; }
+
+  .kg__panel {
+    height: auto;
+    max-height: none;
+    border-left: 0;
+    border-top: 1px solid var(--border-1);
+  }
+
+  .kg__panel-acts { margin-top: var(--sp-2); }
+}
+
+@media (max-width: 720px) {
+  .kg__bar { padding: var(--sp-3); gap: var(--sp-2); }
+  .kg__count { margin-left: 0; order: 3; flex: 1 0 100%; }
+
+  /* 四个按钮在 390px 上会各自折成两行。只留真正要用的两个：
+     退回上一级和展开全部；回根节点和重排在这里没有替代不了的价值。 */
+  .kg__actions { margin-left: auto; flex-wrap: nowrap; }
+  .kg__actions [data-kg-root],
+  .kg__actions [data-kg-relayout] { display: none; }
+  .kg-btn { white-space: nowrap; }
+
+  .kg__canvas { height: 400px; }
+  .kg__hint { font-size: 10px; white-space: normal; width: max-content; max-width: 88%; text-align: center; }
+  .kg__panel { padding: var(--sp-4) var(--sp-3); }
+  .kg__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---------------------------------------------------------- 打印 / 降级 */
+@media print {
+  .kg__actions,
+  .kg__hint { display: none; }
+
+  .kg__body { grid-template-columns: 1fr; }
+  .kg__canvas { height: 380px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kg-link__flow { animation: none !important; }
+  .kg-node,
+  .kg-link { transition: none; }
+}
