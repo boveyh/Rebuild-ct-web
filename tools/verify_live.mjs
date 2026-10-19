@@ -210,7 +210,8 @@ push(homeProbe.cssLoaded === homeProbe.cssTotal && homeProbe.cssTotal > 0,
      "首页样式表全部加载", `${homeProbe.cssLoaded}/${homeProbe.cssTotal}  ${homeProbe.cssNames}`);
 push(homeProbe.cssNames.includes("portal.css"), "portal.css 已被引用", homeProbe.cssNames);
 push(homeProbe.chapterCols >= 3, "首页章节网格排开了", `${homeProbe.chapterCols} 列`);
-push(homeProbe.statsCols >= 5, "首页统计条排开了", `${homeProbe.statsCols} 列`);
+// 统计条从 5 项减到 4 项（去掉「预计总时长」），阈值跟着降
+push(homeProbe.statsCols >= 4, "首页统计条排开了", `${homeProbe.statsCols} 列`);
 push(homeProbe.motifs === 5, "5 枚章节微缩图都在", `${homeProbe.motifs} 枚`);
 push(homeErr.length === 0, "首页无未捕获异常", homeErr.join(" | ") || "0 个");
 
