@@ -193,7 +193,14 @@ def html_surfaces(text: str) -> tuple[str, str]:
     做法：注释和 <pre> 整块挖掉（代码示例都在 <pre> 里），
     属性面用剩下的文档，代码面只取 <script> 的内部、再去掉注释。
     """
-    code = "\n".join(m.group(2) for m in RE_SCRIPT_BLOCK.finditer(text))
+    # <script type="application/json"> 装的是数据（门户把图谱/路径数据塞在这里），
+    # 里面的英文句子会被 import 正则当成模块说明符 —— 实测踩到：
+    # 第 2 章的导语写着 from 'a table' to 'a chart'，被判成两条断链。
+    code = "\n".join(
+        m.group(2)
+        for m in RE_SCRIPT_BLOCK.finditer(text)
+        if "application/json" not in m.group(1).lower()
+    )
     code = RE_JS_BLOCK_COMMENT.sub(" ", code)
     code = RE_JS_LINE_COMMENT.sub("", code)
 

@@ -14,7 +14,9 @@
         固定半径的环上 —— 每次打开图长得一样，读者才不会怀疑图变了。
    ========================================================================= */
 
-const host = document.getElementById("kg");
+// 宿主是内层容器：外层 section 的 id 留给导航锚点（#kg），
+// 两处同名会被审计判成重复 id。
+const host = document.getElementById("kg-app");
 const dataEl = document.getElementById("kg-data");
 
 if (host && dataEl) boot();

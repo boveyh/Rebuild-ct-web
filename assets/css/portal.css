@@ -826,34 +826,104 @@ html[data-theme="dark"] .portal-hero__art { opacity: 0.95; }
 
 @media print { .portal-hero > .portal-hero__art { display: none; } }
 
-/* ==================================================== 学习路径 */
-.route-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--sp-5);
+/* ==================================================== 学习路径（关卡图） */
+/* 一条路线不是一列待办，是一条路。竖排列表把「这条路径跳过了第 3 章」
+   这件事藏得干干净净，蛇形路径上少一个编号是一眼能看见的。
+   站点做成按钮而不是链接：点一下先在右侧看「这一站要做什么」，
+   要进去再点面板里的按钮 —— 直接跳走的话，那半句解释永远没人读到。 */
+
+.paths__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  list-style: none;
 }
 
-.route {
+.paths__stats li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--bg-sunken);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.paths__stats strong {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+}
+
+.paths__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  align-items: start;
+  gap: var(--sp-4);
+  margin-top: var(--sp-5);
+}
+
+.paths__worlds {
   display: flex;
   flex-direction: column;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+
+/* --------------------------------------------------------------- 一条路线 */
+.world {
+  /* 每条路线一个色：路径、编号、卡片左侧条纹共用这个变量，
+     换路线不用改三处色值 */
+  --path-c: var(--viz-1);
+
+  position: relative;
   padding: var(--sp-5);
-  background: var(--bg-surface);
+  /* 右上角一层极淡的路线色，让每块卡片有自己的「气候」，
+     又不会抢走站点和连线 */
+  background:
+    radial-gradient(120% 150% at 100% 0%,
+      color-mix(in srgb, var(--path-c) 7%, transparent), transparent 62%),
+    var(--bg-surface);
   border: 1px solid var(--border-1);
+  border-left: 3px solid var(--path-c);
   border-radius: var(--radius-lg);
 }
 
-.route[data-route="scratch"] { border-top: 3px solid var(--viz-1); }
-.route[data-route="fast"] { border-top: 3px solid var(--viz-2); }
-.route[data-route="topic"] { border-top: 3px solid var(--viz-3); }
+.world[data-route="fast"] { --path-c: var(--viz-2); }
+.world[data-route="topic"] { --path-c: var(--viz-3); }
 
-.route__title {
+.world__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+
+.world__tag {
+  flex: none;
+  margin-top: 1px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--path-c) 13%, transparent);
+  color: var(--path-c);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wide);
+}
+
+.world__intro { min-width: 0; }
+
+.world__title {
   font-size: var(--fs-base);
   line-height: var(--lh-snug);
 }
 
-.route__why {
-  margin-top: var(--sp-2);
-  margin-bottom: var(--sp-5);
+.world__why {
+  margin-top: 2px;
   font-size: var(--fs-xs);
   line-height: var(--lh-snug);
   color: var(--text-3);
@@ -861,135 +931,416 @@ html[data-theme="dark"] .portal-hero__art { opacity: 0.95; }
 
 /* 这条路线走到哪了。新访客（一章没读）不显示 —— 一上来就写「已读 0 / 5」
    只会让人觉得自己落后，那不是信息，是压力。 */
-.route__meter {
+.world__meter {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
-  align-self: flex-start;
-  margin: calc(var(--sp-5) * -1 + var(--sp-1)) 0 var(--sp-4);
+  flex: none;
+  margin-left: auto;
   padding: 2px var(--sp-3);
   border-radius: var(--radius-full);
   background: var(--bg-sunken);
   font-size: var(--fs-xs);
   font-variant-numeric: tabular-nums;
   color: var(--text-2);
+  white-space: nowrap;
 }
 
-.route__meter::before {
+.world__meter::before {
   content: "";
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--brand);
+  background: var(--path-c);
 }
 
-/* 走完一条：从「进度」变成「完成」，和步骤序号上的对勾同一套语义 */
-.route__meter[data-state="done"] {
+/* 走完一条：从「进度」变成「完成」，和站点上的对勾同一套语义 */
+.world__meter[data-state="done"] {
   background: var(--ok-50);
   color: var(--ok-700);
 }
 
-.route__meter[data-state="done"]::before { background: var(--ok-600); }
+.world__meter[data-state="done"]::before { background: var(--ok-600); }
 
-.route__steps {
-  list-style: none;
+/* --------------------------------------------------------------- 关卡路径 */
+.pathmap {
+  position: relative;
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-4);
+}
+
+/* 连线画在 svg 里，坐标由脚本按站点的实际位置算（见 portal.js）：
+   flex 布局每站多宽是浏览器说了算，写死坐标在换语言、换字号时全错。 */
+.pathmap__wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.pathmap__seg {
+  fill: none;
+  stroke: var(--border-2);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 7;
+}
+
+/* 已经走到的那一段画实：虚线表示「还没走」，实线表示「走过来了」 */
+.pathmap__seg.is-done {
+  stroke: var(--path-c);
+  stroke-dasharray: none;
+  opacity: 0.45;
+}
+
+/* 流动的那层：短点匀速后退，指向下一站。
+   周期必须是 dasharray 的整数倍（2 + 10 = 12，36 = 3 × 12），
+   否则每次循环都会跳一下。 */
+.pathmap__flow {
+  fill: none;
+  stroke: var(--path-c);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 2 10;
+  opacity: 0.85;
+  animation: path-flow 1.5s linear infinite;
+}
+
+@keyframes path-flow { to { stroke-dashoffset: -36; } }
+
+.pathmap__track {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   margin: 0;
   padding: 0;
+  list-style: none;
 }
 
-/* 步骤之间的竖线连接器：用伪元素画在序号圆心下方，
-   最后一项不画，免得线头悬空。 */
-.route__step {
-  position: relative;
-  padding-left: 40px;
+.stop {
+  display: flex;
+  justify-content: center;
+  /* 均分整行：三条路线和五条路线的卡片同宽，均分比固定间距更稳 ——
+     固定宽度会让五条路线挤成一坨、三条路线留一大片空。 */
+  flex: 1 1 0;
+  min-width: 0;
 }
 
-.route__step + .route__step { margin-top: var(--sp-4); }
-
-.route__step::before {
-  content: "";
-  position: absolute;
-  left: 13px;
-  top: 26px;
-  bottom: calc(var(--sp-4) * -1 - 2px);
-  width: 1px;
-  background: var(--border-2);
-}
-
-.route__step:last-child::before { display: none; }
-
-.route__link {
-  display: block;
+.stop__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  /* 高低交替由构建期给的 --lift 决定，路径才有「走」的感觉 */
+  padding: var(--lift, 0) var(--sp-1) 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  font: inherit;
   color: inherit;
-  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
 }
 
-.route__num {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 27px;
-  height: 27px;
+.stop__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.stop__dot {
+  position: relative;
   display: grid;
   place-items: center;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-3);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-2);
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--border-2);
   border-radius: 50%;
+  /* 不透明底色：连线从圆心穿过，透明度会让线头露出来 */
+  background: var(--bg-surface);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--path-c) 9%, transparent);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  color: var(--text-2);
   transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease,
-              background-color var(--dur-fast) ease;
+              background-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
 }
 
-.route__link:hover .route__num,
-.route__link:focus-visible .route__num {
-  color: var(--brand-text);
-  border-color: var(--brand);
+.stop__btn:hover .stop__dot,
+.stop__btn:focus-visible .stop__dot,
+.stop.is-active .stop__dot {
+  border-color: var(--path-c);
+  color: var(--path-c);
 }
 
-.route__name {
-  display: block;
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  line-height: 1.4;
+.stop.is-active .stop__dot {
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--path-c) 20%, transparent);
+}
+
+/* 最后一站是终点，填实：读者一眼知道这条路走完了会到哪 */
+.stop[data-final] .stop__dot {
+  width: 52px;
+  height: 52px;
+  background: var(--path-c);
+  border-color: var(--path-c);
+  /* 深色主题里路线色是亮色，白字压不住；用页面底色做前景，两种主题都对 */
+  color: var(--bg-surface);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--path-c) 16%, transparent);
+}
+
+.stop__label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  line-height: 1.35;
   color: var(--text-1);
 }
 
-.route__note {
+.stop__state {
+  font-size: 10px;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+}
+
+/* 桌面端这条说明在右侧面板里，站点上不重复；窄屏面板收起，改在这里读。
+   脚本没跑时面板换不了内容，就地展开 —— 11 个站点的说明仍然读得到，
+   只是排得挤一点。这条兜底靠 <head> 里那句 data-js，不是靠猜。 */
+.stop__note { display: none; }
+
+html:not([data-js="1"]) .stop__note {
   display: block;
-  margin-top: 2px;
-  font-size: var(--fs-xs);
+  margin-top: 3px;
+  font-size: 11px;
   line-height: var(--lh-snug);
   color: var(--text-3);
 }
 
-/* 这一章的进度到 100% 时，序号变成对勾 —— 读者能一眼看出走到哪了。
+/* 这一章读到 100% 时序号变成对勾 —— 一眼看出走到哪了。
    数字用 color: transparent 藏起来而不是删掉文本，骨架和宽度都不变。 */
-.route__step[data-progress-value="100"] .route__num {
+.stop[data-progress-value="100"] .stop__dot {
   color: transparent;
   background: var(--ok-600);
   border-color: transparent;
 }
 
-.route__step[data-progress-value="100"] .route__num::after {
+.stop[data-progress-value="100"] .stop__dot::after {
   content: "✓";
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
   color: #fff;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1;
 }
 
-@media (max-width: 900px) {
-  .route-grid { grid-template-columns: 1fr; }
+/* --------------------------------------------------------------- 关卡详情 */
+.paths__panel {
+  position: sticky;
+  top: calc(var(--topbar-h) + var(--sp-4));
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-5);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-lg);
+}
+
+.paths__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-3);
+}
+
+.paths__title {
+  font-size: var(--fs-lg);
+  line-height: var(--lh-tight);
+}
+
+.paths__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.paths__meta li {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--bg-sunken);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.paths__meta li[data-done="1"] {
+  background: var(--ok-50);
+  color: var(--ok-700);
+}
+
+.paths__lead {
+  font-size: var(--fs-xs);
+  line-height: var(--lh-base);
+  color: var(--text-2);
+}
+
+.paths__block {
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--border-1);
+}
+
+.paths__block h4 {
+  margin-bottom: 6px;
+  font-size: 10.5px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.paths__block p {
+  font-size: var(--fs-xs);
+  line-height: var(--lh-base);
+  color: var(--text-2);
+}
+
+.paths__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.paths__chips li {
+  padding: 3px 9px;
+  line-height: 1.4;
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}
+
+.paths__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: var(--sp-1);
+  padding: 9px var(--sp-4);
+  border-radius: var(--radius-md);
+  background: var(--brand);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+  transition: background-color var(--dur-fast) ease;
+}
+
+.paths__cta:hover,
+.paths__cta:focus-visible { background: var(--brand-text); }
+
+.paths__cta svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 窄屏：面板在页面最下面，点了站点也看不见，索性收起，
+   把说明放回每一站下面 —— 竖排列表就是窄屏最合适的形态。 */
+@media (max-width: 1020px) {
+  .paths__layout { grid-template-columns: minmax(0, 1fr); }
+
+  .paths__panel { display: none; }
+
+  .pathmap { padding-top: 0; }
+
+  .pathmap__wires { display: none; }
+
+  .pathmap__track {
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  .stop {
+    justify-content: flex-start;
+    position: relative;
+    padding-left: 4px;
+  }
+
+  /* 竖排时的连接线：从圆心往下，最后一站不画，免得线头悬空。
+     用路线色而不是边框灰 —— 1px 的灰线在手机上基本看不见，
+     整列就退回成「一堆孤立的圆」。 */
+  .stop:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: 38px;
+    bottom: calc(var(--sp-3) * -1 - 2px);
+    width: 2px;
+    border-radius: 1px;
+    background: color-mix(in srgb, var(--path-c) 38%, var(--border-2));
+  }
+
+  .stop__btn {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--sp-3);
+    width: 100%;
+    padding: 0;
+    text-align: left;
+  }
+
+  .stop__dot {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    font-size: 11px;
+  }
+
+  .stop[data-final] .stop__dot { width: 34px; height: 34px; }
+
+  .stop__body { align-items: flex-start; }
+
+  .stop__note {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    line-height: var(--lh-snug);
+    color: var(--text-3);
+  }
+}
+
+@media (max-width: 480px) {
+  .world { padding: var(--sp-4); }
+  .world__head { flex-wrap: wrap; }
+  .world__meter { margin-left: 0; }
+  .paths__stats li { padding: 3px 8px; }
+}
+
+@media print {
+  .paths__panel { display: none; }
+  .pathmap__flow { animation: none; }
+  .stop__note { display: block; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .pathmap__flow { animation: none; opacity: 0.5; }
   .demo-mount[data-state="loading"] .demo-state::before { animation: none; }
 }
 

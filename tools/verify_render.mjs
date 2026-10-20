@@ -566,12 +566,21 @@ try {
   await gp.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2", timeout: 30000 });
   await gp.evaluate(() => document.getElementById("concept-map").scrollIntoView({ block: "center" }));
   await new Promise(r => setTimeout(r, 500));
-  const box = await gp.evaluate(() => {
-    const g = document.querySelector("#concept-map g.cm-node");
-    const r = g.getBoundingClientRect();
-    // 记住 id：拖动时节点会被提到最上层，DOM 顺序会变，不能靠「第一个 g」找它
-    return { x: r.x + r.width / 2, y: r.y + r.height / 2, id: g.dataset.node };
-  });
+  /* 等节点停下来再量坐标。概念图有入场动画（节点从位移 0 飞到位），
+     动画途中量到的坐标和松手时的差着几十像素，鼠标就会按在空处 ——
+     单独跑能过、整套连跑十几页时偶发失败，就是栽在这里。 */
+  let box = null;
+  for (let i = 0; i < 20; i++) {
+    const now = await gp.evaluate(() => {
+      const g = document.querySelector("#concept-map g.cm-node");
+      const r = g.getBoundingClientRect();
+      // 记住 id：拖动时节点会被提到最上层，DOM 顺序会变，不能靠「第一个 g」找它
+      return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2), id: g.dataset.node };
+    });
+    if (box && now.x === box.x && now.y === box.y) { box = now; break; }
+    box = now;
+    await new Promise(r => setTimeout(r, 90));
+  }
   await gp.mouse.move(box.x, box.y);
   await gp.mouse.down();
   for (let i = 1; i <= 8; i++) {
@@ -611,27 +620,64 @@ try {
   ]);
 } catch (e) { interact.push(["知识图谱拖动", false, String(e.message)]); }
 
-/*    学习路径：门户上三条路线要真的排开、每个步骤都要落到存在的章节页。
-    只数 .route 的个数会被"有容器没内容"骗过去，所以同时检查步数与链接。 */
+/*    学习路径：三条路线各画成一条关卡路径。光数容器会被「有卡片没连线」
+    骗过去 —— 连线是脚本按站点位置现画的，一个 dot 都量不到就整块消失，
+    所以同时检查线段数（每条路线 = 站点数 - 1）与流动层（每条路线一层）。
+    链接不再挂在站点上（站点是按钮，点了先看右侧说明），改查数据里的 href。 */
 try {
   await ipage.goto(BASE + "/", { waitUntil: "networkidle2", timeout: 30000 });
   const routes = await ipage.evaluate(() => {
-    const links = [...document.querySelectorAll(".route__link")].map(a => a.getAttribute("href"));
-    const cols = new Set([...document.querySelectorAll(".route")].map(r => Math.round(r.getBoundingClientRect().left)));
+    const data = JSON.parse(document.getElementById("path-data").textContent);
+    const hrefs = data.worlds.flatMap(w => w.steps.map(s => s.href));
     return {
-      routes: document.querySelectorAll(".route").length,
-      steps: links.length,
-      cols: cols.size,
-      linksOk: links.every(h => /^lesson-0[1-5]\/$/.test(h)),
-      art: !!document.querySelector(".portal-hero__art"),
+      worlds: document.querySelectorAll(".world").length,
+      stops: document.querySelectorAll(".stop").length,
+      segs: document.querySelectorAll(".pathmap__seg").length,
+      flows: document.querySelectorAll(".pathmap__flow").length,
+      hrefs: hrefs.length,
+      linksOk: hrefs.every(h => /^lesson-0[1-5]\/$/.test(h)),
+      cta: document.querySelector(".paths__cta")?.getAttribute("href"),
+      title: document.querySelector(".paths__title")?.textContent.trim(),
     };
   });
   interact.push([
-    "门户三条学习路径排开且链接有效",
-    routes.routes === 3 && routes.steps === 11 && routes.cols === 3 && routes.linksOk,
+    "三条路径画成关卡图（11 站 / 连线按站数生成 / 链接有效）",
+    routes.worlds === 3 && routes.stops === 11 && routes.segs === 8 &&
+      routes.flows === 3 && routes.hrefs === 11 && routes.linksOk &&
+      routes.cta === "lesson-01/" && routes.title === "数据",
     JSON.stringify(routes),
   ]);
 } catch (e) { interact.push(["学习路径", false, String(e.message)]); }
+
+/*    关卡详情面板：站点是按钮，点/悬停都要换面板内容。只验「有面板」不够 ——
+    面板一开始就有静态内容（第一条路线第 1 站），换不动也照样是满的。
+    所以点第 2 条路线的第 3 站，要求标题与 CTA 都换成那一章的。 */
+try {
+  const panel = await (async () => {
+    const stop = '.world[data-world="1"] .stop[data-i="2"] .stop__btn';
+    await ipage.hover(stop);
+    await new Promise(r => setTimeout(r, 220));
+    const a = await ipage.evaluate(() => ({
+      title: document.querySelector(".paths__title")?.textContent.trim(),
+      cta: document.querySelector(".paths__cta")?.getAttribute("href"),
+      active: [...document.querySelectorAll(".stop.is-active")].map(s => s.dataset.ch),
+      eyebrow: document.querySelector(".paths__eyebrow")?.textContent.trim(),
+    }));
+    await ipage.click(stop);
+    await new Promise(r => setTimeout(r, 220));
+    const b = await ipage.evaluate(() => ({
+      active: [...document.querySelectorAll(".stop.is-active")].map(s => s.dataset.ch),
+    }));
+    return { hover: a, click: b };
+  })();
+  interact.push([
+    "点关卡换右侧详情（标题 / 入口 / 选中态跟着走）",
+    panel.hover.title === "低维数据可视化" && panel.hover.cta === "lesson-04/" &&
+      panel.hover.active.join() === "04" && /PATH 02/.test(panel.hover.eyebrow) &&
+      /第 3 站/.test(panel.hover.eyebrow) && panel.click.active.join() === "04",
+    JSON.stringify(panel),
+  ]);
+} catch (e) { interact.push(["关卡详情面板", false, String(e.message)]); }
 
 /*    首屏工作台：底边必须停在统计条上方 —— 数字浮在图表上会像排版事故；
     右边缘不能伸出视口，1024 那档最容易把右侧「关系」面板切掉一半。
@@ -772,7 +818,7 @@ const layout = await lpage.evaluate(() => {
   }
   const motif = document.querySelector(".chapter-card__motif");
   const r = motif?.getBoundingClientRect();
-  const kg = document.getElementById("kg");
+  const kg = document.getElementById("kg-app");
   return {
     chapterGrid: columns(".chapter-grid"),
     stats: columns(".portal-stats"),
@@ -821,7 +867,7 @@ sideChecks += 1;
 if (iaOrderOk) sidePass += 1; else hardFail += 1;
 log((iaOrderOk ? "✅ " : "❌ ") + "板块顺序与顶栏导航一致（学习路径在知识图谱之前）  " + JSON.stringify(ia));
 
-await lpage.evaluate(() => document.getElementById("kg").scrollIntoView({ block: "center" }));
+await lpage.evaluate(() => document.getElementById("kg-app").scrollIntoView({ block: "center" }));
 await new Promise(r => setTimeout(r, 550));
 const iaSpy = await lpage.evaluate(() => ({
   current: [...document.querySelectorAll(".topnav__link")]
@@ -870,13 +916,20 @@ await new Promise(r => setTimeout(r, 900));
 const routeProg = await rp.evaluate(() => ({
   meters: [...document.querySelectorAll("[data-route-meter]")].filter(m => !m.hidden)
     .map(m => ({ text: m.textContent.trim(), state: m.getAttribute("data-state") })),
-  ticks: [...document.querySelectorAll(".route__step")]
+  ticks: [...document.querySelectorAll(".stop")]
     .filter(s => s.getAttribute("data-progress-value") === "100").length,
+  // 站点上的文字状态：读完的写「已读完」，中途的写「读到 x / y」
+  states: [...document.querySelectorAll("[data-stop-state]")].map(s => s.textContent),
+  done: [...document.querySelectorAll('.stop[data-done="1"]')].length,
 }));
 const progOk = routeProg.meters.length === 3 &&
                routeProg.meters.every(m => /已读 1 \/ \d+ 章/.test(m.text)) &&
                routeProg.meters[0].state === "partial" &&
-               routeProg.ticks === 3;
+               routeProg.ticks === 3 &&
+               routeProg.done === 3 &&
+               routeProg.states.filter(x => x === "已读完").length === 3 &&
+               // 第 2 章只在两条路线里（第三条是 01/03/05），所以是 2 而不是 3
+               routeProg.states.filter(x => /^读到 2 \//.test(x)).length === 2;
 sideChecks += 1;
 if (progOk) sidePass += 1;
 if (!progOk) routeFail += 1;
@@ -895,11 +948,11 @@ log("-".repeat(76));
 
 let kgFail = 0;
 try {
-  await lpage.evaluate(() => document.getElementById("kg")?.scrollIntoView({ block: "center" }));
+  await lpage.evaluate(() => document.getElementById("kg-app")?.scrollIntoView({ block: "center" }));
   await new Promise(r => setTimeout(r, 3200));
 
   const kgInit = await lpage.evaluate(() => {
-    const kg = document.getElementById("kg");
+    const kg = document.getElementById("kg-app");
     const nodes = [...kg.querySelectorAll("g.kg-node")];
     return {
       ready: kg.classList.contains("is-ready"),
@@ -921,7 +974,7 @@ try {
   log((initOk ? "✅ " : "❌ ") + "装配完成且默认展开一章  " + JSON.stringify(kgInit));
 
   const kgClick = await lpage.evaluate(async () => {
-    const kg = document.getElementById("kg");
+    const kg = document.getElementById("kg-app");
     const before = (kg.querySelector(".kg__panel-title")?.textContent || "").trim();
     // 点一颗知识点（不是章节）：详情要跟着换，统计要从章级的 6 变成 1
     const target = [...kg.querySelectorAll("g.kg-node--concept")][1];
@@ -941,7 +994,7 @@ try {
   log((clickOk ? "✅ " : "❌ ") + "点知识点换详情并给出小节锚点  " + JSON.stringify(kgClick));
 
   const kgAll = await lpage.evaluate(async () => {
-    const kg = document.getElementById("kg");
+    const kg = document.getElementById("kg-app");
     kg.querySelector("[data-kg-all]").click();
     await new Promise(r => setTimeout(r, 2600));
     const box = kg.querySelector(".kg__svg").getBoundingClientRect();
@@ -1052,7 +1105,7 @@ for (const np of NARROW_PAGES) {
         overflow: de.scrollWidth - de.clientWidth,
         // 概念图 / 知识图谱曾经在窄屏上要横向滚动才看得全，而横滚没有任何提示，
         // 读者看到头两个节点就以为图到此为止。容器内滚动量必须为 0。
-        mapScroll: [...document.querySelectorAll("#kg, #concept-map")]
+        mapScroll: [...document.querySelectorAll("#kg, #concept-map, #paths")]
           .map(h => Math.round(h.scrollWidth - h.clientWidth)),
         culprit: (() => {
           // 找不到是谁撑出去的，等于没说 —— 顺手把最右边那个元素也带出来

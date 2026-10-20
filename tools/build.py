@@ -398,6 +398,11 @@ def head(title, desc, depth, extra_css=(), extra_js=(), theme_color="#3d4bc0",
   <meta property="og:type" content="website" />{og_url}{canonical}
 {css}
   <script>
+    /* 脚本活着才收紧「无 JS 兜底」样式。放在最前面、且不在 try 里：
+       哪怕 localStorage 被禁，这一句也执行了，标记就是可靠的。
+       例如学习路径的站点说明：有 JS 时桌面端收进右侧面板，
+       没 JS 时就地展开（否则那半句提示在有面板时是重复的）。 */
+    document.documentElement.setAttribute("data-js", "1");
     /* 主题要在首次绘制前定好，否则深色模式会闪一下白 */
     (function () {{
       try {{
@@ -1002,44 +1007,102 @@ LEARNING_ROUTES = [
 ]
 
 
-def routes_html(section_counts):
-    """门户的「学习路径」。每条路线是一条带连接线的步骤链，
-    走过的章会在步骤上打勾（复用站内的阅读进度，不另存一份状态）。"""
-    cards = []
-    for r in LEARNING_ROUTES:
+def path_payload(section_counts):
+    """学习路径的机器可读版本。右侧「关卡详情」面板靠它换内容 ——
+    否则同一段说明文字要在 DOM 里写两遍（桌面看面板、手机看列表），
+    改一处忘一处就会对不上。"""
+    worlds = []
+    for wi, r in enumerate(LEARNING_ROUTES, 1):
         steps = []
         for cid, note in r["steps"]:
             ch = next(c for c in CHAPTERS if c["id"] == cid)
-            steps.append(f"""            <li class="route__step" data-progress-scope="c{cid}s"
-                data-progress-total="{section_counts[cid]}">
-              <a class="route__link" href="{ch['slug']}/">
-                <span class="route__num">{cid}</span>
-                <span class="route__body">
-                  <span class="route__name">
+            pts = [n for k, n in KG["nodes"].items() if k.startswith(cid + ".")]
+            steps.append({
+                "ch": cid,
+                "num": ch["num"],
+                "href": ch["slug"] + "/",
+                "title": ch["title"],
+                "lead": ch["lead"],
+                "note": note,
+                "sections": section_counts[cid],
+                "concepts": {
+                    "zh": [x["zh"] for x in pts][:4],
+                    "en": [x["en"] for x in pts][:4],
+                },
+            })
+        worlds.append({
+            "key": r["key"],
+            "tag": f"PATH {wi:02d}",
+            "title": r["title"],
+            "steps": steps,
+        })
+    return json.dumps({"worlds": worlds}, ensure_ascii=False, separators=(",", ":"))
+
+
+def routes_html(section_counts):
+    """门户的「学习路径」。每条路线画成一条关卡路径：序号是站点，虚线是
+    行进方向，右上是走到哪了。站点本身是按钮而不是链接 —— 点一下先在右侧
+    看「这一站要做什么」，要进去再点面板里的按钮。直接跳走的话，读者
+    永远读不到那半句解释。"""
+    worlds = []
+    for wi, r in enumerate(LEARNING_ROUTES, 1):
+        stops = []
+        for si, (cid, note) in enumerate(r["steps"]):
+            ch = next(c for c in CHAPTERS if c["id"] == cid)
+            # 高低交替，路径才有「走」的感觉；全排一条直线就退回成列表了
+            lift = 26 if si % 2 else 0
+            final = ' data-final="1"' if si == len(r["steps"]) - 1 else ""
+            stops.append(f"""            <li class="stop" data-i="{si}" data-ch="{cid}"{final} data-href="{ch['slug']}/"
+                data-progress-scope="c{cid}s" data-progress-total="{section_counts[cid]}"
+                style="--lift:{lift}px">
+              <button class="stop__btn" type="button" aria-controls="path-panel">
+                <span class="stop__dot"><span class="stop__num">{cid}</span></span>
+                <span class="stop__body">
+                  <span class="stop__label">
                     <span data-lang="zh">{ch['short']['zh']}</span>
                     <span data-lang="en">{ch['short']['en']}</span>
                   </span>
-                  <span class="route__note">
+                  <span class="stop__state" data-stop-state></span>
+                  <span class="stop__note">
                     <span data-lang="zh">{note['zh']}</span>
                     <span data-lang="en">{note['en']}</span>
                   </span>
                 </span>
-              </a>
+              </button>
             </li>""")
-        cards.append(f"""        <article class="route" data-route="{r['key']}" data-route-steps="{len(r['steps'])}">
-          <h3 class="route__title">
-            <span data-lang="zh">{r['title']['zh']}</span>
-            <span data-lang="en">{r['title']['en']}</span>
-          </h3>
-          <p class="route__why">
-            <span data-lang="zh">{r['why']['zh']}</span>
-            <span data-lang="en">{r['why']['en']}</span>
-          </p>
-          <p class="route__meter" data-route-meter hidden></p>
-          <ol class="route__steps">
-{chr(10).join(steps)}
+        worlds.append(f"""      <article class="world" data-route="{r['key']}" data-world="{wi - 1}">
+        <header class="world__head">
+          <span class="world__tag">PATH {wi:02d}</span>
+          <div class="world__intro">
+            <h3 class="world__title">
+              <span data-lang="zh">{r['title']['zh']}</span>
+              <span data-lang="en">{r['title']['en']}</span>
+            </h3>
+            <p class="world__why">
+              <span data-lang="zh">{r['why']['zh']}</span>
+              <span data-lang="en">{r['why']['en']}</span>
+            </p>
+          </div>
+          <p class="world__meter" data-route-meter hidden></p>
+        </header>
+        <div class="pathmap">
+          <svg class="pathmap__wires" aria-hidden="true" focusable="false"></svg>
+          <ol class="pathmap__track">
+{chr(10).join(stops)}
           </ol>
-        </article>""")
+        </div>
+      </article>""")
+
+    # 面板先按「第一条路线第 1 站」静态渲染一份：脚本没跑起来也能读到内容
+    f_ch = next(c for c in CHAPTERS if c["id"] == LEARNING_ROUTES[0]["steps"][0][0])
+    f_note = LEARNING_ROUTES[0]["steps"][0][1]
+    f_pts = [n for k, n in KG["nodes"].items() if k.startswith(f_ch["id"] + ".")][:4]
+    f_chips = "".join(
+        '<li><span data-lang="zh">{}</span><span data-lang="en">{}</span></li>'.format(
+            x["zh"], x["en"])
+        for x in f_pts)
+    total_stops = sum(len(r["steps"]) for r in LEARNING_ROUTES)
+
     return f"""    <section class="portal-section" id="paths" aria-labelledby="routes-title">
       <h2 id="routes-title" class="portal-section__title">
         <span data-lang="zh">学习路径</span><span data-lang="en">Learning paths</span>
@@ -1047,13 +1110,53 @@ def routes_html(section_counts):
       <p class="portal-section__lead">
         <span data-lang="zh">五章不必都从头读到尾。三条路线对应三种情况：<strong>完全从零</strong>、
         <strong>会写 JavaScript 想尽快出图</strong>、<strong>只补某个专题</strong>。
-        挑一条照着走，跳过的章随时能回来补，走完的章会在序号上打勾。</span>
+        点一站先看它要做什么，再决定进不进去。</span>
         <span data-lang="en">You do not have to read all five in order. Three routes cover three
         situations: starting from zero, knowing JavaScript and wanting charts fast, or patching
-        a single topic. Walked chapters get a tick; skipped ones stay open.</span>
+        a single topic. Pick a station to see what it asks of you before opening it.</span>
       </p>
-      <div class="route-grid">
-{chr(10).join(cards)}
+      <ul class="paths__stats">
+        <li><strong>{len(LEARNING_ROUTES)}</strong><span data-lang="zh">条路径</span><span data-lang="en">routes</span></li>
+        <li><strong>{total_stops}</strong><span data-lang="zh">站</span><span data-lang="en">stops</span></li>
+        <li><strong>{len(CHAPTERS)}</strong><span data-lang="zh">章</span><span data-lang="en">chapters</span></li>
+      </ul>
+      <div class="paths__layout">
+        <div class="paths__worlds">
+{chr(10).join(worlds)}
+        </div>
+        <aside class="paths__panel" id="path-panel" aria-labelledby="path-panel-title">
+          <p class="paths__eyebrow">
+            <span data-lang="zh">PATH 01 · 第 1 站，共 {len(LEARNING_ROUTES[0]['steps'])} 站</span>
+            <span data-lang="en">PATH 01 · stop 1 of {len(LEARNING_ROUTES[0]['steps'])}</span>
+          </p>
+          <h3 class="paths__title" id="path-panel-title">
+            <span data-lang="zh">{f_ch['title']['zh']}</span>
+            <span data-lang="en">{f_ch['title']['en']}</span>
+          </h3>
+          <ul class="paths__meta">
+            <li><span data-lang="zh">第 {f_ch['id']} 章</span><span data-lang="en">Chapter {f_ch['id']}</span></li>
+            <li><span data-lang="zh">{section_counts[f_ch['id']]} 节</span><span data-lang="en">{section_counts[f_ch['id']]} sections</span></li>
+          </ul>
+          <p class="paths__lead">
+            <span data-lang="zh">{f_ch['lead']['zh']}</span>
+            <span data-lang="en">{f_ch['lead']['en']}</span>
+          </p>
+          <div class="paths__block">
+            <h4><span data-lang="zh">这条路径里做什么</span><span data-lang="en">On this path</span></h4>
+            <p>
+              <span data-lang="zh">{f_note['zh']}</span>
+              <span data-lang="en">{f_note['en']}</span>
+            </p>
+          </div>
+          <div class="paths__block">
+            <h4><span data-lang="zh">关键概念</span><span data-lang="en">Key concepts</span></h4>
+            <ul class="paths__chips" data-panel-chips>{f_chips}</ul>
+          </div>
+          <a class="paths__cta" href="{f_ch['slug']}/">
+            <span data-lang="zh">进入本章</span><span data-lang="en">Open chapter</span>
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg>
+          </a>
+        </aside>
       </div>
       <p class="portal-section__hint">
         <span data-lang="zh">拿不定选哪条就选第一条，它包含全部五章。想知道某一个知识点被哪几章用到，
@@ -1061,6 +1164,7 @@ def routes_html(section_counts):
         <span data-lang="en">Unsure? Take the first route — it covers all five chapters. To see where
         a single concept is used, scroll to the knowledge graph.</span>
       </p>
+      <script type="application/json" id="path-data">{path_payload(section_counts)}</script>
     </section>"""
 
 
@@ -2068,7 +2172,7 @@ def kg_html(payload):
         For an order to read in, the learning paths above are the shorter answer.</span>
       </p>
 
-      <div class="kg" id="kg">
+      <div class="kg" id="kg-app">
         <div class="kg__bar">
           <nav class="kg__crumbs" aria-label="图谱位置">
             <button class="kg__crumb" type="button" data-kg-home>

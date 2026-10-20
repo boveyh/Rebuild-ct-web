@@ -13,6 +13,40 @@
   var doc = document;
   var $$ = function (sel) { return Array.prototype.slice.call(doc.querySelectorAll(sel)); };
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var SVG_NS = "http://www.w3.org/2000/svg";
+
+  function readProgress() {
+    try { return JSON.parse(localStorage.getItem("wb.progress") || "{}"); } catch (e) { return {}; }
+  }
+
+  function isEn() {
+    return doc.documentElement.getAttribute("data-locale") === "en";
+  }
+
+  function esc(str) {
+    return String(str).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  /* 这一站读到哪了。分母来自构建期写入的 data-progress-total ——
+     门户页里没有小节节点，数不出实际条数。 */
+  function stopDone(stop) {
+    var scope = stop.getAttribute("data-progress-scope");
+    var total = parseInt(stop.getAttribute("data-progress-total") || "0", 10);
+    if (!scope || !total) return { done: 0, total: 0 };
+    var map = readProgress();
+    var done = 0;
+    for (var k in map) if (map[k] && k.indexOf(scope) === 0) done++;
+    return { done: Math.min(done, total), total: total };
+  }
+
+  function stateText(done, total, en) {
+    if (!total) return "";
+    if (done >= total) return en ? "Read" : "已读完";
+    if (done > 0) return en ? done + " / " + total + " read" : "读到 " + done + " / " + total;
+    return en ? "Not started" : "未开始";
+  }
 
   /* --------------------------------------------------- 上次读到哪了 */
   function markResume() {
@@ -79,37 +113,217 @@
 
      一章没读就不显示：一个刚打开页面的人看到「已读 0 / 5」只会觉得自己落后。 */
   function markRoutes() {
-    var map;
-    try { map = JSON.parse(localStorage.getItem("wb.progress") || "{}"); } catch (e) { return; }
-    var en = document.documentElement.getAttribute("data-locale") === "en";
+    var en = isEn();
 
-    $$(".route").forEach(function (card) {
+    $$(".world").forEach(function (card) {
       var meter = card.querySelector("[data-route-meter]");
-      if (!meter) return;
-      var steps = Array.prototype.slice.call(card.querySelectorAll(".route__step"));
       var done = 0;
+      var list = Array.prototype.slice.call(card.querySelectorAll(".stop"));
 
-      steps.forEach(function (st) {
-        var scope = st.getAttribute("data-progress-scope");
-        var total = parseInt(st.getAttribute("data-progress-total") || "0", 10);
-        if (!scope || !total) return;
-        var n = 0;
-        for (var k in map) if (map[k] && k.indexOf(scope) === 0) n++;
-        if (n >= total) done++;
+      list.forEach(function (st) {
+        var r = stopDone(st);
+        var state = st.querySelector("[data-stop-state]");
+        if (state) state.textContent = stateText(r.done, r.total, en);
+        // 连线要按「走到哪」分实线/虚线，所以把结果留在属性上给绘制用
+        st.setAttribute("data-done", r.done >= r.total ? "1" : "0");
+        if (r.done >= r.total) done++;
       });
 
+      if (!meter) return;
       if (!done) {
         meter.hidden = true;
         meter.removeAttribute("data-state");
         return;
       }
       meter.hidden = false;
-      meter.setAttribute("data-state", done === steps.length ? "done" : "partial");
+      meter.setAttribute("data-state", done === list.length ? "done" : "partial");
       meter.textContent = en
-        ? done + " of " + steps.length + " chapters read"
-        : "已读 " + done + " / " + steps.length + " 章";
+        ? done + " of " + list.length + " chapters read"
+        : "已读 " + done + " / " + list.length + " 章";
     });
   }
+
+  /* --------------------------------------------------- 学习路径：关卡图 */
+  /* 连线不能写死坐标：每一站多宽是 flex 按容器算的，换语言（英文标签更长）、
+     换字号、窄屏变竖排，坐标全变。所以量出站点圆心的实际位置，再连曲线。 */
+  var PathMap = {
+    data: null,
+    sel: { w: 0, i: 0 },
+    ready: false,
+
+    init: function () {
+      var el = doc.getElementById("path-data");
+      var host = doc.getElementById("paths");
+      if (!el || !host || !host.querySelector(".world")) return;
+      try { this.data = JSON.parse(el.textContent); } catch (e) { return; }
+
+      this.host = host;
+      this.panel = doc.getElementById("path-panel");
+      this.ready = true;
+
+      var self = this;
+      Array.prototype.slice.call(host.querySelectorAll(".stop")).forEach(function (st) {
+        var btn = st.querySelector(".stop__btn");
+        if (!btn) return;
+        var world = st.parentNode;
+        while (world && !world.getAttribute("data-world")) world = world.parentNode;
+        if (!world) return;
+        var w = parseInt(world.getAttribute("data-world"), 10);
+        var i = parseInt(st.getAttribute("data-i"), 10);
+
+        btn.addEventListener("pointerenter", function (e) {
+          // 触屏没有 hover：手指抬起后不会配对 pointerleave，会一直停在这个站
+          if (e.pointerType && e.pointerType !== "mouse") return;
+          self.select(w, i);
+        });
+        btn.addEventListener("focus", function () { self.select(w, i); });
+        btn.addEventListener("click", function () {
+          /* 窄屏没有右侧面板：点一下就该进那一章，否则这些按钮点了毫无反应。
+             面板只在宽屏存在（见 .paths__panel 的媒体查询）。 */
+          if (window.matchMedia("(max-width: 1020px)").matches) {
+            var href = this.parentNode.getAttribute("data-href");
+            if (href) window.location.href = href;
+            return;
+          }
+          self.select(w, i);
+        });
+      });
+
+      this.select(0, 0);
+      this.draw();
+
+      var relayout = this.debounce(function () { self.draw(); }, 120);
+      window.addEventListener("resize", relayout, { passive: true });
+      if (window.ResizeObserver) {
+        var ro = new ResizeObserver(relayout);
+        Array.prototype.slice.call(host.querySelectorAll(".pathmap")).forEach(function (m) {
+          ro.observe(m);
+        });
+      }
+      // 字体晚一步落地时标签宽度会变，圆心跟着移
+      if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(function () { self.draw(); });
+    },
+
+    debounce: function (fn, wait) {
+      var t = null;
+      return function () {
+        clearTimeout(t);
+        t = setTimeout(fn, wait);
+      };
+    },
+
+    select: function (w, i) {
+      if (!this.ready) return;
+      this.sel = { w: w, i: i };
+      Array.prototype.slice.call(this.host.querySelectorAll(".stop")).forEach(function (st) {
+        var world = st.parentNode;
+        while (world && !world.getAttribute("data-world")) world = world.parentNode;
+        var on = world &&
+          parseInt(world.getAttribute("data-world"), 10) === w &&
+          parseInt(st.getAttribute("data-i"), 10) === i;
+        st.classList.toggle("is-active", !!on);
+      });
+      this.render();
+    },
+
+    render: function () {
+      var panel = this.panel;
+      if (!panel || !this.data) return;
+      var world = this.data.worlds[this.sel.w];
+      if (!world) return;
+      var st = world.steps[this.sel.i];
+      if (!st) return;
+
+      var en = isEn();
+      var text = function (o) { return en ? o.en : o.zh; };
+      var stopEl = this.host.querySelector(
+        '.world[data-world="' + this.sel.w + '"] .stop[data-i="' + this.sel.i + '"]');
+      var done = stopEl ? parseInt(stopEl.getAttribute("data-done") || "0", 10) : 0;
+      var read = parseFloat(stopEl ? stopEl.getAttribute("data-progress-value") || "0" : "0");
+      var finished = done === 1 || read >= 100;
+
+      var chips = (st.concepts[en ? "en" : "zh"] || []).map(function (c) {
+        return "<li>" + esc(c) + "</li>";
+      }).join("");
+
+      var idx = en
+        ? "stop " + (this.sel.i + 1) + " of " + world.steps.length
+        : "第 " + (this.sel.i + 1) + " 站，共 " + world.steps.length + " 站";
+
+      panel.innerHTML =
+        '<p class="paths__eyebrow">' + esc(world.tag) + " · " + idx + "</p>" +
+        '<h3 class="paths__title" id="path-panel-title">' + esc(text(st.title)) + "</h3>" +
+        '<ul class="paths__meta">' +
+          "<li>" + (en ? "Chapter " + st.ch : "第 " + st.ch + " 章") + "</li>" +
+          "<li>" + st.sections + (en ? " sections" : " 节") + "</li>" +
+          '<li data-done="' + (finished ? "1" : "0") + '">' +
+            (finished ? (en ? "Read" : "已读完") : (en ? "Not read" : "未读")) + "</li>" +
+        "</ul>" +
+        '<p class="paths__lead">' + esc(text(st.lead)) + "</p>" +
+        '<div class="paths__block"><h4>' + (en ? "On this path" : "这条路径里做什么") + "</h4><p>" +
+          esc(text(st.note)) + "</p></div>" +
+        (chips
+          ? '<div class="paths__block"><h4>' + (en ? "Key concepts" : "关键概念") + "</h4>" +
+            '<ul class="paths__chips">' + chips + "</ul></div>"
+          : "") +
+        '<a class="paths__cta" href="' + esc(st.href) + '">' +
+          (en ? "Open chapter" : "进入本章") +
+          '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg>' +
+        "</a>";
+    },
+
+    draw: function () {
+      if (!this.host) return;
+      Array.prototype.slice.call(this.host.querySelectorAll(".world")).forEach(function (world) {
+        var svg = world.querySelector(".pathmap__wires");
+        var dots = Array.prototype.slice.call(world.querySelectorAll(".stop__dot"));
+        if (!svg || dots.length < 2) return;
+
+        var box = svg.getBoundingClientRect();
+        if (box.width < 2 || box.height < 2) return;
+
+        var w = Math.round(box.width);
+        var h = Math.round(box.height);
+        svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+        svg.setAttribute("width", w);
+        svg.setAttribute("height", h);
+        svg.innerHTML = "";
+
+        var pts = dots.map(function (d) {
+          var r = d.getBoundingClientRect();
+          return {
+            x: r.left - box.left + r.width / 2,
+            y: r.top - box.top + r.height / 2,
+            st: d.parentNode.parentNode,
+          };
+        });
+
+        var all = "";
+        for (var i = 0; i < pts.length - 1; i++) {
+          var a = pts[i];
+          var b = pts[i + 1];
+          // 控制点放在两站的水平中点：曲线先从圆顶切线方向离开，再到下一站，
+          // 比直接连斜线更像「走」过去的路
+          var mx = (a.x + b.x) / 2;
+          var d = "M" + a.x + " " + a.y + " C" + mx + " " + a.y + " " + mx + " " + b.y +
+                  " " + b.x + " " + b.y;
+          all += d;
+
+          var seg = doc.createElementNS(SVG_NS, "path");
+          seg.setAttribute("d", d);
+          seg.setAttribute("class", "pathmap__seg");
+          if (b.st && b.st.getAttribute("data-done") === "1") seg.classList.add("is-done");
+          svg.appendChild(seg);
+        }
+
+        if (!all) return;
+        var flow = doc.createElementNS(SVG_NS, "path");
+        flow.setAttribute("d", all);
+        flow.setAttribute("class", "pathmap__flow");
+        svg.appendChild(flow);
+      });
+    },
+  };
 
   /* --------------------------------------------------- 顶栏板块导航高亮 */
   /* 顶栏是 sticky 的，滚到哪里都看得见这排链接。既然一直挂在眼前，就得回答
@@ -163,10 +377,21 @@
   function init() {
     markResume();
     markRoutes();
+    PathMap.init();
     spySections();
     doc.addEventListener("wb:locale", function () {
       markResume();
       markRoutes();
+      // 英文标签更长，圆心会挪，连线得重画
+      PathMap.render();
+      PathMap.draw();
+    });
+    /* 阅读进度是 shell.js 写的，它可能比这里晚一步跑完 —— 进度一变，
+       站点上的「已读完 / 读到 2 / 5」和实线段都要跟着变。 */
+    doc.addEventListener("wb:progress", function () {
+      markRoutes();
+      PathMap.render();
+      PathMap.draw();
     });
     if ("IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (entries, obs) {

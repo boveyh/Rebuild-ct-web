@@ -23,6 +23,11 @@
   <link rel="stylesheet" href="../assets/css/shell.css" />
   <link rel="stylesheet" href="../assets/css/content.css" />
   <script>
+    /* 脚本活着才收紧「无 JS 兜底」样式。放在最前面、且不在 try 里：
+       哪怕 localStorage 被禁，这一句也执行了，标记就是可靠的。
+       例如学习路径的站点说明：有 JS 时桌面端收进右侧面板，
+       没 JS 时就地展开（否则那半句提示在有面板时是重复的）。 */
+    document.documentElement.setAttribute("data-js", "1");
     /* 主题要在首次绘制前定好，否则深色模式会闪一下白 */
     (function () {
       try {

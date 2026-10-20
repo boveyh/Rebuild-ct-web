@@ -25,6 +25,11 @@
   <link rel="stylesheet" href="assets/css/portal.css" />
   <link rel="stylesheet" href="assets/css/kg.css" />
   <script>
+    /* 脚本活着才收紧「无 JS 兜底」样式。放在最前面、且不在 try 里：
+       哪怕 localStorage 被禁，这一句也执行了，标记就是可靠的。
+       例如学习路径的站点说明：有 JS 时桌面端收进右侧面板，
+       没 JS 时就地展开（否则那半句提示在有面板时是重复的）。 */
+    document.documentElement.setAttribute("data-js", "1");
     /* 主题要在首次绘制前定好，否则深色模式会闪一下白 */
     (function () {
       try {
@@ -301,227 +306,313 @@
       <p class="portal-section__lead">
         <span data-lang="zh">五章不必都从头读到尾。三条路线对应三种情况：<strong>完全从零</strong>、
         <strong>会写 JavaScript 想尽快出图</strong>、<strong>只补某个专题</strong>。
-        挑一条照着走，跳过的章随时能回来补，走完的章会在序号上打勾。</span>
+        点一站先看它要做什么，再决定进不进去。</span>
         <span data-lang="en">You do not have to read all five in order. Three routes cover three
         situations: starting from zero, knowing JavaScript and wanting charts fast, or patching
-        a single topic. Walked chapters get a tick; skipped ones stay open.</span>
+        a single topic. Pick a station to see what it asks of you before opening it.</span>
       </p>
-      <div class="route-grid">
-        <article class="route" data-route="scratch" data-route-steps="5">
-          <h3 class="route__title">
-            <span data-lang="zh">零基础，从头走一遍</span>
-            <span data-lang="en">From scratch, in order</span>
-          </h3>
-          <p class="route__why">
-            <span data-lang="zh">没写过 JavaScript 也能跟上。每章都先讲「为什么」，再落到代码。</span>
-            <span data-lang="en">No JavaScript needed. Each chapter explains the why before the code.</span>
-          </p>
-          <p class="route__meter" data-route-meter hidden></p>
-          <ol class="route__steps">
-            <li class="route__step" data-progress-scope="c01s"
-                data-progress-total="5">
-              <a class="route__link" href="lesson-01/">
-                <span class="route__num">01</span>
-                <span class="route__body">
-                  <span class="route__name">
+      <ul class="paths__stats">
+        <li><strong>3</strong><span data-lang="zh">条路径</span><span data-lang="en">routes</span></li>
+        <li><strong>11</strong><span data-lang="zh">站</span><span data-lang="en">stops</span></li>
+        <li><strong>5</strong><span data-lang="zh">章</span><span data-lang="en">chapters</span></li>
+      </ul>
+      <div class="paths__layout">
+        <div class="paths__worlds">
+      <article class="world" data-route="scratch" data-world="0">
+        <header class="world__head">
+          <span class="world__tag">PATH 01</span>
+          <div class="world__intro">
+            <h3 class="world__title">
+              <span data-lang="zh">零基础，从头走一遍</span>
+              <span data-lang="en">From scratch, in order</span>
+            </h3>
+            <p class="world__why">
+              <span data-lang="zh">没写过 JavaScript 也能跟上。每章都先讲「为什么」，再落到代码。</span>
+              <span data-lang="en">No JavaScript needed. Each chapter explains the why before the code.</span>
+            </p>
+          </div>
+          <p class="world__meter" data-route-meter hidden></p>
+        </header>
+        <div class="pathmap">
+          <svg class="pathmap__wires" aria-hidden="true" focusable="false"></svg>
+          <ol class="pathmap__track">
+            <li class="stop" data-i="0" data-ch="01" data-href="lesson-01/"
+                data-progress-scope="c01s" data-progress-total="5"
+                style="--lift:0px">
+              <button class="stop__btn" type="button" aria-controls="path-panel">
+                <span class="stop__dot"><span class="stop__num">01</span></span>
+                <span class="stop__body">
+                  <span class="stop__label">
                     <span data-lang="zh">数据</span>
                     <span data-lang="en">Data</span>
                   </span>
-                  <span class="route__note">
+                  <span class="stop__state" data-stop-state></span>
+                  <span class="stop__note">
                     <span data-lang="zh">分清楚名义、序数、区间尺度 —— 后面每一次选图都靠这个判断</span>
                     <span data-lang="en">Nominal, ordinal, interval: every later chart choice follows from this</span>
                   </span>
                 </span>
-              </a>
+              </button>
             </li>
-            <li class="route__step" data-progress-scope="c02s"
-                data-progress-total="4">
-              <a class="route__link" href="lesson-02/">
-                <span class="route__num">02</span>
-                <span class="route__body">
-                  <span class="route__name">
+            <li class="stop" data-i="1" data-ch="02" data-href="lesson-02/"
+                data-progress-scope="c02s" data-progress-total="4"
+                style="--lift:26px">
+              <button class="stop__btn" type="button" aria-controls="path-panel">
+                <span class="stop__dot"><span class="stop__num">02</span></span>
+                <span class="stop__body">
+                  <span class="stop__label">
                     <span data-lang="zh">可视化流程</span>
                     <span data-lang="en">Workflow</span>
                   </span>
-                  <span class="route__note">
+                  <span class="stop__state" data-stop-state></span>
+                  <span class="stop__note">
                     <span data-lang="zh">把「数据 → 变换 → 映射 → 渲染」整条链路走通</span>
                     <span data-lang="en">Walk the whole data → transform → map → render pipeline</span>
                   </span>
                 </span>
-              </a>
+              </button>
             </li>
-            <li class="route__step" data-progress-scope="c03s"
-                data-progress-total="8">
-              <a class="route__link" href="lesson-03/">
-                <span class="route__num">03</span>
-                <span class="route__body">
-                  <span class="route__name">
+            <li class="stop" data-i="2" data-ch="03" data-href="lesson-03/"
+                data-progress-scope="c03s" data-progress-total="8"
+                style="--lift:0px">
+              <button class="stop__btn" type="button" aria-controls="path-panel">
+                <span class="stop__dot"><span class="stop__num">03</span></span>
+                <span class="stop__body">
+                  <span class="stop__label">
                     <span data-lang="zh">色彩</span>
                     <span data-lang="en">Color</span>
                   </span>
-                  <span class="route__note">
+                  <span class="stop__state" data-stop-state></span>
+                  <span class="stop__note">
                     <span data-lang="zh">颜色不只是好看：三类 colormap 用错就是误导</span>
                     <span data-lang="en">Colour is not decoration: the wrong colormap misleads</span>
                   </span>
                 </span>
-              </a>
+              </button>
             </li>
-            <li class="route__step" data-progress-scope="c04s"
-                data-progress-total="5">
-              <a class="route__link" href="lesson-04/">
-                <span class="route__num">04</span>
-                <span class="route__body">
-                  <span class="route__name">
+            <li class="stop" data-i="3" data-ch="04" data-href="lesson-04/"
+                data-progress-scope="c04s" data-progress-total="5"
+                style="--lift:26px">
+              <button class="stop__btn" type="button" aria-controls="path-panel">
+                <span class="stop__dot"><span class="stop__num">04</span></span>
+                <span class="stop__body">
+                  <span class="stop__label">
                     <span data-lang="zh">低维数据</span>
                     <span data-lang="en">Low-dim data</span>
                   </span>
-                  <span class="route__note">
+                  <span class="stop__state" data-stop-state></span>
+                  <span class="stop__note">
                     <span data-lang="zh">低维数据的取舍：散点、平行坐标、降维各自放弃了什么</span>
                     <span data-lang="en">Low-dimensional trade-offs: what scatter, parallel coords and projection each give up</span>
                   </span>
                 </span>
-              </a>
+              </button>
             </li>
-            <li class="route__step" data-progress-scope="c05s"
-                data-progress-total="5">
-              <a class="route__link" href="lesson-05/">
-                <span class="route__num">05</span>
-                <span class="route__body">
-                  <span class="route__name">
+            <li class="stop" data-i="4" data-ch="05" data-final="1" data-href="lesson-05/"
+                data-progress-scope="c05s" data-progress-total="5"
+                style="--lift:0px">
+              <button class="stop__btn" type="button" aria-controls="path-panel">
+                <span class="stop__dot"><span class="stop__num">05</span></span>
+                <span class="stop__body">
+                  <span class="stop__label">
                     <span data-lang="zh">时序数据</span>
                     <span data-lang="en">Time series</span>
                   </span>
-                  <span class="route__note">
+                  <span class="stop__state" data-stop-state></span>
+                  <span class="stop__note">
                     <span data-lang="zh">时间数据的三种形态：折线、日历热图、周期螺旋</span>
                     <span data-lang="en">Three shapes of time: line, calendar heatmap, spiral</span>
                   </span>
                 </span>
-              </a>
+              </button>
             </li>
           </ol>
-        </article>
-        <article class="route" data-route="fast" data-route-steps="3">
-          <h3 class="route__title">
-            <span data-lang="zh">会写 JS，想尽快出图</span>
-            <span data-lang="en">Know JS, want charts fast</span>
-          </h3>
-          <p class="route__why">
-            <span data-lang="zh">跳过色彩专题与时序，先把通用流程和低维图表拿下。缺的两块随时能回来补。</span>
-            <span data-lang="en">Skip colour and time for now; get the pipeline and low-dimensional charts first.</span>
-          </p>
-          <p class="route__meter" data-route-meter hidden></p>
-          <ol class="route__steps">
-            <li class="route__step" data-progress-scope="c01s"
-                data-progress-total="5">
-              <a class="route__link" href="lesson-01/">
-                <span class="route__num">01</span>
-                <span class="route__body">
-                  <span class="route__name">
+        </div>
+      </article>
+      <article class="world" data-route="fast" data-world="1">
+        <header class="world__head">
+          <span class="world__tag">PATH 02</span>
+          <div class="world__intro">
+            <h3 class="world__title">
+              <span data-lang="zh">会写 JS，想尽快出图</span>
+              <span data-lang="en">Know JS, want charts fast</span>
+            </h3>
+            <p class="world__why">
+              <span data-lang="zh">跳过色彩专题与时序，先把通用流程和低维图表拿下。缺的两块随时能回来补。</span>
+              <span data-lang="en">Skip colour and time for now; get the pipeline and low-dimensional charts first.</span>
+            </p>
+          </div>
+          <p class="world__meter" data-route-meter hidden></p>
+        </header>
+        <div class="pathmap">
+          <svg class="pathmap__wires" aria-hidden="true" focusable="false"></svg>
+          <ol class="pathmap__track">
+            <li class="stop" data-i="0" data-ch="01" data-href="lesson-01/"
+                data-progress-scope="c01s" data-progress-total="5"
+                style="--lift:0px">
+              <button class="stop__btn" type="button" aria-controls="path-panel">
+                <span class="stop__dot"><span class="stop__num">01</span></span>
+                <span class="stop__body">
+                  <span class="stop__label">
                     <span data-lang="zh">数据</span>
                     <span data-lang="en">Data</span>
                   </span>
-                  <span class="route__note">
+                  <span class="stop__state" data-stop-state></span>
+                  <span class="stop__note">
                     <span data-lang="zh">只需要看 1.3 数据属性，其余可略读</span>
                     <span data-lang="en">Read 1.3 on attributes; skim the rest</span>
                   </span>
                 </span>
-              </a>
+              </button>
             </li>
-            <li class="route__step" data-progress-scope="c02s"
-                data-progress-total="4">
-              <a class="route__link" href="lesson-02/">
-                <span class="route__num">02</span>
-                <span class="route__body">
-                  <span class="route__name">
+            <li class="stop" data-i="1" data-ch="02" data-href="lesson-02/"
+                data-progress-scope="c02s" data-progress-total="4"
+                style="--lift:26px">
+              <button class="stop__btn" type="button" aria-controls="path-panel">
+                <span class="stop__dot"><span class="stop__num">02</span></span>
+                <span class="stop__body">
+                  <span class="stop__label">
                     <span data-lang="zh">可视化流程</span>
                     <span data-lang="en">Workflow</span>
                   </span>
-                  <span class="route__note">
+                  <span class="stop__state" data-stop-state></span>
+                  <span class="stop__note">
                     <span data-lang="zh">整章必看，这是所有图共用的骨架</span>
                     <span data-lang="en">Read all of it — this is the skeleton every chart shares</span>
                   </span>
                 </span>
-              </a>
+              </button>
             </li>
-            <li class="route__step" data-progress-scope="c04s"
-                data-progress-total="5">
-              <a class="route__link" href="lesson-04/">
-                <span class="route__num">04</span>
-                <span class="route__body">
-                  <span class="route__name">
+            <li class="stop" data-i="2" data-ch="04" data-final="1" data-href="lesson-04/"
+                data-progress-scope="c04s" data-progress-total="5"
+                style="--lift:0px">
+              <button class="stop__btn" type="button" aria-controls="path-panel">
+                <span class="stop__dot"><span class="stop__num">04</span></span>
+                <span class="stop__body">
+                  <span class="stop__label">
                     <span data-lang="zh">低维数据</span>
                     <span data-lang="en">Low-dim data</span>
                   </span>
-                  <span class="route__note">
+                  <span class="stop__state" data-stop-state></span>
+                  <span class="stop__note">
                     <span data-lang="zh">散点与坐标变换是日常用得最多的两块</span>
                     <span data-lang="en">Scatter and axis transforms are the two you will use daily</span>
                   </span>
                 </span>
-              </a>
+              </button>
             </li>
           </ol>
-        </article>
-        <article class="route" data-route="topic" data-route-steps="3">
-          <h3 class="route__title">
-            <span data-lang="zh">只补色彩或时序</span>
-            <span data-lang="en">Just colour or time</span>
-          </h3>
-          <p class="route__why">
-            <span data-lang="zh">两个独立专题。先花二十分钟过第 1 章的数据尺度，再直接跳过去。</span>
-            <span data-lang="en">Two standalone topics. Spend twenty minutes on data scales in chapter 1 first.</span>
-          </p>
-          <p class="route__meter" data-route-meter hidden></p>
-          <ol class="route__steps">
-            <li class="route__step" data-progress-scope="c01s"
-                data-progress-total="5">
-              <a class="route__link" href="lesson-01/">
-                <span class="route__num">01</span>
-                <span class="route__body">
-                  <span class="route__name">
+        </div>
+      </article>
+      <article class="world" data-route="topic" data-world="2">
+        <header class="world__head">
+          <span class="world__tag">PATH 03</span>
+          <div class="world__intro">
+            <h3 class="world__title">
+              <span data-lang="zh">只补色彩或时序</span>
+              <span data-lang="en">Just colour or time</span>
+            </h3>
+            <p class="world__why">
+              <span data-lang="zh">两个独立专题。先花二十分钟过第 1 章的数据尺度，再直接跳过去。</span>
+              <span data-lang="en">Two standalone topics. Spend twenty minutes on data scales in chapter 1 first.</span>
+            </p>
+          </div>
+          <p class="world__meter" data-route-meter hidden></p>
+        </header>
+        <div class="pathmap">
+          <svg class="pathmap__wires" aria-hidden="true" focusable="false"></svg>
+          <ol class="pathmap__track">
+            <li class="stop" data-i="0" data-ch="01" data-href="lesson-01/"
+                data-progress-scope="c01s" data-progress-total="5"
+                style="--lift:0px">
+              <button class="stop__btn" type="button" aria-controls="path-panel">
+                <span class="stop__dot"><span class="stop__num">01</span></span>
+                <span class="stop__body">
+                  <span class="stop__label">
                     <span data-lang="zh">数据</span>
                     <span data-lang="en">Data</span>
                   </span>
-                  <span class="route__note">
+                  <span class="stop__state" data-stop-state></span>
+                  <span class="stop__note">
                     <span data-lang="zh">只看 1.2 与 1.3，知道数据有哪几种尺度就够</span>
                     <span data-lang="en">Only 1.2 and 1.3 — you just need the data scales</span>
                   </span>
                 </span>
-              </a>
+              </button>
             </li>
-            <li class="route__step" data-progress-scope="c03s"
-                data-progress-total="8">
-              <a class="route__link" href="lesson-03/">
-                <span class="route__num">03</span>
-                <span class="route__body">
-                  <span class="route__name">
+            <li class="stop" data-i="1" data-ch="03" data-href="lesson-03/"
+                data-progress-scope="c03s" data-progress-total="8"
+                style="--lift:26px">
+              <button class="stop__btn" type="button" aria-controls="path-panel">
+                <span class="stop__dot"><span class="stop__num">03</span></span>
+                <span class="stop__body">
+                  <span class="stop__label">
                     <span data-lang="zh">色彩</span>
                     <span data-lang="en">Color</span>
                   </span>
-                  <span class="route__note">
+                  <span class="stop__state" data-stop-state></span>
+                  <span class="stop__note">
                     <span data-lang="zh">色彩专题：模型、colormap、搭配规则、色觉缺陷</span>
                     <span data-lang="en">Colour: models, colormaps, palettes, colour-vision deficiency</span>
                   </span>
                 </span>
-              </a>
+              </button>
             </li>
-            <li class="route__step" data-progress-scope="c05s"
-                data-progress-total="5">
-              <a class="route__link" href="lesson-05/">
-                <span class="route__num">05</span>
-                <span class="route__body">
-                  <span class="route__name">
+            <li class="stop" data-i="2" data-ch="05" data-final="1" data-href="lesson-05/"
+                data-progress-scope="c05s" data-progress-total="5"
+                style="--lift:0px">
+              <button class="stop__btn" type="button" aria-controls="path-panel">
+                <span class="stop__dot"><span class="stop__num">05</span></span>
+                <span class="stop__body">
+                  <span class="stop__label">
                     <span data-lang="zh">时序数据</span>
                     <span data-lang="en">Time series</span>
                   </span>
-                  <span class="route__note">
+                  <span class="stop__state" data-stop-state></span>
+                  <span class="stop__note">
                     <span data-lang="zh">时序专题：时间属性、日历热图、周期螺旋</span>
                     <span data-lang="en">Time: properties, calendar heatmaps, periodic spirals</span>
                   </span>
                 </span>
-              </a>
+              </button>
             </li>
           </ol>
-        </article>
+        </div>
+      </article>
+        </div>
+        <aside class="paths__panel" id="path-panel" aria-labelledby="path-panel-title">
+          <p class="paths__eyebrow">
+            <span data-lang="zh">PATH 01 · 第 1 站，共 5 站</span>
+            <span data-lang="en">PATH 01 · stop 1 of 5</span>
+          </p>
+          <h3 class="paths__title" id="path-panel-title">
+            <span data-lang="zh">数据</span>
+            <span data-lang="en">Data</span>
+          </h3>
+          <ul class="paths__meta">
+            <li><span data-lang="zh">第 01 章</span><span data-lang="en">Chapter 01</span></li>
+            <li><span data-lang="zh">5 节</span><span data-lang="en">5 sections</span></li>
+          </ul>
+          <p class="paths__lead">
+            <span data-lang="zh">从 DeepSeek 合成的新生数据出发，把「数据是什么」拆成四件可操作的事：怎么装载、怎么定义、怎么分类、怎么变换。</span>
+            <span data-lang="en">Starting from a DeepSeek-synthesized freshman dataset, breaking 'what is data' into four actionable tasks: loading, defining, classifying and transforming.</span>
+          </p>
+          <div class="paths__block">
+            <h4><span data-lang="zh">这条路径里做什么</span><span data-lang="en">On this path</span></h4>
+            <p>
+              <span data-lang="zh">分清楚名义、序数、区间尺度 —— 后面每一次选图都靠这个判断</span>
+              <span data-lang="en">Nominal, ordinal, interval: every later chart choice follows from this</span>
+            </p>
+          </div>
+          <div class="paths__block">
+            <h4><span data-lang="zh">关键概念</span><span data-lang="en">Key concepts</span></h4>
+            <ul class="paths__chips" data-panel-chips><li><span data-lang="zh">数据生成</span><span data-lang="en">Data generation</span></li><li><span data-lang="zh">数据定义 · DIKW</span><span data-lang="en">Defining data · DIKW</span></li><li><span data-lang="zh">数据属性 · 尺度 × 通道</span><span data-lang="en">Attributes · scales × channels</span></li><li><span data-lang="zh">数据变换 · 函数式数组</span><span data-lang="en">Transforming data · array ops</span></li></ul>
+          </div>
+          <a class="paths__cta" href="lesson-01/">
+            <span data-lang="zh">进入本章</span><span data-lang="en">Open chapter</span>
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg>
+          </a>
+        </aside>
       </div>
       <p class="portal-section__hint">
         <span data-lang="zh">拿不定选哪条就选第一条，它包含全部五章。想知道某一个知识点被哪几章用到，
@@ -529,6 +620,7 @@
         <span data-lang="en">Unsure? Take the first route — it covers all five chapters. To see where
         a single concept is used, scroll to the knowledge graph.</span>
       </p>
+      <script type="application/json" id="path-data">{"worlds":[{"key":"scratch","tag":"PATH 01","title":{"zh":"零基础，从头走一遍","en":"From scratch, in order"},"steps":[{"ch":"01","num":1,"href":"lesson-01/","title":{"zh":"数据","en":"Data"},"lead":{"zh":"从 DeepSeek 合成的新生数据出发，把「数据是什么」拆成四件可操作的事：怎么装载、怎么定义、怎么分类、怎么变换。","en":"Starting from a DeepSeek-synthesized freshman dataset, breaking 'what is data' into four actionable tasks: loading, defining, classifying and transforming."},"note":{"zh":"分清楚名义、序数、区间尺度 —— 后面每一次选图都靠这个判断","en":"Nominal, ordinal, interval: every later chart choice follows from this"},"sections":5,"concepts":{"zh":["数据生成","数据定义 · DIKW","数据属性 · 尺度 × 通道","数据变换 · 函数式数组"],"en":["Data generation","Defining data · DIKW","Attributes · scales × channels","Transforming data · array ops"]}},{"ch":"02","num":2,"href":"lesson-02/","title":{"zh":"数据可视化流程","en":"Visualization Workflow"},"lead":{"zh":"把「拿到一张表」到「画出一张图」之间那段平时看不见的路，用 Card 的四阶段模型摊开：原数据 → 数据表 → 视觉结构 → 视图。","en":"Laying out the usually invisible path from 'a table' to 'a chart' with Card's four-stage model: raw data → data tables → visual structures → views."},"note":{"zh":"把「数据 → 变换 → 映射 → 渲染」整条链路走通","en":"Walk the whole data → transform → map → render pipeline"},"sections":4,"concepts":{"zh":["Card 数据流模型","数据变换 D → T","视觉映射 T → V","视图渲染 V → R"],"en":["Card's data-flow model","Transform D → T","Visual mapping T → V","Rendering V → R"]}},{"ch":"03","num":3,"href":"lesson-03/","title":{"zh":"色彩专题","en":"Color"},"lead":{"zh":"八节把配色一次讲透：颜色空间、colormap 选型、色系规则、科研经典色板、色觉缺陷检测。学完可以直接拿去做论文图。","en":"Eight sections covering color end to end: color spaces, colormap choice, harmony rules, research-grade palettes and colour-vision-deficiency testing."},"note":{"zh":"颜色不只是好看：三类 colormap 用错就是误导","en":"Colour is not decoration: the wrong colormap misleads"},"sections":8,"concepts":{"zh":["颜色模型基础","colormap 三类","色系搭配 5 类","科研经典色板"],"en":["Colour models","Three colormap types","Five harmony rules","Research palettes"]}},{"ch":"04","num":4,"href":"lesson-04/","title":{"zh":"低维数据可视化","en":"Low-Dimensional Data"},"lead":{"zh":"以 Crime 数据为主线，讲坐标变换的三层职责、十种曲线拟合的手感差异、Cleveland 的 45° 黄金角，以及等值线提取算法。","en":"Using the Crime dataset to cover the three layers of coordinate transforms, ten curve interpolations, Cleveland's 45° sweet spot and contour extraction."},"note":{"zh":"低维数据的取舍：散点、平行坐标、降维各自放弃了什么","en":"Low-dimensional trade-offs: what scatter, parallel coords and projection each give up"},"sections":5,"concepts":{"zh":["数据转换 宽 → 长","坐标轴变换 三层","曲线拟合 10 种","倾角感知 45°"],"en":["Reshaping wide → long","Axis transforms","Ten regression models","The 45° angle"]}},{"ch":"05","num":5,"href":"lesson-05/","title":{"zh":"时序数据可视化","en":"Time-Series Data"},"lead":{"zh":"时间的 5 个属性决定了它需要用哪些非标准布局来画：折线之外，还有日历热图、阿基米德螺旋，以及能表现多角色叙事的 Storyline。","en":"The five attributes of time explain why it needs non-standard layouts: beyond line charts there are calendar heatmaps, Archimedean spirals and narrative storylines."},"note":{"zh":"时间数据的三种形态：折线、日历热图、周期螺旋","en":"Three shapes of time: line, calendar heatmap, spiral"},"sections":5,"concepts":{"zh":["时间属性 5 个","标准时间可视化 折线图","日历热图 van Wijk","周期时间 阿基米德螺旋"],"en":["Five temporal properties","Standard time · line chart","Calendar heatmap (van Wijk)","Cyclic time · Archimedean spiral"]}}]},{"key":"fast","tag":"PATH 02","title":{"zh":"会写 JS，想尽快出图","en":"Know JS, want charts fast"},"steps":[{"ch":"01","num":1,"href":"lesson-01/","title":{"zh":"数据","en":"Data"},"lead":{"zh":"从 DeepSeek 合成的新生数据出发，把「数据是什么」拆成四件可操作的事：怎么装载、怎么定义、怎么分类、怎么变换。","en":"Starting from a DeepSeek-synthesized freshman dataset, breaking 'what is data' into four actionable tasks: loading, defining, classifying and transforming."},"note":{"zh":"只需要看 1.3 数据属性，其余可略读","en":"Read 1.3 on attributes; skim the rest"},"sections":5,"concepts":{"zh":["数据生成","数据定义 · DIKW","数据属性 · 尺度 × 通道","数据变换 · 函数式数组"],"en":["Data generation","Defining data · DIKW","Attributes · scales × channels","Transforming data · array ops"]}},{"ch":"02","num":2,"href":"lesson-02/","title":{"zh":"数据可视化流程","en":"Visualization Workflow"},"lead":{"zh":"把「拿到一张表」到「画出一张图」之间那段平时看不见的路，用 Card 的四阶段模型摊开：原数据 → 数据表 → 视觉结构 → 视图。","en":"Laying out the usually invisible path from 'a table' to 'a chart' with Card's four-stage model: raw data → data tables → visual structures → views."},"note":{"zh":"整章必看，这是所有图共用的骨架","en":"Read all of it — this is the skeleton every chart shares"},"sections":4,"concepts":{"zh":["Card 数据流模型","数据变换 D → T","视觉映射 T → V","视图渲染 V → R"],"en":["Card's data-flow model","Transform D → T","Visual mapping T → V","Rendering V → R"]}},{"ch":"04","num":4,"href":"lesson-04/","title":{"zh":"低维数据可视化","en":"Low-Dimensional Data"},"lead":{"zh":"以 Crime 数据为主线，讲坐标变换的三层职责、十种曲线拟合的手感差异、Cleveland 的 45° 黄金角，以及等值线提取算法。","en":"Using the Crime dataset to cover the three layers of coordinate transforms, ten curve interpolations, Cleveland's 45° sweet spot and contour extraction."},"note":{"zh":"散点与坐标变换是日常用得最多的两块","en":"Scatter and axis transforms are the two you will use daily"},"sections":5,"concepts":{"zh":["数据转换 宽 → 长","坐标轴变换 三层","曲线拟合 10 种","倾角感知 45°"],"en":["Reshaping wide → long","Axis transforms","Ten regression models","The 45° angle"]}}]},{"key":"topic","tag":"PATH 03","title":{"zh":"只补色彩或时序","en":"Just colour or time"},"steps":[{"ch":"01","num":1,"href":"lesson-01/","title":{"zh":"数据","en":"Data"},"lead":{"zh":"从 DeepSeek 合成的新生数据出发，把「数据是什么」拆成四件可操作的事：怎么装载、怎么定义、怎么分类、怎么变换。","en":"Starting from a DeepSeek-synthesized freshman dataset, breaking 'what is data' into four actionable tasks: loading, defining, classifying and transforming."},"note":{"zh":"只看 1.2 与 1.3，知道数据有哪几种尺度就够","en":"Only 1.2 and 1.3 — you just need the data scales"},"sections":5,"concepts":{"zh":["数据生成","数据定义 · DIKW","数据属性 · 尺度 × 通道","数据变换 · 函数式数组"],"en":["Data generation","Defining data · DIKW","Attributes · scales × channels","Transforming data · array ops"]}},{"ch":"03","num":3,"href":"lesson-03/","title":{"zh":"色彩专题","en":"Color"},"lead":{"zh":"八节把配色一次讲透：颜色空间、colormap 选型、色系规则、科研经典色板、色觉缺陷检测。学完可以直接拿去做论文图。","en":"Eight sections covering color end to end: color spaces, colormap choice, harmony rules, research-grade palettes and colour-vision-deficiency testing."},"note":{"zh":"色彩专题：模型、colormap、搭配规则、色觉缺陷","en":"Colour: models, colormaps, palettes, colour-vision deficiency"},"sections":8,"concepts":{"zh":["颜色模型基础","colormap 三类","色系搭配 5 类","科研经典色板"],"en":["Colour models","Three colormap types","Five harmony rules","Research palettes"]}},{"ch":"05","num":5,"href":"lesson-05/","title":{"zh":"时序数据可视化","en":"Time-Series Data"},"lead":{"zh":"时间的 5 个属性决定了它需要用哪些非标准布局来画：折线之外，还有日历热图、阿基米德螺旋，以及能表现多角色叙事的 Storyline。","en":"The five attributes of time explain why it needs non-standard layouts: beyond line charts there are calendar heatmaps, Archimedean spirals and narrative storylines."},"note":{"zh":"时序专题：时间属性、日历热图、周期螺旋","en":"Time: properties, calendar heatmaps, periodic spirals"},"sections":5,"concepts":{"zh":["时间属性 5 个","标准时间可视化 折线图","日历热图 van Wijk","周期时间 阿基米德螺旋"],"en":["Five temporal properties","Standard time · line chart","Calendar heatmap (van Wijk)","Cyclic time · Archimedean spiral"]}}]}]}</script>
     </section>
 
     <section class="portal-section" id="kg" aria-labelledby="kg-title">
@@ -546,7 +638,7 @@
         For an order to read in, the learning paths above are the shorter answer.</span>
       </p>
 
-      <div class="kg" id="kg">
+      <div class="kg" id="kg-app">
         <div class="kg__bar">
           <nav class="kg__crumbs" aria-label="图谱位置">
             <button class="kg__crumb" type="button" data-kg-home>
@@ -918,7 +1010,7 @@
     </div>
   </footer>
 
-  <script type="application/json" id="tour-data">[{"title": "这是一门什么样的课", "say": "《可视化导论》，中国石油大学（华东），案例驱动，零依赖，浏览器打开就能跑。重构的重点不是换配色，而是让内容的层级和检索路径更清楚。", "selector": ".portal-hero", "hold": 7500}, {"title": "学习路径", "say": "五章不必都从头读到尾。三条路线对应三种起点：完全从零、会写 JavaScript 想尽快出图、只补某个专题。走完的章会在序号上变成对勾，卡片上也会写明「已读几 / 几章」。拿不定就选第一条，它包含全部五章。", "selector": ".route-grid", "hold": 8000}, {"title": "知识图谱", "say": "26 个知识点按章节聚成 5 簇。默认只画总览：哪几章、谁依赖谁。点开一章，它下面的知识点会从章节点旁边展开；点任意一点，右侧就是它的一句话总结和对应的正文小节。", "selector": ".kg", "hold": 8500}, {"title": "每个知识点都落到代码上", "say": "每章都是同样的结构：讲解、关键代码、可运行演示三个标签页。关键代码里用星号标出的就是必须掌握的编程点。", "selector": ".chapter-grid", "hold": 7500}]</script>
+  <script type="application/json" id="tour-data">[{"title": "这是一门什么样的课", "say": "《可视化导论》，中国石油大学（华东），案例驱动，零依赖，浏览器打开就能跑。重构的重点不是换配色，而是让内容的层级和检索路径更清楚。", "selector": ".portal-hero", "hold": 7500}, {"title": "学习路径", "say": "五章不必都从头读到尾。三条路线对应三种起点：完全从零、会写 JavaScript 想尽快出图、只补某个专题。走完的章会在序号上变成对勾，卡片上也会写明「已读几 / 几章」。拿不定就选第一条，它包含全部五章。", "selector": ".paths__worlds", "hold": 8000}, {"title": "知识图谱", "say": "26 个知识点按章节聚成 5 簇。默认只画总览：哪几章、谁依赖谁。点开一章，它下面的知识点会从章节点旁边展开；点任意一点，右侧就是它的一句话总结和对应的正文小节。", "selector": ".kg", "hold": 8500}, {"title": "每个知识点都落到代码上", "say": "每章都是同样的结构：讲解、关键代码、可运行演示三个标签页。关键代码里用星号标出的就是必须掌握的编程点。", "selector": ".chapter-grid", "hold": 7500}]</script>
 
   <div class="tour-bar" id="tour-bar" data-open="false" role="region" aria-label="自动导览">
     <button class="tour-bar__trigger" type="button" data-tour-start>
