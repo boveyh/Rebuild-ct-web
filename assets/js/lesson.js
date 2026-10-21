@@ -10,6 +10,8 @@
    而且每个都带 d3 —— 省下的这一笔是实打实的。
    ========================================================================= */
 
+import { applyTo, observe, setLocale } from "./demo-i18n.js";
+
 (function () {
   "use strict";
 
@@ -63,6 +65,29 @@
     box.textContent = text;
   }
 
+  /* 演示里有不少画布只有 width/height、没有 viewBox。站点给 svg 设了
+     max-width:100% + height:auto，这种画布被压窄之后内容并不跟着缩放 ——
+     浏览器照原坐标画，超出框的部分直接被裁掉。第 3 章「CVD 论文图」的
+     缩略图就是这样：三张 220×110 的图挤进 84px 的列里，只剩左上角一块，
+     正常/红盲/绿盲三行只看得见第一行。
+     补一个等价的 viewBox，SVG 就会等比缩放，整张图至少是完整的。 */
+  function fitCanvases(mount) {
+    $$("svg", mount).forEach(function (s) {
+      if (s.hasAttribute("viewBox")) return;
+      var w = parseFloat(s.getAttribute("width"));
+      var h = parseFloat(s.getAttribute("height"));
+      if (w > 0 && h > 0) s.setAttribute("viewBox", "0 0 " + w + " " + h);
+    });
+  }
+
+  /* 演示常常在 await 之后才把图插进来（要先把 csv 拉下来），
+     所以挂一个观察器再补几次；本身是幂等的，改属性不会触发 childList。 */
+  function watchCanvases(mount) {
+    if (!window.MutationObserver) return;
+    var mo = new MutationObserver(function () { fitCanvases(mount); });
+    mo.observe(mount, { childList: true, subtree: true });
+  }
+
   function runDemo(mount) {
     if (!mount || mount.getAttribute("data-ready") === "1") return;
 
@@ -91,6 +116,12 @@
         setState(mount, "error", "演示运行出错：" + (err && err.message ? err.message : err));
         if (window.console) console.error("[demo " + chapterId + "/" + demoKey + "]", err);
       }
+      // 演示的文案是运行时生成的，双语层只能在这里接手：
+      // 先挂 MutationObserver（演示常在 await 之后才画完），当前是英文就立刻翻一遍。
+      observe(mount);
+      if (locale() === "en") applyTo(mount);
+      fitCanvases(mount);
+      watchCanvases(mount);
     }).catch(function (err) {
       mount.setAttribute("data-state", "error");
       setState(mount, "error", FAILED[locale()]);
@@ -123,6 +154,9 @@
         if (s === "loading") setState(m, "loading", LOADING[locale()]);
         if (s === "error") setState(m, "error", FAILED[locale()]);
       });
+      // 已经渲染好的演示：英文就按词典翻一遍，中文就从 WeakMap 里还原。
+      // 不重跑演示，读者拖过的滑块、展开的节点都还在。
+      setLocale(locale());
     });
 
     // 演示区里常常有 resvg / 动态尺寸，窗口变化后通知一次

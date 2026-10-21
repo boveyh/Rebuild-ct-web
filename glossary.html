@@ -18,11 +18,11 @@
   <meta property="og:locale" content="zh_CN" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="canonical" href="https://boveyh.github.io/Rebuild-ct-web/glossary.html" />
-  <link rel="stylesheet" href="assets/css/tokens.css" />
-  <link rel="stylesheet" href="assets/css/base.css" />
-  <link rel="stylesheet" href="assets/css/shell.css" />
-  <link rel="stylesheet" href="assets/css/content.css" />
-  <link rel="stylesheet" href="assets/css/portal.css" />
+  <link rel="stylesheet" href="assets/css/tokens.css?v=2b9fdb34" />
+  <link rel="stylesheet" href="assets/css/base.css?v=0fb17fb8" />
+  <link rel="stylesheet" href="assets/css/shell.css?v=61525fe0" />
+  <link rel="stylesheet" href="assets/css/content.css?v=d432c03d" />
+  <link rel="stylesheet" href="assets/css/portal.css?v=239c22f4" />
   <script>
     /* 脚本活着才收紧「无 JS 兜底」样式。放在最前面、且不在 try 里：
        哪怕 localStorage 被禁，这一句也执行了，标记就是可靠的。
@@ -40,8 +40,8 @@
       } catch (e) {}
     })();
   </script>
-  <script type="module" src="assets/js/shell.js"></script>
-  <script type="module" src="assets/js/enhance.js"></script>
+  <script type="module" src="assets/js/shell.js?v=4b53ad25"></script>
+  <script type="module" src="assets/js/enhance.js?v=7b4a36b5"></script>
 </head>
 <body id="top">
   <a class="skip-link" href="#main">跳到主要内容</a>
@@ -152,11 +152,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">把「数据 → 信息 → 知识 → 智慧」四级串起来的层次模型。数据是原始观察，信息是组织过的数据，知识是从信息里提炼出的规律，智慧是据知识做判断。</span>
-            <span data-lang="en">A four-level model: data → information → knowledge → wisdom.</span>
+            <span data-lang="en">A four-level hierarchy: data → information → knowledge → wisdom. Data are raw observations, information is data that has been organised, knowledge is the regularities distilled from information, and wisdom is judgement built on that knowledge.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">可视化的能力边界就在这里：它主要把数据升到信息，少数场景能到知识，跨不到智慧。分不清这一层，就很容易承诺可视化做不到的事。</span>
-            <span data-lang="en">It marks the boundary of visualization, which mostly lifts data to information.</span>
+            <span data-lang="en">This is exactly where visualization runs out of road: it mostly lifts data to information, occasionally reaches knowledge, and never crosses into wisdom. Confuse the levels and you end up promising something a chart cannot deliver.</span>
           </p>
         </li>
         <li class="term-card" id="term-nominal" data-term-ch="01">
@@ -169,11 +169,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">Stevens 四种测量尺度里最弱的一种：只允许判断相等或不等，没有任何顺序。姓名、性别都属于这一类。</span>
-            <span data-lang="en">The weakest of Stevens' four scales: only equality can be tested.</span>
+            <span data-lang="en">The weakest of Stevens' four measurement scales: values can only be tested for equality or difference, with no order at all. Names and gender fall into this class.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">名义数据只能用色相、形状这类定性通道编码 —— 给性别做平均值是没有意义的。</span>
-            <span data-lang="en">Nominal data belongs on qualitative channels such as hue and shape.</span>
+            <span data-lang="en">Nominal data can only be encoded on qualitative channels such as hue and shape — averaging gender is meaningless, and so is a line chart that implies an order between categories.</span>
           </p>
         </li>
         <li class="term-card" id="term-ordinal" data-term-ch="01">
@@ -186,11 +186,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">值之间有顺序，但相邻两级的差不一定相等。学历（本科 / 硕士 / 博士）是典型例子。</span>
-            <span data-lang="en">Values are ordered but the gaps between them need not be equal.</span>
+            <span data-lang="en">Values have an order, but the gaps between adjacent levels need not be equal. Education level (bachelor / master / doctorate) is the classic example.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">差不一定相等，所以序数数据很适合用亮度、饱和度这类顺序通道，而不适合用位置。</span>
-            <span data-lang="en">Ordered channels such as brightness suit ordinal data better than position.</span>
+            <span data-lang="en">Because the gaps are unequal, ordinal data suits ordered channels such as lightness and saturation, and is a poor fit for position — a position axis invites readers to measure distances that mean nothing.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-01/index.html#sec-ch-1-3">1.3</a>
@@ -206,11 +206,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">区间尺度支持加减（摄氏温度），比率尺度还支持乘除（年龄、价格）。唯一的区别是有没有「真零点」。</span>
-            <span data-lang="en">Interval supports addition; ratio additionally supports multiplication. The difference is the true zero.</span>
+            <span data-lang="en">Interval scales support addition and subtraction (Celsius temperature); ratio scales additionally support multiplication and division (age, price). The only difference is whether there is a true zero.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">0°C 不等于没有温度，所以不能说 20°C 是 10°C 的两倍；0 元才等于没有钱。这条决定了什么时候可以算比值。</span>
-            <span data-lang="en">0°C is not 'no temperature', so ratios of Celsius values are meaningless.</span>
+            <span data-lang="en">0 °C does not mean 'no temperature', so 20 °C is not twice as warm as 10 °C; 0 yuan does mean 'no money'. This decides when a ratio is meaningful — and when a bar chart lies by starting from a fake zero.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-01/index.html#sec-ch-1-3">1.3</a>
@@ -226,11 +226,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">承载数据变化的视觉属性，位置、长度、角度、面积、亮度、饱和度、色相、形状、纹理等。</span>
-            <span data-lang="en">A visual property that can carry data variation: position, length, angle, area, brightness, hue, shape.</span>
+            <span data-lang="en">A visual property that can carry variation in data: position, length, angle, area, brightness, saturation, hue, shape, texture.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">Mackinlay 把通道按表达能力排了序：位置最能表达定量，色相最能表达定性。属性与通道配错，信息就会丢。</span>
-            <span data-lang="en">Channels differ in how much information they carry; mismatch loses information.</span>
+            <span data-lang="en">Mackinlay ranked channels by how much they can express: position is the strongest for quantitative values, hue the strongest for categories. Pair an attribute with the wrong channel and information is lost — a pie chart is exactly that mistake.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-01/index.html#sec-ch-1-3">1.3</a> <a href="lesson-02/index.html#sec-ch-2-1">2.1</a> <a href="lesson-02/index.html#sec-ch-2-3">2.3</a>
@@ -246,11 +246,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">把数据数组绑定到 DOM 元素时出现的三种情况：元素不够是 enter，正好是 update，多了是 exit。</span>
-            <span data-lang="en">When binding data to elements: extra data enters, matching data updates, surplus elements exit.</span>
+            <span data-lang="en">Binding an array of data to DOM elements produces three cases: too few elements is enter, an exact match is update, surplus elements is exit.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">这是 D3 的核心心智模型。理解了它，D3 就从「一堆 API」变成「一条数据到画面的映射」。</span>
-            <span data-lang="en">It is the core mental model that turns D3 from an API list into a mapping.</span>
+            <span data-lang="en">This is the core mental model of D3. Once you have it, D3 stops being a pile of APIs and becomes one mapping from data to pixels; without it, every selection method feels arbitrary.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-01/index.html#sec-ch-1-5">1.5</a>
@@ -266,11 +266,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">在绑定数据时告诉 D3「哪个数据对应哪个元素」的函数，通常写成 d => d.id。</span>
-            <span data-lang="en">A function that tells D3 which data item belongs to which element.</span>
+            <span data-lang="en">A function that tells D3 which data item belongs to which element when binding, usually written d => d.id.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">没有 key，D3 按数组下标认身份：数据一重排，所有元素都算「变过」，过渡动画就乱了。有 key，元素才知道自己是谁。</span>
-            <span data-lang="en">Without it D3 matches by index, so any reordering breaks transition animations.</span>
+            <span data-lang="en">Without a key, D3 identifies elements by array index: reorder the data and every element counts as changed, so transitions scramble. With a key, each element knows who it is and animates from its own previous state.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-01/index.html#sec-ch-1-5">1.5</a>
@@ -286,11 +286,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">把可视化拆成四步：原数据 → 数据表 → 视觉结构 → 视图。1999 年由 Stuart Card 提出。</span>
-            <span data-lang="en">Card's four-stage model: raw data → data tables → visual structures → views.</span>
+            <span data-lang="en">Stuart Card's 1999 model splits visualization into four stages: raw data → data tables → visual structures → views.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">它是整门课的骨架。有了这套坐标系，遇到任何一张陌生的图，你都能问「它在哪一步做了什么处理」。</span>
-            <span data-lang="en">It gives you a frame for asking what any unfamiliar chart does at each stage.</span>
+            <span data-lang="en">It is the skeleton of this whole course. With that frame you can meet any unfamiliar chart and ask what it did at each stage — what was filtered, what was encoded, what was drawn.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-02/index.html#sec-ch-2-1">2.1</a>
@@ -306,11 +306,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">按给定键分组，并对每组算出一个聚合值，返回 Map。和 d3.group 的区别是它只留聚合结果。</span>
-            <span data-lang="en">Groups by key and reduces each group to a single value.</span>
+            <span data-lang="en">Group by the given key and reduce each group to a single value, returning a Map. Unlike d3.group, it keeps only the aggregate.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">把平表变成层次结构最实用的一步。树形图、分组柱状图的上游数据几乎都是它生成的。</span>
-            <span data-lang="en">It is the usual first step from a flat table to hierarchical data.</span>
+            <span data-lang="en">It is the most practical single step from a flat table to a hierarchy: treemaps, grouped bars and stacked areas almost always start from a d3.rollup call.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-02/index.html#sec-ch-2-2">2.2</a>
@@ -326,11 +326,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">一种经典树状图布局算法，让同层节点均匀铺开，同时父节点尽量居中于其子节点之上。</span>
-            <span data-lang="en">A classic tree layout that spreads siblings evenly and centres parents over children.</span>
+            <span data-lang="en">A classic tree layout that spreads siblings evenly across the available width while keeping each parent centred over its children.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">手写树布局很容易左右不平衡、线条交叉。这个算法把「看起来舒服」这件事变成了可计算的规则。</span>
-            <span data-lang="en">It turns 'looks tidy' into a computable rule, avoiding crossings and imbalance.</span>
+            <span data-lang="en">Hand-rolled tree layouts drift out of balance and cross their own edges. This algorithm turns 'looks tidy' into a computable rule, which is why d3.tree() still implements it.</span>
           </p>
         </li>
         <li class="term-card" id="term-event-delegation" data-term-ch="02">
@@ -343,11 +343,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">把监听器绑在父元素上，靠事件冒泡统一处理所有子元素的事件。</span>
-            <span data-lang="en">Attaching one listener to a parent and letting events bubble up from children.</span>
+            <span data-lang="en">Attach one listener to a parent element and let events bubble up from its children, handling them all in one place.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">元素数量成千上万时，给每个元素单独绑监听器的开销会线性上涨。委托只有一个监听器，而且动态增删的子元素也能自动接管。</span>
-            <span data-lang="en">One listener scales where per-element listeners grow linearly.</span>
+            <span data-lang="en">With thousands of elements, per-element listeners grow linearly and leak as elements come and go. One delegated listener stays flat — and children added later are handled automatically.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-02/index.html#sec-ch-2-4">2.4</a>
@@ -363,11 +363,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">描述颜色的坐标系。RGB 面向屏幕，HSL 面向直觉，Lab / HCL 面向感知。</span>
-            <span data-lang="en">A coordinate system for colour: RGB for screens, HSL for intuition, Lab/HCL for perception.</span>
+            <span data-lang="en">A coordinate system for describing colour: RGB is built for screens, HSL for intuition, Lab and HCL for perception.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">做数据映射必须用感知均匀的空间：在 RGB 里等距离的两个颜色，人眼看着并不等距，映射出来的图会骗人。</span>
-            <span data-lang="en">Only perceptually uniform spaces give honest distances when mapping data to colour.</span>
+            <span data-lang="en">Mapping data to colour demands a perceptually uniform space. Two colours the same distance apart in RGB are not the same distance apart to the eye, so a colormap built in RGB will lie about magnitude.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-03/index.html#sec-ch-3-1">3.1</a>
@@ -383,11 +383,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">顺序型（数值单调变化）、发散型（有一个有意义的中间值）、定性型（类别之间无顺序）。</span>
-            <span data-lang="en">Sequential, diverging and qualitative colormaps.</span>
+            <span data-lang="en">Sequential (a value rises monotonically), diverging (a meaningful midpoint) and qualitative (categories with no order).</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">选错类型的代价很大：给没有中心的数据用发散型，读者会读出一个不存在的中心；给类别数据用顺序型，读者会以为类别能比大小。</span>
-            <span data-lang="en">A wrong type misleads: diverging on data without a midpoint invents a centre.</span>
+            <span data-lang="en">Getting the type wrong is expensive: a diverging map on data without a centre invents one, and a sequential map on categories makes readers think the categories can be ranked.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-04/index.html#sec-ch-4-1">4.1</a>
@@ -403,11 +403,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">红绿色盲、蓝黄色盲等色觉差异。男性中红绿色盲比例约为 8%。</span>
-            <span data-lang="en">Colour-vision deficiencies such as deuteranopia and protanopia.</span>
+            <span data-lang="en">Colour-vision deficiencies such as protanopia and deuteranopia (red–green) or tritanopia (blue–yellow). Around 8% of men are red–green colour-blind.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">只靠色相区分数据，意味着约每十二个男性读者里就有一个读不了你的图。这是把「可读性」变成硬指标的少数几处之一。</span>
-            <span data-lang="en">Hue-only encoding excludes roughly one in twelve male readers.</span>
+            <span data-lang="en">Encoding data by hue alone means roughly one in twelve male readers cannot read your chart. This is one of the few places where accessibility becomes a hard, checkable requirement.</span>
           </p>
         </li>
         <li class="term-card" id="term-wong-palette" data-term-ch="03">
@@ -420,11 +420,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">发表在 Nature Methods (2011) 的一组定性色板，经过色觉缺陷友好性与等亮度检验。</span>
-            <span data-lang="en">A qualitative palette published in Nature Methods (2011), tested for CVD safety.</span>
+            <span data-lang="en">A qualitative palette published in Nature Methods (2011), tested both for colour-vision deficiency and for even lightness.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">本网站自身的配色也取自这套色板 —— 课程讲的配色原则，在课程网站自己身上先用一遍。</span>
-            <span data-lang="en">This very website uses it, so the course practices what it teaches.</span>
+            <span data-lang="en">This site's own palette comes from it: the principles the course teaches are applied to the course site itself, so the lessons and the medium agree.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-03/index.html#sec-ch-3-8">3.8</a>
@@ -440,11 +440,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">一类配色策略：保色相上的区分度（鲜艳），同时压低饱和度（不刺眼），并把颜色数量控制在 7 个以内。</span>
-            <span data-lang="en">A strategy that keeps hue separation while lowering saturation, capped around seven colours.</span>
+            <span data-lang="en">A palette strategy that keeps hue separation (vivid) while pushing saturation down (easy on the eye), with the number of colours capped around seven.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">高饱和多色最大的问题不是丑，是「吵」—— 每一块颜色都在抢注意力，读者反而找不到重点。</span>
-            <span data-lang="en">Highly saturated multi-colour palettes are not ugly so much as noisy — everything competes.</span>
+            <span data-lang="en">The problem with many saturated colours is not ugliness but noise: every patch competes for attention, so the reader finds no focus. Lower saturation lets one accent do the pointing.</span>
           </p>
         </li>
         <li class="term-card" id="term-screen-space" data-term-ch="04">
@@ -457,11 +457,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">数据空间（语义）→ 坐标系空间（几何）→ 屏幕空间（像素）。每一层只负责一件事。</span>
-            <span data-lang="en">Data space (meaning) → coordinate space (geometry) → screen space (pixels).</span>
+            <span data-lang="en">Data space (meaning) → coordinate space (geometry) → screen space (pixels). Each layer does exactly one job.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">初学者常把这三种变换揉在一起写，于是改一处就崩一片。分层之后，比例尺该做什么、什么不该做，就清楚了。</span>
-            <span data-lang="en">Keeping the three layers separate stops a change in one from breaking the others.</span>
+            <span data-lang="en">Beginners fold the three transforms into one expression, so a change in one breaks the rest. Kept apart, it becomes obvious what a scale should do — and what it should never do.</span>
           </p>
         </li>
         <li class="term-card" id="term-cleveland" data-term-ch="04">
@@ -474,11 +474,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">人眼对斜率的估计在 45° 附近最准确（也称 banking to 45°）。</span>
-            <span data-lang="en">Human slope estimation is most accurate around 45°.</span>
+            <span data-lang="en">The eye estimates slopes most accurately near 45°, a result known as banking to 45°.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">它把「图表该多宽多高」从审美问题变成了感知问题：想让人准确比较趋势，就把主要趋势线摆到 45° 附近。</span>
-            <span data-lang="en">It turns aspect ratio from a matter of taste into a matter of perception.</span>
+            <span data-lang="en">It turns aspect ratio from a question of taste into a question of perception: if readers must compare trends, put the dominant trend near 45° instead of arguing about how tall the chart should be.</span>
           </p>
         </li>
         <li class="term-card" id="term-marching-squares" data-term-ch="04">
@@ -491,11 +491,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">在规则网格上逐格判断四角与阈值的关系，生成等值线段，再拼接成完整等值线的算法。</span>
-            <span data-lang="en">A grid algorithm that tests each cell's four corners against a threshold and stitches contour segments.</span>
+            <span data-lang="en">A grid algorithm that tests each cell's four corners against a threshold and stitches the resulting segments into full contour lines.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">它是等值线图和热力图平滑化的底层。难点不在循环，而在「四角两两高于阈值」时的歧义格子 —— 连线方式不同，结果形状会不一样。</span>
-            <span data-lang="en">Ambiguous cells (two high, two low corners) are the hard part, not the loop itself.</span>
+            <span data-lang="en">It underlies contour plots and smoothed heatmaps. The difficulty is not the loop but the ambiguous cells where two corners are above the threshold and two below — different resolutions give different shapes.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-04/index.html#sec-ch-4-5">4.5</a>
@@ -511,11 +511,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">有序、连续、周期、独立于空间、有结构（间隔有含义）。</span>
-            <span data-lang="en">Ordered, continuous, cyclic, independent of space, and structured.</span>
+            <span data-lang="en">Ordered, continuous, cyclic, independent of space, and structured (intervals carry meaning).</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">其中「独立于空间」这一条最关键：空间数据的位置自带信息，时间必须由你决定它怎么落到平面上，所以时间可视化才有这么多非标准布局。</span>
-            <span data-lang="en">'Independent of space' is why time needs so many non-standard layouts.</span>
+            <span data-lang="en">'Independent of space' matters most: spatial position carries its own information, but time has no position until you choose one — which is why time visualization has so many non-standard layouts.</span>
           </p>
         </li>
         <li class="term-card" id="term-van-wijk" data-term-ch="05">
@@ -528,11 +528,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">把一年按「行 = 年 / 列 = 周」摆成网格，用颜色表示每天的值。</span>
-            <span data-lang="en">A calendar grid with years as rows and weeks as columns, coloured by daily value.</span>
+            <span data-lang="en">A calendar grid with years as rows and weeks as columns, colouring each day by its value.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">它牺牲了精确的数值比较，换来整年的模式识别 —— 这是布局设计里典型的「用精度换结构」。</span>
-            <span data-lang="en">A classic trade: precision for pattern recognition.</span>
+            <span data-lang="en">It gives up precise value comparison in exchange for pattern recognition across a whole year — the classic 'trade precision for structure' move in layout design.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-02/index.html#sec-ch-2-1">2.1</a> <a href="lesson-02/index.html#sec-ch-2-4">2.4</a> <a href="lesson-05/index.html#sec-ch-5-3">5.3</a>
@@ -548,11 +548,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">半径随角度线性增长的螺旋线。把时间沿它排列，同一周期的数据会落在同一条辐射方向上。</span>
-            <span data-lang="en">A spiral whose radius grows linearly with angle.</span>
+            <span data-lang="en">A spiral whose radius grows linearly with angle. Laying time along it makes data from the same phase of each cycle fall on the same ray.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">折线图会把周期切成碎片，螺旋则让周期对齐成径向的一条条 —— 周期性因此变得可以直接看出来。</span>
-            <span data-lang="en">Periodic events align along rays, making cyclicity directly visible.</span>
+            <span data-lang="en">A line chart chops a cycle into fragments; a spiral aligns the cycles into radial spokes, so periodicity becomes visible at a glance.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-05/index.html#sec-ch-5-4">5.4</a>
@@ -568,11 +568,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">多角色叙事可视化：每条线代表一个角色、组织或进程，线的交叉表示它们相遇或产生关系。</span>
-            <span data-lang="en">A narrative visualization where each line is a character and crossings are encounters.</span>
+            <span data-lang="en">A narrative visualization in which each line is a character, organisation or process, and crossings mark encounters or relationships.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">它是少数几个能把「叙事结构」本身画出来的方法。《侏罗纪公园》案例里，角色线的交织就是剧情的结构。</span>
-            <span data-lang="en">It visualizes narrative structure itself, not just values.</span>
+            <span data-lang="en">It is one of the few methods that draws narrative structure itself. In the Jurassic Park case, the interweaving of the character lines is the plot.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-05/index.html#sec-ch-5-5">5.5</a>
@@ -588,11 +588,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">把数据域映射到值域的函数。连续量用 scaleLinear，离散分类用 scaleBand，序数可用 scalePoint。</span>
-            <span data-lang="en">A function mapping a data domain to a visual range.</span>
+            <span data-lang="en">A function mapping a data domain to a visual range. Continuous values use scaleLinear, ordered categories use scaleBand, and points on a category axis use scalePoint.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">选错比例尺是最常见的新手错误：给类别数据用线性比例尺，会算出「0.5 班」这种没有意义的值。</span>
-            <span data-lang="en">Using a linear scale on categorical data produces meaningless midpoints.</span>
+            <span data-lang="en">Picking the wrong scale is the most common beginner error: a linear scale on categorical data produces meaningless values such as '0.5 of a class'.</span>
           </p>
           <p class="term-card__seen">
             <span data-lang="zh">出现在</span><span data-lang="en">Appears in</span><a href="lesson-01/index.html#sec-ch-1-3">1.3</a> <a href="lesson-04/index.html#sec-ch-4-2">4.2</a>
@@ -608,11 +608,11 @@
           </div>
           <p class="term-card__def">
             <span data-lang="zh">colormap 是连续的（可插值），用于数值映射；色板是离散的一组颜色，用于类别区分。</span>
-            <span data-lang="en">A colormap is continuous and interpolated; a palette is a discrete set for categories.</span>
+            <span data-lang="en">A colormap is continuous and interpolated, used to map values; a palette is a discrete set of colours, used to separate categories.</span>
           </p>
           <p class="term-card__why">
             <span data-lang="zh">把连续的 colormap 用在类别数据上，会暗示类别之间有中间态；把离散色板用在数值上，则会让读者以为数据是分档的。</span>
-            <span data-lang="en">Using one where the other belongs implies structure the data does not have.</span>
+            <span data-lang="en">A continuous colormap on categorical data implies states in between; a discrete palette on continuous values implies the data is binned. Neither claim is true, and both mislead.</span>
           </p>
         </li>
       </ul>

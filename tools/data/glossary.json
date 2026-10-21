@@ -1,272 +1,272 @@
 {
-  "_note": "术语表：由重构者编写。每个词条给出所属章节、一句话定义与一个「为什么」（为什么这个概念重要 / 容易搞错的地方）。",
-  "terms": [
-    {
-      "id": "dikw",
-      "zh": "DIKW 金字塔",
-      "en": "DIKW pyramid",
-      "ch": "01",
-      "zh_def": "把「数据 → 信息 → 知识 → 智慧」四级串起来的层次模型。数据是原始观察，信息是组织过的数据，知识是从信息里提炼出的规律，智慧是据知识做判断。",
-      "zh_why": "可视化的能力边界就在这里：它主要把数据升到信息，少数场景能到知识，跨不到智慧。分不清这一层，就很容易承诺可视化做不到的事。",
-      "en_def": "A four-level model: data → information → knowledge → wisdom.",
-      "en_why": "It marks the boundary of visualization, which mostly lifts data to information."
-    },
-    {
-      "id": "nominal",
-      "zh": "名义尺度",
-      "en": "Nominal scale",
-      "ch": "01",
-      "zh_def": "Stevens 四种测量尺度里最弱的一种：只允许判断相等或不等，没有任何顺序。姓名、性别都属于这一类。",
-      "zh_why": "名义数据只能用色相、形状这类定性通道编码 —— 给性别做平均值是没有意义的。",
-      "en_def": "The weakest of Stevens' four scales: only equality can be tested.",
-      "en_why": "Nominal data belongs on qualitative channels such as hue and shape.",
-      "alias": [
-        "名义型",
-        "定类"
-      ]
-    },
-    {
-      "id": "ordinal",
-      "zh": "序数尺度",
-      "en": "Ordinal scale",
-      "ch": "01",
-      "zh_def": "值之间有顺序，但相邻两级的差不一定相等。学历（本科 / 硕士 / 博士）是典型例子。",
-      "zh_why": "差不一定相等，所以序数数据很适合用亮度、饱和度这类顺序通道，而不适合用位置。",
-      "en_def": "Values are ordered but the gaps between them need not be equal.",
-      "en_why": "Ordered channels such as brightness suit ordinal data better than position.",
-      "alias": [
-        "序数型",
-        "定序"
-      ]
-    },
-    {
-      "id": "interval-ratio",
-      "zh": "区间尺度与比率尺度",
-      "en": "Interval vs. ratio scale",
-      "ch": "01",
-      "zh_def": "区间尺度支持加减（摄氏温度），比率尺度还支持乘除（年龄、价格）。唯一的区别是有没有「真零点」。",
-      "zh_why": "0°C 不等于没有温度，所以不能说 20°C 是 10°C 的两倍；0 元才等于没有钱。这条决定了什么时候可以算比值。",
-      "en_def": "Interval supports addition; ratio additionally supports multiplication. The difference is the true zero.",
-      "en_why": "0°C is not 'no temperature', so ratios of Celsius values are meaningless.",
-      "alias": [
-        "区间尺度"
-      ]
-    },
-    {
-      "id": "channel",
-      "zh": "视觉通道",
-      "en": "Visual channel",
-      "ch": "01",
-      "zh_def": "承载数据变化的视觉属性，位置、长度、角度、面积、亮度、饱和度、色相、形状、纹理等。",
-      "zh_why": "Mackinlay 把通道按表达能力排了序：位置最能表达定量，色相最能表达定性。属性与通道配错，信息就会丢。",
-      "en_def": "A visual property that can carry data variation: position, length, angle, area, brightness, hue, shape.",
-      "en_why": "Channels differ in how much information they carry; mismatch loses information."
-    },
-    {
-      "id": "data-join",
-      "zh": "Data-Join 三态",
-      "en": "Data-join, three states",
-      "ch": "01",
-      "zh_def": "把数据数组绑定到 DOM 元素时出现的三种情况：元素不够是 enter，正好是 update，多了是 exit。",
-      "zh_why": "这是 D3 的核心心智模型。理解了它，D3 就从「一堆 API」变成「一条数据到画面的映射」。",
-      "en_def": "When binding data to elements: extra data enters, matching data updates, surplus elements exit.",
-      "en_why": "It is the core mental model that turns D3 from an API list into a mapping."
-    },
-    {
-      "id": "key-function",
-      "zh": "key 函数",
-      "en": "Key function",
-      "ch": "01",
-      "zh_def": "在绑定数据时告诉 D3「哪个数据对应哪个元素」的函数，通常写成 d => d.id。",
-      "zh_why": "没有 key，D3 按数组下标认身份：数据一重排，所有元素都算「变过」，过渡动画就乱了。有 key，元素才知道自己是谁。",
-      "en_def": "A function that tells D3 which data item belongs to which element.",
-      "en_why": "Without it D3 matches by index, so any reordering breaks transition animations."
-    },
-    {
-      "id": "card-model",
-      "zh": "Card 数据流模型",
-      "en": "Card's pipeline model",
-      "ch": "02",
-      "zh_def": "把可视化拆成四步：原数据 → 数据表 → 视觉结构 → 视图。1999 年由 Stuart Card 提出。",
-      "zh_why": "它是整门课的骨架。有了这套坐标系，遇到任何一张陌生的图，你都能问「它在哪一步做了什么处理」。",
-      "en_def": "Card's four-stage model: raw data → data tables → visual structures → views.",
-      "en_why": "It gives you a frame for asking what any unfamiliar chart does at each stage."
-    },
-    {
-      "id": "rollup",
-      "zh": "d3.rollup",
-      "en": "d3.rollup",
-      "ch": "02",
-      "zh_def": "按给定键分组，并对每组算出一个聚合值，返回 Map。和 d3.group 的区别是它只留聚合结果。",
-      "zh_why": "把平表变成层次结构最实用的一步。树形图、分组柱状图的上游数据几乎都是它生成的。",
-      "en_def": "Groups by key and reduces each group to a single value.",
-      "en_why": "It is the usual first step from a flat table to hierarchical data."
-    },
-    {
-      "id": "reingold-tilford",
-      "zh": "Reingold-Tilford 布局",
-      "en": "Reingold–Tilford layout",
-      "ch": "02",
-      "zh_def": "一种经典树状图布局算法，让同层节点均匀铺开，同时父节点尽量居中于其子节点之上。",
-      "zh_why": "手写树布局很容易左右不平衡、线条交叉。这个算法把「看起来舒服」这件事变成了可计算的规则。",
-      "en_def": "A classic tree layout that spreads siblings evenly and centres parents over children.",
-      "en_why": "It turns 'looks tidy' into a computable rule, avoiding crossings and imbalance."
-    },
-    {
-      "id": "event-delegation",
-      "zh": "事件委托",
-      "en": "Event delegation",
-      "ch": "02",
-      "zh_def": "把监听器绑在父元素上，靠事件冒泡统一处理所有子元素的事件。",
-      "zh_why": "元素数量成千上万时，给每个元素单独绑监听器的开销会线性上涨。委托只有一个监听器，而且动态增删的子元素也能自动接管。",
-      "en_def": "Attaching one listener to a parent and letting events bubble up from children.",
-      "en_why": "One listener scales where per-element listeners grow linearly."
-    },
-    {
-      "id": "color-space",
-      "zh": "颜色空间",
-      "en": "Color space",
-      "ch": "03",
-      "zh_def": "描述颜色的坐标系。RGB 面向屏幕，HSL 面向直觉，Lab / HCL 面向感知。",
-      "zh_why": "做数据映射必须用感知均匀的空间：在 RGB 里等距离的两个颜色，人眼看着并不等距，映射出来的图会骗人。",
-      "en_def": "A coordinate system for colour: RGB for screens, HSL for intuition, Lab/HCL for perception.",
-      "en_why": "Only perceptually uniform spaces give honest distances when mapping data to colour."
-    },
-    {
-      "id": "colormap-types",
-      "zh": "colormap 三类",
-      "en": "Three colormap types",
-      "ch": "03",
-      "zh_def": "顺序型（数值单调变化）、发散型（有一个有意义的中间值）、定性型（类别之间无顺序）。",
-      "zh_why": "选错类型的代价很大：给没有中心的数据用发散型，读者会读出一个不存在的中心；给类别数据用顺序型，读者会以为类别能比大小。",
-      "en_def": "Sequential, diverging and qualitative colormaps.",
-      "en_why": "A wrong type misleads: diverging on data without a midpoint invents a centre."
-    },
-    {
-      "id": "cvd",
-      "zh": "色觉缺陷（CVD）",
-      "en": "Colour-vision deficiency",
-      "ch": "03",
-      "zh_def": "红绿色盲、蓝黄色盲等色觉差异。男性中红绿色盲比例约为 8%。",
-      "zh_why": "只靠色相区分数据，意味着约每十二个男性读者里就有一个读不了你的图。这是把「可读性」变成硬指标的少数几处之一。",
-      "en_def": "Colour-vision deficiencies such as deuteranopia and protanopia.",
-      "en_why": "Hue-only encoding excludes roughly one in twelve male readers."
-    },
-    {
-      "id": "wong-palette",
-      "zh": "Wong 色板",
-      "en": "Wong palette",
-      "ch": "03",
-      "zh_def": "发表在 Nature Methods (2011) 的一组定性色板，经过色觉缺陷友好性与等亮度检验。",
-      "zh_why": "本网站自身的配色也取自这套色板 —— 课程讲的配色原则，在课程网站自己身上先用一遍。",
-      "en_def": "A qualitative palette published in Nature Methods (2011), tested for CVD safety.",
-      "en_why": "This very website uses it, so the course practices what it teaches."
-    },
-    {
-      "id": "vivid-muted",
-      "zh": "鲜艳 + 低饱和",
-      "en": "Vivid but low saturation",
-      "ch": "03",
-      "zh_def": "一类配色策略：保色相上的区分度（鲜艳），同时压低饱和度（不刺眼），并把颜色数量控制在 7 个以内。",
-      "zh_why": "高饱和多色最大的问题不是丑，是「吵」—— 每一块颜色都在抢注意力，读者反而找不到重点。",
-      "en_def": "A strategy that keeps hue separation while lowering saturation, capped around seven colours.",
-      "en_why": "Highly saturated multi-colour palettes are not ugly so much as noisy — everything competes."
-    },
-    {
-      "id": "screen-space",
-      "zh": "三层坐标变换",
-      "en": "Three-layer coordinate transform",
-      "ch": "04",
-      "zh_def": "数据空间（语义）→ 坐标系空间（几何）→ 屏幕空间（像素）。每一层只负责一件事。",
-      "zh_why": "初学者常把这三种变换揉在一起写，于是改一处就崩一片。分层之后，比例尺该做什么、什么不该做，就清楚了。",
-      "en_def": "Data space (meaning) → coordinate space (geometry) → screen space (pixels).",
-      "en_why": "Keeping the three layers separate stops a change in one from breaking the others.",
-      "alias": [
-        "坐标变换"
-      ]
-    },
-    {
-      "id": "cleveland",
-      "zh": "Cleveland 45° 黄金角",
-      "en": "Cleveland's 45° sweet spot",
-      "ch": "04",
-      "zh_def": "人眼对斜率的估计在 45° 附近最准确（也称 banking to 45°）。",
-      "zh_why": "它把「图表该多宽多高」从审美问题变成了感知问题：想让人准确比较趋势，就把主要趋势线摆到 45° 附近。",
-      "en_def": "Human slope estimation is most accurate around 45°.",
-      "en_why": "It turns aspect ratio from a matter of taste into a matter of perception."
-    },
-    {
-      "id": "marching-squares",
-      "zh": "Marching Squares",
-      "en": "Marching Squares",
-      "ch": "04",
-      "zh_def": "在规则网格上逐格判断四角与阈值的关系，生成等值线段，再拼接成完整等值线的算法。",
-      "zh_why": "它是等值线图和热力图平滑化的底层。难点不在循环，而在「四角两两高于阈值」时的歧义格子 —— 连线方式不同，结果形状会不一样。",
-      "en_def": "A grid algorithm that tests each cell's four corners against a threshold and stitches contour segments.",
-      "en_why": "Ambiguous cells (two high, two low corners) are the hard part, not the loop itself."
-    },
-    {
-      "id": "time-attributes",
-      "zh": "时间的 5 个属性",
-      "en": "Five attributes of time",
-      "ch": "05",
-      "zh_def": "有序、连续、周期、独立于空间、有结构（间隔有含义）。",
-      "zh_why": "其中「独立于空间」这一条最关键：空间数据的位置自带信息，时间必须由你决定它怎么落到平面上，所以时间可视化才有这么多非标准布局。",
-      "en_def": "Ordered, continuous, cyclic, independent of space, and structured.",
-      "en_why": "'Independent of space' is why time needs so many non-standard layouts."
-    },
-    {
-      "id": "van-wijk",
-      "zh": "van Wijk 日历热图",
-      "en": "van Wijk calendar heatmap",
-      "ch": "05",
-      "zh_def": "把一年按「行 = 年 / 列 = 周」摆成网格，用颜色表示每天的值。",
-      "zh_why": "它牺牲了精确的数值比较，换来整年的模式识别 —— 这是布局设计里典型的「用精度换结构」。",
-      "en_def": "A calendar grid with years as rows and weeks as columns, coloured by daily value.",
-      "en_why": "A classic trade: precision for pattern recognition.",
-      "alias": [
-        "van Wijk"
-      ]
-    },
-    {
-      "id": "archimedean-spiral",
-      "zh": "阿基米德螺旋",
-      "en": "Archimedean spiral",
-      "ch": "05",
-      "zh_def": "半径随角度线性增长的螺旋线。把时间沿它排列，同一周期的数据会落在同一条辐射方向上。",
-      "zh_why": "折线图会把周期切成碎片，螺旋则让周期对齐成径向的一条条 —— 周期性因此变得可以直接看出来。",
-      "en_def": "A spiral whose radius grows linearly with angle.",
-      "en_why": "Periodic events align along rays, making cyclicity directly visible."
-    },
-    {
-      "id": "storyline",
-      "zh": "Storyline",
-      "en": "Storyline",
-      "ch": "05",
-      "zh_def": "多角色叙事可视化：每条线代表一个角色、组织或进程，线的交叉表示它们相遇或产生关系。",
-      "zh_why": "它是少数几个能把「叙事结构」本身画出来的方法。《侏罗纪公园》案例里，角色线的交织就是剧情的结构。",
-      "en_def": "A narrative visualization where each line is a character and crossings are encounters.",
-      "en_why": "It visualizes narrative structure itself, not just values."
-    },
-    {
-      "id": "scale",
-      "zh": "比例尺（scale）",
-      "en": "Scale",
-      "ch": "01",
-      "zh_def": "把数据域映射到值域的函数。连续量用 scaleLinear，离散分类用 scaleBand，序数可用 scalePoint。",
-      "zh_why": "选错比例尺是最常见的新手错误：给类别数据用线性比例尺，会算出「0.5 班」这种没有意义的值。",
-      "en_def": "A function mapping a data domain to a visual range.",
-      "en_why": "Using a linear scale on categorical data produces meaningless midpoints."
-    },
-    {
-      "id": "colormap-vs-palette",
-      "zh": "colormap 与色板的区别",
-      "en": "Colormap vs. palette",
-      "ch": "03",
-      "zh_def": "colormap 是连续的（可插值），用于数值映射；色板是离散的一组颜色，用于类别区分。",
-      "zh_why": "把连续的 colormap 用在类别数据上，会暗示类别之间有中间态；把离散色板用在数值上，则会让读者以为数据是分档的。",
-      "en_def": "A colormap is continuous and interpolated; a palette is a discrete set for categories.",
-      "en_why": "Using one where the other belongs implies structure the data does not have."
-    }
-  ]
+ "_note": "术语表：由重构者编写。每个词条给出所属章节、一句话定义与一个「为什么」（为什么这个概念重要 / 容易搞错的地方）。",
+ "terms": [
+  {
+   "id": "dikw",
+   "zh": "DIKW 金字塔",
+   "en": "DIKW pyramid",
+   "ch": "01",
+   "zh_def": "把「数据 → 信息 → 知识 → 智慧」四级串起来的层次模型。数据是原始观察，信息是组织过的数据，知识是从信息里提炼出的规律，智慧是据知识做判断。",
+   "zh_why": "可视化的能力边界就在这里：它主要把数据升到信息，少数场景能到知识，跨不到智慧。分不清这一层，就很容易承诺可视化做不到的事。",
+   "en_def": "A four-level hierarchy: data → information → knowledge → wisdom. Data are raw observations, information is data that has been organised, knowledge is the regularities distilled from information, and wisdom is judgement built on that knowledge.",
+   "en_why": "This is exactly where visualization runs out of road: it mostly lifts data to information, occasionally reaches knowledge, and never crosses into wisdom. Confuse the levels and you end up promising something a chart cannot deliver."
+  },
+  {
+   "id": "nominal",
+   "zh": "名义尺度",
+   "en": "Nominal scale",
+   "ch": "01",
+   "zh_def": "Stevens 四种测量尺度里最弱的一种：只允许判断相等或不等，没有任何顺序。姓名、性别都属于这一类。",
+   "zh_why": "名义数据只能用色相、形状这类定性通道编码 —— 给性别做平均值是没有意义的。",
+   "en_def": "The weakest of Stevens' four measurement scales: values can only be tested for equality or difference, with no order at all. Names and gender fall into this class.",
+   "en_why": "Nominal data can only be encoded on qualitative channels such as hue and shape — averaging gender is meaningless, and so is a line chart that implies an order between categories.",
+   "alias": [
+    "名义型",
+    "定类"
+   ]
+  },
+  {
+   "id": "ordinal",
+   "zh": "序数尺度",
+   "en": "Ordinal scale",
+   "ch": "01",
+   "zh_def": "值之间有顺序，但相邻两级的差不一定相等。学历（本科 / 硕士 / 博士）是典型例子。",
+   "zh_why": "差不一定相等，所以序数数据很适合用亮度、饱和度这类顺序通道，而不适合用位置。",
+   "en_def": "Values have an order, but the gaps between adjacent levels need not be equal. Education level (bachelor / master / doctorate) is the classic example.",
+   "en_why": "Because the gaps are unequal, ordinal data suits ordered channels such as lightness and saturation, and is a poor fit for position — a position axis invites readers to measure distances that mean nothing.",
+   "alias": [
+    "序数型",
+    "定序"
+   ]
+  },
+  {
+   "id": "interval-ratio",
+   "zh": "区间尺度与比率尺度",
+   "en": "Interval vs. ratio scale",
+   "ch": "01",
+   "zh_def": "区间尺度支持加减（摄氏温度），比率尺度还支持乘除（年龄、价格）。唯一的区别是有没有「真零点」。",
+   "zh_why": "0°C 不等于没有温度，所以不能说 20°C 是 10°C 的两倍；0 元才等于没有钱。这条决定了什么时候可以算比值。",
+   "en_def": "Interval scales support addition and subtraction (Celsius temperature); ratio scales additionally support multiplication and division (age, price). The only difference is whether there is a true zero.",
+   "en_why": "0 °C does not mean 'no temperature', so 20 °C is not twice as warm as 10 °C; 0 yuan does mean 'no money'. This decides when a ratio is meaningful — and when a bar chart lies by starting from a fake zero.",
+   "alias": [
+    "区间尺度"
+   ]
+  },
+  {
+   "id": "channel",
+   "zh": "视觉通道",
+   "en": "Visual channel",
+   "ch": "01",
+   "zh_def": "承载数据变化的视觉属性，位置、长度、角度、面积、亮度、饱和度、色相、形状、纹理等。",
+   "zh_why": "Mackinlay 把通道按表达能力排了序：位置最能表达定量，色相最能表达定性。属性与通道配错，信息就会丢。",
+   "en_def": "A visual property that can carry variation in data: position, length, angle, area, brightness, saturation, hue, shape, texture.",
+   "en_why": "Mackinlay ranked channels by how much they can express: position is the strongest for quantitative values, hue the strongest for categories. Pair an attribute with the wrong channel and information is lost — a pie chart is exactly that mistake."
+  },
+  {
+   "id": "data-join",
+   "zh": "Data-Join 三态",
+   "en": "Data-join, three states",
+   "ch": "01",
+   "zh_def": "把数据数组绑定到 DOM 元素时出现的三种情况：元素不够是 enter，正好是 update，多了是 exit。",
+   "zh_why": "这是 D3 的核心心智模型。理解了它，D3 就从「一堆 API」变成「一条数据到画面的映射」。",
+   "en_def": "Binding an array of data to DOM elements produces three cases: too few elements is enter, an exact match is update, surplus elements is exit.",
+   "en_why": "This is the core mental model of D3. Once you have it, D3 stops being a pile of APIs and becomes one mapping from data to pixels; without it, every selection method feels arbitrary."
+  },
+  {
+   "id": "key-function",
+   "zh": "key 函数",
+   "en": "Key function",
+   "ch": "01",
+   "zh_def": "在绑定数据时告诉 D3「哪个数据对应哪个元素」的函数，通常写成 d => d.id。",
+   "zh_why": "没有 key，D3 按数组下标认身份：数据一重排，所有元素都算「变过」，过渡动画就乱了。有 key，元素才知道自己是谁。",
+   "en_def": "A function that tells D3 which data item belongs to which element when binding, usually written d => d.id.",
+   "en_why": "Without a key, D3 identifies elements by array index: reorder the data and every element counts as changed, so transitions scramble. With a key, each element knows who it is and animates from its own previous state."
+  },
+  {
+   "id": "card-model",
+   "zh": "Card 数据流模型",
+   "en": "Card's pipeline model",
+   "ch": "02",
+   "zh_def": "把可视化拆成四步：原数据 → 数据表 → 视觉结构 → 视图。1999 年由 Stuart Card 提出。",
+   "zh_why": "它是整门课的骨架。有了这套坐标系，遇到任何一张陌生的图，你都能问「它在哪一步做了什么处理」。",
+   "en_def": "Stuart Card's 1999 model splits visualization into four stages: raw data → data tables → visual structures → views.",
+   "en_why": "It is the skeleton of this whole course. With that frame you can meet any unfamiliar chart and ask what it did at each stage — what was filtered, what was encoded, what was drawn."
+  },
+  {
+   "id": "rollup",
+   "zh": "d3.rollup",
+   "en": "d3.rollup",
+   "ch": "02",
+   "zh_def": "按给定键分组，并对每组算出一个聚合值，返回 Map。和 d3.group 的区别是它只留聚合结果。",
+   "zh_why": "把平表变成层次结构最实用的一步。树形图、分组柱状图的上游数据几乎都是它生成的。",
+   "en_def": "Group by the given key and reduce each group to a single value, returning a Map. Unlike d3.group, it keeps only the aggregate.",
+   "en_why": "It is the most practical single step from a flat table to a hierarchy: treemaps, grouped bars and stacked areas almost always start from a d3.rollup call."
+  },
+  {
+   "id": "reingold-tilford",
+   "zh": "Reingold-Tilford 布局",
+   "en": "Reingold–Tilford layout",
+   "ch": "02",
+   "zh_def": "一种经典树状图布局算法，让同层节点均匀铺开，同时父节点尽量居中于其子节点之上。",
+   "zh_why": "手写树布局很容易左右不平衡、线条交叉。这个算法把「看起来舒服」这件事变成了可计算的规则。",
+   "en_def": "A classic tree layout that spreads siblings evenly across the available width while keeping each parent centred over its children.",
+   "en_why": "Hand-rolled tree layouts drift out of balance and cross their own edges. This algorithm turns 'looks tidy' into a computable rule, which is why d3.tree() still implements it."
+  },
+  {
+   "id": "event-delegation",
+   "zh": "事件委托",
+   "en": "Event delegation",
+   "ch": "02",
+   "zh_def": "把监听器绑在父元素上，靠事件冒泡统一处理所有子元素的事件。",
+   "zh_why": "元素数量成千上万时，给每个元素单独绑监听器的开销会线性上涨。委托只有一个监听器，而且动态增删的子元素也能自动接管。",
+   "en_def": "Attach one listener to a parent element and let events bubble up from its children, handling them all in one place.",
+   "en_why": "With thousands of elements, per-element listeners grow linearly and leak as elements come and go. One delegated listener stays flat — and children added later are handled automatically."
+  },
+  {
+   "id": "color-space",
+   "zh": "颜色空间",
+   "en": "Color space",
+   "ch": "03",
+   "zh_def": "描述颜色的坐标系。RGB 面向屏幕，HSL 面向直觉，Lab / HCL 面向感知。",
+   "zh_why": "做数据映射必须用感知均匀的空间：在 RGB 里等距离的两个颜色，人眼看着并不等距，映射出来的图会骗人。",
+   "en_def": "A coordinate system for describing colour: RGB is built for screens, HSL for intuition, Lab and HCL for perception.",
+   "en_why": "Mapping data to colour demands a perceptually uniform space. Two colours the same distance apart in RGB are not the same distance apart to the eye, so a colormap built in RGB will lie about magnitude."
+  },
+  {
+   "id": "colormap-types",
+   "zh": "colormap 三类",
+   "en": "Three colormap types",
+   "ch": "03",
+   "zh_def": "顺序型（数值单调变化）、发散型（有一个有意义的中间值）、定性型（类别之间无顺序）。",
+   "zh_why": "选错类型的代价很大：给没有中心的数据用发散型，读者会读出一个不存在的中心；给类别数据用顺序型，读者会以为类别能比大小。",
+   "en_def": "Sequential (a value rises monotonically), diverging (a meaningful midpoint) and qualitative (categories with no order).",
+   "en_why": "Getting the type wrong is expensive: a diverging map on data without a centre invents one, and a sequential map on categories makes readers think the categories can be ranked."
+  },
+  {
+   "id": "cvd",
+   "zh": "色觉缺陷（CVD）",
+   "en": "Colour-vision deficiency",
+   "ch": "03",
+   "zh_def": "红绿色盲、蓝黄色盲等色觉差异。男性中红绿色盲比例约为 8%。",
+   "zh_why": "只靠色相区分数据，意味着约每十二个男性读者里就有一个读不了你的图。这是把「可读性」变成硬指标的少数几处之一。",
+   "en_def": "Colour-vision deficiencies such as protanopia and deuteranopia (red–green) or tritanopia (blue–yellow). Around 8% of men are red–green colour-blind.",
+   "en_why": "Encoding data by hue alone means roughly one in twelve male readers cannot read your chart. This is one of the few places where accessibility becomes a hard, checkable requirement."
+  },
+  {
+   "id": "wong-palette",
+   "zh": "Wong 色板",
+   "en": "Wong palette",
+   "ch": "03",
+   "zh_def": "发表在 Nature Methods (2011) 的一组定性色板，经过色觉缺陷友好性与等亮度检验。",
+   "zh_why": "本网站自身的配色也取自这套色板 —— 课程讲的配色原则，在课程网站自己身上先用一遍。",
+   "en_def": "A qualitative palette published in Nature Methods (2011), tested both for colour-vision deficiency and for even lightness.",
+   "en_why": "This site's own palette comes from it: the principles the course teaches are applied to the course site itself, so the lessons and the medium agree."
+  },
+  {
+   "id": "vivid-muted",
+   "zh": "鲜艳 + 低饱和",
+   "en": "Vivid but low saturation",
+   "ch": "03",
+   "zh_def": "一类配色策略：保色相上的区分度（鲜艳），同时压低饱和度（不刺眼），并把颜色数量控制在 7 个以内。",
+   "zh_why": "高饱和多色最大的问题不是丑，是「吵」—— 每一块颜色都在抢注意力，读者反而找不到重点。",
+   "en_def": "A palette strategy that keeps hue separation (vivid) while pushing saturation down (easy on the eye), with the number of colours capped around seven.",
+   "en_why": "The problem with many saturated colours is not ugliness but noise: every patch competes for attention, so the reader finds no focus. Lower saturation lets one accent do the pointing."
+  },
+  {
+   "id": "screen-space",
+   "zh": "三层坐标变换",
+   "en": "Three-layer coordinate transform",
+   "ch": "04",
+   "zh_def": "数据空间（语义）→ 坐标系空间（几何）→ 屏幕空间（像素）。每一层只负责一件事。",
+   "zh_why": "初学者常把这三种变换揉在一起写，于是改一处就崩一片。分层之后，比例尺该做什么、什么不该做，就清楚了。",
+   "en_def": "Data space (meaning) → coordinate space (geometry) → screen space (pixels). Each layer does exactly one job.",
+   "en_why": "Beginners fold the three transforms into one expression, so a change in one breaks the rest. Kept apart, it becomes obvious what a scale should do — and what it should never do.",
+   "alias": [
+    "坐标变换"
+   ]
+  },
+  {
+   "id": "cleveland",
+   "zh": "Cleveland 45° 黄金角",
+   "en": "Cleveland's 45° sweet spot",
+   "ch": "04",
+   "zh_def": "人眼对斜率的估计在 45° 附近最准确（也称 banking to 45°）。",
+   "zh_why": "它把「图表该多宽多高」从审美问题变成了感知问题：想让人准确比较趋势，就把主要趋势线摆到 45° 附近。",
+   "en_def": "The eye estimates slopes most accurately near 45°, a result known as banking to 45°.",
+   "en_why": "It turns aspect ratio from a question of taste into a question of perception: if readers must compare trends, put the dominant trend near 45° instead of arguing about how tall the chart should be."
+  },
+  {
+   "id": "marching-squares",
+   "zh": "Marching Squares",
+   "en": "Marching Squares",
+   "ch": "04",
+   "zh_def": "在规则网格上逐格判断四角与阈值的关系，生成等值线段，再拼接成完整等值线的算法。",
+   "zh_why": "它是等值线图和热力图平滑化的底层。难点不在循环，而在「四角两两高于阈值」时的歧义格子 —— 连线方式不同，结果形状会不一样。",
+   "en_def": "A grid algorithm that tests each cell's four corners against a threshold and stitches the resulting segments into full contour lines.",
+   "en_why": "It underlies contour plots and smoothed heatmaps. The difficulty is not the loop but the ambiguous cells where two corners are above the threshold and two below — different resolutions give different shapes."
+  },
+  {
+   "id": "time-attributes",
+   "zh": "时间的 5 个属性",
+   "en": "Five attributes of time",
+   "ch": "05",
+   "zh_def": "有序、连续、周期、独立于空间、有结构（间隔有含义）。",
+   "zh_why": "其中「独立于空间」这一条最关键：空间数据的位置自带信息，时间必须由你决定它怎么落到平面上，所以时间可视化才有这么多非标准布局。",
+   "en_def": "Ordered, continuous, cyclic, independent of space, and structured (intervals carry meaning).",
+   "en_why": "'Independent of space' matters most: spatial position carries its own information, but time has no position until you choose one — which is why time visualization has so many non-standard layouts."
+  },
+  {
+   "id": "van-wijk",
+   "zh": "van Wijk 日历热图",
+   "en": "van Wijk calendar heatmap",
+   "ch": "05",
+   "zh_def": "把一年按「行 = 年 / 列 = 周」摆成网格，用颜色表示每天的值。",
+   "zh_why": "它牺牲了精确的数值比较，换来整年的模式识别 —— 这是布局设计里典型的「用精度换结构」。",
+   "en_def": "A calendar grid with years as rows and weeks as columns, colouring each day by its value.",
+   "en_why": "It gives up precise value comparison in exchange for pattern recognition across a whole year — the classic 'trade precision for structure' move in layout design.",
+   "alias": [
+    "van Wijk"
+   ]
+  },
+  {
+   "id": "archimedean-spiral",
+   "zh": "阿基米德螺旋",
+   "en": "Archimedean spiral",
+   "ch": "05",
+   "zh_def": "半径随角度线性增长的螺旋线。把时间沿它排列，同一周期的数据会落在同一条辐射方向上。",
+   "zh_why": "折线图会把周期切成碎片，螺旋则让周期对齐成径向的一条条 —— 周期性因此变得可以直接看出来。",
+   "en_def": "A spiral whose radius grows linearly with angle. Laying time along it makes data from the same phase of each cycle fall on the same ray.",
+   "en_why": "A line chart chops a cycle into fragments; a spiral aligns the cycles into radial spokes, so periodicity becomes visible at a glance."
+  },
+  {
+   "id": "storyline",
+   "zh": "Storyline",
+   "en": "Storyline",
+   "ch": "05",
+   "zh_def": "多角色叙事可视化：每条线代表一个角色、组织或进程，线的交叉表示它们相遇或产生关系。",
+   "zh_why": "它是少数几个能把「叙事结构」本身画出来的方法。《侏罗纪公园》案例里，角色线的交织就是剧情的结构。",
+   "en_def": "A narrative visualization in which each line is a character, organisation or process, and crossings mark encounters or relationships.",
+   "en_why": "It is one of the few methods that draws narrative structure itself. In the Jurassic Park case, the interweaving of the character lines is the plot."
+  },
+  {
+   "id": "scale",
+   "zh": "比例尺（scale）",
+   "en": "Scale",
+   "ch": "01",
+   "zh_def": "把数据域映射到值域的函数。连续量用 scaleLinear，离散分类用 scaleBand，序数可用 scalePoint。",
+   "zh_why": "选错比例尺是最常见的新手错误：给类别数据用线性比例尺，会算出「0.5 班」这种没有意义的值。",
+   "en_def": "A function mapping a data domain to a visual range. Continuous values use scaleLinear, ordered categories use scaleBand, and points on a category axis use scalePoint.",
+   "en_why": "Picking the wrong scale is the most common beginner error: a linear scale on categorical data produces meaningless values such as '0.5 of a class'."
+  },
+  {
+   "id": "colormap-vs-palette",
+   "zh": "colormap 与色板的区别",
+   "en": "Colormap vs. palette",
+   "ch": "03",
+   "zh_def": "colormap 是连续的（可插值），用于数值映射；色板是离散的一组颜色，用于类别区分。",
+   "zh_why": "把连续的 colormap 用在类别数据上，会暗示类别之间有中间态；把离散色板用在数值上，则会让读者以为数据是分档的。",
+   "en_def": "A colormap is continuous and interpolated, used to map values; a palette is a discrete set of colours, used to separate categories.",
+   "en_why": "A continuous colormap on categorical data implies states in between; a discrete palette on continuous values implies the data is binned. Neither claim is true, and both mislead."
+  }
+ ]
 }

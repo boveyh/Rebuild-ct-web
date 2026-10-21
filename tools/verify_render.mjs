@@ -238,12 +238,40 @@ for (const cid of ["01", "02", "03", "04", "05"]) {
         if (mounts.length > 0 && done.length === mounts.length) break;
         await new Promise(r => setTimeout(r, 300));
       }
+      // 画布越界：内容画到 <svg> 框外就是被裁掉（浏览器默认裁剪 viewBox 外的东西）。
+      // 之前有 7 处这样的 bug：第 3 章 CVD 缩略图只剩左上角、第 2 章树标签两侧被切、
+      // 第 1 章金字塔底座少一截 —— 全都「看起来没问题」，因为裁掉的部分不会报错。
+      const clip = [];
+      mounts.forEach(m => {
+        m.querySelectorAll("svg").forEach((s, i) => {
+          const box = s.getBoundingClientRect();
+          if (!box.width || !box.height) return;
+          let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+          s.querySelectorAll("*").forEach(c => {
+            const r = c.getBoundingClientRect();
+            if (!r.width && !r.height) return;
+            x0 = Math.min(x0, r.left); y0 = Math.min(y0, r.top);
+            x1 = Math.max(x1, r.right); y1 = Math.max(y1, r.bottom);
+          });
+          if (!isFinite(x0)) return;
+          if (x1 - box.right > 2 || y1 - box.bottom > 2 || box.left - x0 > 2 || box.top - y0 > 2)
+            clip.push(m.dataset.demo + "#" + i);
+        });
+      });
+      // 日历热图：一年 366 格，如果只有一两种颜色，说明「按日期查温度」根本没查着
+      const cal = mounts.find(m => m.dataset.demo === "d-5-3");
+      const calColors = cal
+        ? new Set([...cal.querySelectorAll("svg rect.cell")].map(r => r.getAttribute("fill"))).size
+        : -1;
       return {
         mounts: mounts.length,
         ready: mounts.filter(m => m.getAttribute("data-ready") === "1").length,
         empty: mounts.filter(m => m.children.length === 0).map(m => m.dataset.demo),
         svg: mounts.reduce((n, m) => n + m.querySelectorAll("svg").length, 0),
         state: mounts.map(m => m.getAttribute("data-state") || "-").join(","),
+        clip: clip.slice(0, 6),
+        nClip: clip.length,
+        calColors,
       };
     });
     const ok = res.mounts > 0 && res.ready === res.mounts && res.empty.length === 0 && fails.length === 0;
@@ -252,6 +280,18 @@ for (const cid of ["01", "02", "03", "04", "05"]) {
       ok,
       JSON.stringify({ ...res, fails: fails.slice(0, 3) }),
     ]);
+    interact.push([
+      `第 ${cid} 章演示的画布没有内容溢出（被裁掉）`,
+      res.nClip === 0,
+      JSON.stringify({ clip: res.clip }),
+    ]);
+    if (cid === "05") {
+      interact.push([
+        "日历热图按温度上色（不是一种颜色）",
+        res.calColors >= 30,
+        JSON.stringify({ colors: res.calColors }),
+      ]);
+    }
   } catch (e) {
     interact.push([`第 ${cid} 章演示`, false, String(e.message)]);
   }
@@ -427,6 +467,55 @@ try {
   });
   interact.push(["图片可点击放大", ok.ok, JSON.stringify(ok)]);
 } catch (e) { interact.push(["图片放大", false, String(e.message)]); }
+
+// 9. 章节卡右上角的进度环
+//
+//    「80%」从一行字换成了一个环形表盘。这里最大的风险不是画不出来，而是
+//    被写坏：shell.js 原来对 [data-progress-out] 整块写 textContent，会把
+//    <svg> 一起铲掉，只剩一个数字 —— 页面上不报错、不缺元素，只是环没了。
+//    所以三件事一起盯：环还在、弧长等于剩余比例、环心数字与卡片属性一致。
+try {
+  const p = await browser.newPage();
+  const pErr = [];
+  p.on("pageerror", e => pErr.push(String(e.message).split("\n")[0]));
+  await p.setViewport({ width: 1440, height: 950 });
+  await p.goto(BASE + "/", { waitUntil: "networkidle2" });
+  await p.evaluate(() => {
+    const m = {};
+    for (let i = 1; i <= 4; i++) m["c01s" + i] = 1;   // 第 1 章 4/5 → 80%
+    for (let i = 1; i <= 4; i++) m["c02s" + i] = 1;   // 第 2 章 4/4 → 100%
+    localStorage.setItem("wb.progress", JSON.stringify(m));
+  });
+  await p.reload({ waitUntil: "networkidle2" });
+  const ok = await p.evaluate(async () => {
+    // 环的入场动画由 IntersectionObserver 触发，必须让每张卡真的进过视口，
+    // 否则后半段卡片停在初始的「空环」上，读到的 offset 是空字符串。
+    document.documentElement.style.scrollBehavior = "auto";
+    const step = Math.round(window.innerHeight * 0.7);
+    for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
+      window.scrollTo(0, y);
+      await new Promise(r => setTimeout(r, 180));
+    }
+    await new Promise(r => setTimeout(r, 1300));   // 填充过渡 900ms
+    const rows = [...document.querySelectorAll(".chapter-card")].map(c => {
+      const fill = c.querySelector(".chapter-card__ring-fill");
+      const num = c.querySelector("[data-progress-num]");
+      const pct = Number(c.getAttribute("data-progress-value"));
+      return {
+        pct,
+        num: num ? num.textContent.trim() : null,
+        // 内联值是动画的目标值；computed 读到的是插值中间态，不能拿来判断
+        offset: fill ? Number(fill.style.strokeDashoffset) : null,
+      };
+    });
+    const ok = rows.length >= 5 &&
+      rows.every(r => r.num === r.pct + "%" && r.offset === 100 - r.pct);
+    return { ok, 第一张: rows[0], 比例: rows.map(r => r.pct) };
+  });
+  if (pErr.length) ok.ok = false;
+  interact.push(["章节卡进度环与百分比一致", ok.ok, JSON.stringify(ok)]);
+  await p.close();
+} catch (e) { interact.push(["进度环", false, String(e.message)]); }
 
 //    章末自测：答对与答错都要给出解析，正确项必须被标出来，
 //    回查链接必须指向真实存在的小节（否则读者点了个寂寞）。
@@ -936,6 +1025,172 @@ if (!progOk) routeFail += 1;
 log((progOk ? "✅ " : "❌ ") + "读过之后显示「已读 m / n 章」并给章节打勾  " + JSON.stringify(routeProg));
 await rp.close();
 if (routeFail) hardFail += routeFail;
+
+/* ------------------------------------------------------------ 演示区的双语层 */
+/* 演示模块是从原站快照重抽的，译文只能落在运行时（assets/js/demo-i18n.js）。
+   这条断言守两件事：
+     1. 切到英文后，演示区不该再出现中文解说（代码块里的注释与程序输出除外）；
+     2. 切回中文要能还原 —— 单向替换最容易留下「一半英文一半中文」的残页。
+   顺带撞两个原站老 bug：函数演示选 reduce 会抛错、投票点错选项毫无反应。 */
+{
+  const dp = await browser.newPage();
+  await dp.setViewport({ width: 1440, height: 1000 });
+  const dpErrs = [];
+  dp.on("pageerror", e => dpErrs.push(e.message));
+  await dp.evaluateOnNewDocument(() => {
+    try { localStorage.setItem("wbThemeless", "1"); localStorage.setItem("wb.locale", "zh"); } catch (e) {}
+  });
+  await dp.goto(BASE + "/lesson-01/", { waitUntil: "networkidle2" });
+  const zhFirst = await dp.evaluate(async () => {
+    const m = document.querySelector('.demo-mount[data-demo="d-3-1"]');
+    window.WBLesson.runDemo(m);
+    for (let i = 0; i < 30 && !m.querySelector("table"); i++) {
+      await new Promise(r => setTimeout(r, 150));
+    }
+    return m.innerText.replace(/\s+/g, " ").slice(0, 40);
+  });
+
+  // 函数演示：切到 reduce（返回标量，原站这里 [...out] 直接抛 out is not iterable）
+  const reduceOut = await dp.evaluate(async () => {
+    const m = document.querySelector('.demo-mount[data-demo="d-3-4"]');
+    window.WBLesson.runDemo(m);
+    for (let i = 0; i < 20 && !m.querySelector("select"); i++) await new Promise(r => setTimeout(r, 150));
+    const sel = m.querySelector("select");
+    sel.value = "reduce";
+    sel.dispatchEvent(new Event("change", { bubbles: true }));
+    await new Promise(r => setTimeout(r, 500));
+    return m.innerText.replace(/\s+/g, " ");
+  });
+
+  await dp.evaluate(() => {
+    const b = document.querySelector('[data-lang-btn="en"]');
+    if (b && !b.disabled) b.click();
+  });
+  await new Promise(r => setTimeout(r, 700));
+  const enState = await dp.evaluate(() => {
+    const cjk = /[\u4e00-\u9fff]/;
+    const left = [];
+    document.querySelectorAll(".demo-mount[data-ready]").forEach(m => {
+      const w = document.createTreeWalker(m, NodeFilter.SHOW_TEXT);
+      let n;
+      while ((n = w.nextNode())) {
+        const s = n.nodeValue.replace(/\s+/g, " ").trim();
+        if (!s || !cjk.test(s)) continue;
+        if (n.parentElement.closest("pre, code, .console")) continue;
+        left.push(s.slice(0, 40));
+      }
+    });
+    return {
+      locale: document.documentElement.getAttribute("data-locale"),
+      left: left.slice(0, 5),
+      nLeft: left.length,
+      sample: (document.querySelector('.demo-mount[data-demo="d-3-1"]').innerText || "").replace(/\s+/g, " "),
+    };
+  });
+
+  await dp.evaluate(() => document.querySelector('[data-lang-btn="zh"]').click());
+  await new Promise(r => setTimeout(r, 500));
+  const backZh = await dp.evaluate(() =>
+    (document.querySelector('.demo-mount[data-demo="d-3-1"]').innerText || "").replace(/\s+/g, " "));
+
+  const biOk = enState.locale === "en" && enState.nLeft === 0 &&
+               /Converted data/.test(enState.sample) && !/转换后数据/.test(enState.sample);
+  sideChecks += 1;
+  if (biOk) sidePass += 1; else hardFail += 1;
+  log((biOk ? "✅ " : "❌ ") + "切到英文后演示区没有中文解说  " +
+      JSON.stringify({ locale: enState.locale, nLeft: enState.nLeft, left: enState.left,
+                       head: enState.sample.slice(0, 60), zhHead: zhFirst.slice(0, 40) }));
+
+  const backOk = /转换后数据/.test(backZh);
+  sideChecks += 1;
+  if (backOk) sidePass += 1; else hardFail += 1;
+  log((backOk ? "✅ " : "❌ ") + "切回中文后演示区还原成原文  " +
+      JSON.stringify({ head: backZh.slice(0, 40) }));
+
+  // 两个原站 bug 的回归断言：有输出、无异常
+  const reduceOk = /10/.test(reduceOut) && dpErrs.length === 0;
+  sideChecks += 1;
+  if (reduceOk) sidePass += 1; else hardFail += 1;
+  log((reduceOk ? "✅ " : "❌ ") + "函数演示切到 reduce 有输出且不抛错  " +
+      JSON.stringify({ has10: /10/.test(reduceOut), errs: dpErrs.slice(0, 3) }));
+  await dp.close();
+}
+
+/* ------------------------------------------------------------ 投票卡的判定 */
+/* 原站这句 `cc.classList.add(c.type === "correct" ? "wrong" : "")` 在投错票时
+   给 classList 传空串，直接抛 DOMTokenList 异常 —— 表现是「点错了什么也不发生」。
+   修好之后：投错只标错这一张，投对才把其余三张标错。 */
+{
+  const vp = await browser.newPage();
+  await vp.setViewport({ width: 1440, height: 1000 });
+  const vErrs = [];
+  vp.on("pageerror", e => vErrs.push(e.message));
+  await vp.goto(BASE + "/lesson-03/", { waitUntil: "networkidle2" });
+  const vote = await vp.evaluate(async () => {
+    const m = document.querySelector('.demo-mount[data-demo="d-3-6"]');
+    window.WBLesson.runDemo(m);
+    for (let i = 0; i < 25 && m.querySelectorAll(".quiz-card").length < 4; i++) {
+      await new Promise(r => setTimeout(r, 150));
+    }
+    const cards = m.querySelectorAll(".quiz-card");
+    // 第 2 张是「B：红绿对比」，属于错误方案
+    cards[1].dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await new Promise(r => setTimeout(r, 400));
+    const wrongAfterWrong = m.querySelectorAll(".quiz-card.wrong").length;
+    // 再投一次正确的（第 4 张 D：Wong）
+    cards[3].dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await new Promise(r => setTimeout(r, 400));
+    return {
+      wrongAfterWrong,
+      correctAfterRight: m.querySelectorAll(".quiz-card.correct").length,
+      wrongAfterRight: m.querySelectorAll(".quiz-card.wrong").length,
+      hasResult: !!m.querySelector(".quiz-result"),
+    };
+  });
+  const voteOk = vote.wrongAfterWrong === 1 && vote.correctAfterRight === 1 &&
+                 vote.wrongAfterRight === 3 && vote.hasResult && vErrs.length === 0;
+  sideChecks += 1;
+  if (voteOk) sidePass += 1; else hardFail += 1;
+  log((voteOk ? "✅ " : "❌ ") + "投票卡投错只标错一张、投对则其余标错  " +
+      JSON.stringify({ ...vote, errs: vErrs.slice(0, 3) }));
+  await vp.close();
+}
+
+/* ------------------------------------------------------------ 术语表的英文 */
+/* 中文写满、英文只写半句的术语页，切到 EN 的读者拿到的是打折的内容，
+   而页面上看不出任何异常。这里按「英文释义不短于中文」兜底。 */
+{
+  const gp = await browser.newPage();
+  await gp.setViewport({ width: 1440, height: 1000 });
+  await gp.evaluateOnNewDocument(() => {
+    try { localStorage.setItem("wb.locale", "zh"); } catch (e) {}
+  });
+  await gp.goto(BASE + "/glossary.html", { waitUntil: "networkidle2" });
+  const gl = await gp.evaluate(() => {
+    const cards = [...document.querySelectorAll(".term-card")];
+    const lens = cards.map(c => {
+      const zh = c.querySelector('[data-lang="zh"].term-card__def, .term-card__def [data-lang="zh"], [data-lang="zh"].def');
+      const en = c.querySelector('[data-lang="en"].term-card__def, .term-card__def [data-lang="en"], [data-lang="en"].def');
+      return { zh: (zh ? zh.textContent : "").trim().length, en: (en ? en.textContent : "").trim().length };
+    }).filter(x => x.zh > 0);
+    return { n: cards.length, short: lens.filter(x => x.en < x.zh).length, min: lens.length ? Math.min(...lens.map(x => x.en)) : 0 };
+  });
+  await gp.evaluate(() => { const b = document.querySelector('[data-lang-btn="en"]'); if (b && !b.disabled) b.click(); });
+  await new Promise(r => setTimeout(r, 400));
+  const glEn = await gp.evaluate(() => {
+    const visibleZh = [...document.querySelectorAll(".term-card [data-lang='zh']")]
+      .filter(el => el.offsetParent !== null).length;
+    const enDefs = [...document.querySelectorAll(".term-card [data-lang='en']")]
+      .filter(el => el.offsetParent !== null).length;
+    return { visibleZh, enDefs };
+  });
+  const glOk = gl.n >= 25 && gl.short === 0 && glEn.visibleZh === 0 && glEn.enDefs >= 50;
+  sideChecks += 1;
+  if (glOk) sidePass += 1; else hardFail += 1;
+  log((glOk ? "✅ " : "❌ ") + "术语表英文释义不比中文短、切 EN 后中文全部让位  " +
+      JSON.stringify({ ...gl, ...glEn }));
+  await gp.close();
+}
 
 
 /* ------------------------------------------------------------ 知识图谱 */

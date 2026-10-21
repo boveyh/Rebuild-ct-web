@@ -183,6 +183,11 @@
               box-shadow var(--dur-base) var(--ease-out);
 }
 
+/* 悬停反馈只留三样：上浮 3px、边框转品牌色、阴影加深。
+   之前这里还有一层「右上角透出品牌色」的光 —— 先是一枚 140px 的实心圆，
+   改成铺满整卡的径向渐变之后，读者看到的仍然是一团圆形的紫，而且正好压在
+   封面缩略图上。光这种东西，只要它有个能看见的形状，就会被读成「一块贴纸」。
+   与其继续调衰减点，不如不给：卡片本身的位移和描边已经足够说明「可以点」。 */
 .chapter-card:hover {
   text-decoration: none;
   color: var(--text-1);
@@ -190,22 +195,6 @@
   border-color: var(--brand-border);
   box-shadow: var(--shadow-3);
 }
-
-/* 悬停时右上角淡出的主色块，取代整卡换底色 */
-.chapter-card__glow {
-  position: absolute;
-  top: -40px;
-  right: -40px;
-  width: 140px;
-  height: 140px;
-  background: var(--brand-bg);
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity var(--dur-slow) var(--ease-out);
-  pointer-events: none;
-}
-
-.chapter-card:hover .chapter-card__glow { opacity: 1; }
 
 /* 卡顶的主题微缩图。图形由构建期写死（见 tools/build.py 的 CHAPTER_MOTIFS），
    这里只管容器：定高、浅底、内收圆角，让它读起来像一枚「封面」而不是插图。
@@ -340,12 +329,95 @@
   padding: 2px var(--sp-2);
 }
 
+/* 右上角这一格原本只有一行「80%」。数字是准的，但它和卡片底边那条 2px
+   进度条说的是同一件事，读者得读两遍才拼出「读了大半」。换成一个环形表盘：
+   填充弧一眼给出比例，环心仍留精确数字，两种精度各就各位。
+   环用 pathLength="100" 把周长归一化，于是 dashoffset 直接等于「剩余百分比」，
+   JS 里不必出现 2πr。数值由 portal.js 写入，这里只管长相。 */
 .chapter-card__progress {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
   margin-left: auto;
   font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  color: var(--text-3);
   font-variant-numeric: tabular-nums;
+}
+
+.chapter-card__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  /* 从 12 点开始顺时针长，而不是 SVG 默认的 3 点 */
+  transform: rotate(-90deg);
+}
+
+.chapter-card__ring-track,
+.chapter-card__ring-fill {
+  fill: none;
+  stroke-width: 2.2;
+}
+
+/* 静止时轨道几乎不可见：环上只留「已经读完的那一段弧」，不再是一整圈灰边。
+   0% 的卡更彻底 —— 一条弧都没有，若还留个空圆框，它就只是个占地方的框。 */
+.chapter-card__ring-track {
+  stroke: var(--border-2);
+  opacity: 0.18;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.chapter-card:hover .chapter-card__ring-track { opacity: 1; }
+
+.chapter-card[data-progress-value="0"] .chapter-card__ring-track { opacity: 0; }
+
+/* 弧线是 round 端点：dashoffset 顶到 100 时，那个圆头会在 12 点位置留下
+   一个点，远看像「环没画完」。0% 就连弧一起收掉。 */
+.chapter-card[data-progress-value="0"] .chapter-card__ring-fill { opacity: 0; }
+
+.chapter-card__ring-fill {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  /* 空环是初始态：没读过、或脚本还没跑，都不该画出假进度 */
+  stroke-dashoffset: 100;
+  /* 这里故意不用 --ease-out。那条曲线是给「位移/浮起」用的，前 1/4 时间
+     就走完八成路程；套在进度环上，填充几乎一步到位，看不出「在长」。
+     换一条接近线性的缓动，才读得出弧线是在扫。 */
+  transition: stroke-dashoffset 1000ms cubic-bezier(0.45, 0.05, 0.35, 1),
+              stroke-width var(--dur-base) var(--ease-out),
+              opacity var(--dur-base) var(--ease-out);
+}
+
+.chapter-card:hover .chapter-card__ring-fill { stroke-width: 3; }
+
+.chapter-card__ring-num {
+  position: relative;
+  font-size: 10.5px;
+  font-weight: var(--fw-medium);
+  letter-spacing: -0.03em;
+  color: var(--text-2);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.chapter-card:hover .chapter-card__ring-num { color: var(--text-1); }
+
+/* 一章没读：环空着，数字也退到后面。写 0% 只为让人确认「确实没开始」，
+   不必和 80% 一样抢眼。 */
+.chapter-card[data-progress-value="0"] .chapter-card__ring-num { color: var(--text-3); }
+
+/* 100% 是唯一会顶到环内壁的情况（四个字符），单独收一点字号与字距 */
+.chapter-card[data-progress-value="100"] .chapter-card__ring-num {
+  font-size: 9px;
+  letter-spacing: -0.06em;
+}
+
+/* 环的填充是 CSS transition，tokens.css 里的 --dur-* 归零管不到它 */
+@media (prefers-reduced-motion: reduce) {
+  .chapter-card__ring-fill { transition: none; }
 }
 
 .chapter-card__title {

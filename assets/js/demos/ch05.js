@@ -215,7 +215,7 @@ DEMOS["d-5-2"] = async function (mount) {
 // =========================================
 DEMOS["d-5-3"] = async function (mount) {
   const dataRaw = await d3.csv('./data/weather_2024.csv', d3.autoType);
-  const byKey = new Map(dataRaw.map(d => [d.date, d.temp_max]));
+  const byKey = new Map(dataRaw.map(d => [d3.timeFormat('%Y-%m-%d')(d.date), d.temp_max]));
 
   const year = 2024;
   const start = new Date(year, 0, 1);
@@ -228,7 +228,7 @@ DEMOS["d-5-3"] = async function (mount) {
 
   const colorScale = d3.scaleSequential(d3.interpolateRdYlBu).domain([30, -5]);
 
-  const cellSize = 16;
+  const cellSize = 14;
   const W = 800, H = 220;
   const M = { t: 30, l: 30 };
 
@@ -258,7 +258,7 @@ DEMOS["d-5-3"] = async function (mount) {
         <option value="Cividis">Cividis（顺序型 CVD）</option>
       </select>
     </div>
-    <svg class="cal-svg" width="${W}" height="${H}" id="cal"></svg>
+    <svg class="cal-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" id="cal"></svg>
     <div id="cal-legend"></div>
   `;
 
@@ -371,7 +371,7 @@ DEMOS["d-5-3"] = async function (mount) {
 // =========================================
 DEMOS["d-5-4"] = async function (mount) {
   const dataRaw = await d3.csv('./data/weather_2024.csv', d3.autoType);
-  const byKey = new Map(dataRaw.map(d => [d.date, d.temp_max]));
+  const byKey = new Map(dataRaw.map(d => [d3.timeFormat('%Y-%m-%d')(d.date), d.temp_max]));
   const year = 2024;
   const start = new Date(year, 0, 1);
   const end   = new Date(year + 1, 0, 1);

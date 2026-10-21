@@ -9,7 +9,8 @@
      1. 默认只画 root + 5 个章节点，这就是原来的「课程主线」，一眼看完；
         点开某一章才把它下面的知识点放上来，图不会一上来就糊成一片。
      2. d3 用动态 import，并且等图谱滚进视口才加载。门户首屏是读者第一个
-        打开的页面，不该为一个第二屏的图付 280 KB。
+        打开的页面，不该为一个第二屏的图付整包 d3 的解析时间。而且这里加载的是
+        按需裁剪过的子集（vendor/d3-kg.esm.js，62 KB），不是 283 KB 的全量包。
      3. 力导向只负责「摆得开」，不负责「摆得对」。没有展开时五章吸附在一个
         固定半径的环上 —— 每次打开图长得一样，读者才不会怀疑图变了。
    ========================================================================= */
@@ -731,8 +732,11 @@ function boot() {
     measureBox();
 
     try {
-      // kg.js 在 assets/js/ 下，vendor 是它的同级目录
-      d3 = await import(new URL("./vendor/d3.esm.js", import.meta.url).href);
+      // kg.js 在 assets/js/ 下，vendor 是它的同级目录。
+      // 这里要的是 d3-kg.esm.js 而不是 d3.esm.js：后者是给演示用的全量包
+      // （283 KB），图谱只用到 select / zoom / drag / force 五组能力，
+      // 按需打成一个 62 KB 的子集，gzip 后 21 KB —— 装配等待从秒级降到帧级。
+      d3 = await import(new URL("./vendor/d3-kg.esm.js", import.meta.url).href);
     } catch (e) {
       const tip = host.querySelector(".kg__loading");
       tip.textContent = locale() === "en" ? "The graph could not load." : "图谱加载失败。";
@@ -818,6 +822,13 @@ function boot() {
       .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
   }
 
+  /* 首屏画完、浏览器报空闲时，先把 d3 子集下载并解析好（不建图）。
+     子集只有 62 KB，让它和首屏抢带宽没有意义，所以等 idle 再动手；
+     滚到图谱时 import 命中模块缓存，装配只剩力导向那一帧的时间。 */
+  const preloadD3 = () => {
+    import(new URL("./vendor/d3-kg.esm.js", import.meta.url).href).catch(() => {});
+  };
+
   /* 等图谱滚进视口再加载 d3。没有 IntersectionObserver 的老浏览器直接加载。 */
   if ("IntersectionObserver" in window) {
     const io = new IntersectionObserver((entries) => {
@@ -827,6 +838,12 @@ function boot() {
       }
     }, { rootMargin: "360px 0px" });
     io.observe(host);
+
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(preloadD3, { timeout: 2500 });
+    } else {
+      window.addEventListener("load", preloadD3, { once: true });
+    }
   } else {
     mount();
   }

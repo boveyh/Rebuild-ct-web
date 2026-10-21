@@ -339,7 +339,7 @@ DEMOS["d-3-3"] = async function (mount) {
     svg.append("line").attr("x1", W / 2).attr("x2", W / 2).attr("y1", 20).attr("y2", H - 20)
       .attr("stroke", "#1e293b").attr("stroke-width", 1);
 
-    svg.append("text").attr("x", W - 36).attr("y", H / 2 - 6).attr("font-size", 12).attr("fill", "#1e293b").text("a* = +128 红");
+    svg.append("text").attr("x", W - 8).attr("text-anchor", "end").attr("y", H / 2 - 6).attr("font-size", 12).attr("fill", "#1e293b").text("a* = +128 红");
     svg.append("text").attr("x", 44).attr("y", H / 2 - 6).attr("font-size", 12).attr("fill", "#1e293b").text("绿 a* = -128");
     svg.append("text").attr("x", W / 2 + 6).attr("y", 24).attr("font-size", 12).attr("fill", "#1e293b").text("黄 b* = +128");
     svg.append("text").attr("x", W / 2 + 6).attr("y", H - 12).attr("font-size", 12).attr("fill", "#1e293b").text("蓝 b* = -128");
@@ -600,9 +600,10 @@ DEMOS["d-3-6"] = async function (mount) {
     const W = 200, H = 100;
     let bars = "";
     const bw = (W - 16) / 8;
+    const maxV = Math.max(...data);
     data.forEach((v, i) => {
       const color = palette(i / 7);
-      bars += `<rect x="${8 + i * bw}" y="${H - 8 - v * 14}" width="${bw - 2}" height="${v * 14}" fill="${color}" />`;
+      bars += `<rect x="${8 + i * bw}" y="${H - 8 - (v / maxV) * (H - 16)}" width="${bw - 2}" height="${(v / maxV) * (H - 16)}" fill="${color}" />`;
     });
     return `<svg width="${W}" height="${H}" style="background:#fafafa;border:1px solid #e2e8f0;">${bars}</svg>`;
   }
@@ -619,7 +620,7 @@ DEMOS["d-3-6"] = async function (mount) {
       cards.forEach((cc, ii) => {
         cc.classList.remove("correct", "wrong");
         if (ii === i) cc.classList.add(c.type);
-        else cc.classList.add(c.type === "correct" ? "wrong" : "");
+        else if (c.type === "correct") cc.classList.add("wrong");
       });
       result.innerHTML = `
         <div class="quiz-result">

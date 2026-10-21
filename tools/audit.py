@@ -641,7 +641,36 @@ def check_content(rep: Report) -> None:
     gl = ROOT / "tools" / "data" / "glossary.json"
     if gl.is_file():
         g = json.loads(gl.read_text(encoding="utf-8"))
-        rep.stats["术语条目"] = len(g if isinstance(g, list) else g.get("terms", g))
+        terms = g if isinstance(g, list) else g.get("terms", g)
+        rep.stats["术语条目"] = len(terms)
+        check_glossary_parity(terms, rep)
+
+
+def check_glossary_parity(terms: list, rep: Report) -> None:
+    """英文释义不能只是半句。
+
+    术语页是双语的，中文写满了、英文只写一句的话，切到 EN 的读者拿到的
+    信息量比中文读者少一半 —— 而页面上看不出任何异常。这里按字符数比
+    （英文通常比中文长）兜底：低于中文 1.0 倍就当成「还没写完」。
+    """
+    thin = []
+    for t in terms:
+        tid = t.get("id") or t.get("zh")
+        for zh_key, en_key in (("zh_def", "en_def"), ("zh_why", "en_why")):
+            zh = (t.get(zh_key) or "").strip()
+            en = (t.get(en_key) or "").strip()
+            if not zh:
+                continue
+            if not en:
+                thin.append(f"{tid}.{en_key} 缺失")
+                continue
+            if len(en) < len(zh):
+                thin.append(f"{tid}.{en_key} 英文 {len(en)} 字符 < 中文 {len(zh)}")
+                continue
+            if re.search(r"[\u4e00-\u9fff]", en):
+                thin.append(f"{tid}.{en_key} 里混进了中文")
+    for item in thin:
+        rep.add("L4", "术语英文释义过薄", "tools/data/glossary.json", item)
 
 
 # ---------------------------------------------------------------------------
@@ -688,10 +717,12 @@ def check_css_coverage(rep: Report) -> None:
 
         # 本页真正加载的样式表。只认 <link rel="stylesheet">：404 页的探测
         # 脚本里也有一句 "assets/css/tokens.css"，那是拿去做 XHR 探测的字符串，
-        # 不是引用。
+        # 不是引用。build.py 会给文件名挂 ?v=<指纹> 做缓存失效，这里要吃掉它。
         loaded = set(
             re.findall(
-                r'<link[^>]+rel="stylesheet"[^>]+href="[^"]*assets/css/([\w-]+)\.css"', txt
+                r'<link[^>]+rel="stylesheet"[^>]+href="[^"]*assets/css/([\w-]+)\.css'
+                r'(?:\?v=[0-9a-f]+)?"',
+                txt,
             )
         )
         referenced |= loaded
@@ -721,6 +752,37 @@ def check_css_coverage(rep: Report) -> None:
     # 反过来也查一遍：有没有样式表根本没被人引用（死文件）
     for css in sorted(all_css - referenced):
         rep.add("L7", "样式未引用", f"assets/css/{css}.css", "没有任何页面加载它")
+
+    check_demo_css_coverage(owners, rep)
+
+
+def check_demo_css_coverage(owners: dict[str, set[str]], rep: Report) -> None:
+    """演示模块在运行时拼出来的类名，也要有样式。
+
+    上面那轮扫描只看 HTML。演示是 JS 生成 DOM 的，类名写在模板串里，
+    HTML 里一个都看不到 —— 第 3 章投票演示的 .quiz-grid / .quiz-card /
+    .quiz-card-label / .quiz-result 就是这样漏掉的：四张图竖着摞成一列，
+    点到第四张得滚一屏，而所有既有检查都是绿的。
+    """
+    # 这些不是样式钩子，是 enhance.js 用来识别代码语言的标记
+    HOOKS = {"lang-js", "lang-json", "lang-html", "lang-css",
+             "lang-bash", "lang-sh", "lang-py", "lang-sql"}
+    demo_dir = ROOT / "assets" / "js" / "demos"
+    seen: dict[str, set[str]] = defaultdict(set)
+    for f in sorted(demo_dir.glob("ch*.js")):
+        txt = re.sub(r"/\*.*?\*/", " ", f.read_text(encoding="utf-8", errors="replace"), flags=re.S)
+        # class="a b c" 与 className = "a b" 两种写法
+        for grp in re.findall(r'class(?:Name)?\s*=\s*["\']([^"\']*)["\']', txt):
+            for c in grp.split():
+                if re.fullmatch(r"-?[_a-zA-Z][-_a-zA-Z0-9]*", c):
+                    seen[c].add(f.stem)
+    for c in sorted(seen):
+        if c in owners or c in HOOKS:
+            continue
+        # 纯工具类（演示里借用站点已有的语义类）不算问题；真正的缺口是
+        # 「演示自己发明的类却没人定义」，这里按文件名逐条报出来。
+        rep.add("L7", "演示样式缺失", f"assets/js/demos/{sorted(seen[c])[0]}.js",
+                f"演示拼出的 .{c} 没有任何样式表定义")
 
 
 # ---------------------------------------------------------------------------
@@ -768,6 +830,21 @@ def check_demo_wiring(files: list[Path], rep: Report) -> None:
             if registered and key not in registered:
                 rep.add("L8", "演示接线错误", f"{rel} → 演示键 {key}",
                         "该键没有在对应的 demos 模块里注册")
+
+    # 双语层：demo-i18n.js 与它动态 import 的词典必须成对存在。
+    # 少一个不会报 404（import 失败只在控制台留一句 warn），
+    # 表现是「切到英文演示区还是中文」—— 很难往这里想。
+    i18n = ROOT / "assets" / "js" / "demo-i18n.js"
+    dict_js = demo_dir / "i18n.js"
+    if i18n.is_file() and not dict_js.is_file():
+        rep.add("L8", "演示接线错误", "assets/js/demos/i18n.js",
+                "demo-i18n.js 会 import 它，但文件不存在（切到英文时演示区不会翻译）")
+    if dict_js.is_file():
+        js = dict_js.read_text(encoding="utf-8", errors="replace")
+        n = js.count('": "')
+        if n < 200:
+            rep.add("L8", "演示接线错误", "assets/js/demos/i18n.js",
+                    f"词典只有约 {n} 条，疑似构建没跑完或被截断")
 
 
 # ---------------------------------------------------------------------------
@@ -822,6 +899,13 @@ def main() -> int:
 
     if not rep.issues:
         print("✅ 未发现静态问题\n")
+
+    # order 只是「按重要性排的显示顺序」，不是白名单：新加的检查项如果忘了
+    # 往 order 里塞，先前会被静默丢掉（演示样式那条就这么消失过一次）。
+    # 这里把没列进 order 的类别接在后面，谁也不会再悄悄不显示。
+    listed = set(order)
+    order = order + [k for k in kinds if k not in listed]
+
     for k in order:
         items = kinds.get(k)
         if not items:

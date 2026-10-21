@@ -696,6 +696,330 @@ html[data-theme="dark"] .analogy strong { color: var(--a-200); }
 .demo-btn:hover { filter: brightness(1.08); }
 .demo-btn:active { transform: translateY(1px); }
 
+/* 投票演示（第 3 章「对错案例」）。这四个类名由演示在运行时拼出来，
+   HTML 里一个都没有，所以审计的「类是否有样式」那一条扫不到它们 ——
+   原站也一样漏了，四张图直接竖着摞成一列，要点到第四张得滚一屏。
+   顺手把状态色接上令牌，深浅色都不用另写一套。 */
+.quiz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--sp-3);
+  margin-block: var(--sp-3);
+}
+
+.quiz-card {
+  padding: var(--sp-3);
+  background: var(--bg-surface);
+  border: 2px solid var(--border-1);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out);
+}
+
+.quiz-card:hover { transform: translateY(-2px); }
+.quiz-card svg { width: 100%; height: auto; }
+
+.quiz-card.correct { border-color: var(--ok-600); background: var(--ok-50); }
+.quiz-card.wrong   { border-color: var(--err-600); background: var(--err-50); }
+
+.quiz-card-label {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.quiz-result {
+  margin-top: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-1);
+  background: var(--bg-inset);
+  border-left: 3px solid var(--brand-solid);
+  border-radius: var(--radius-sm);
+}
+
+/* --------------------------------------------------------------------------
+   演示模块内部的类（第 3、4、5 章）
+   --------------------------------------------------------------------------
+   这些类名全部由演示在运行时拼出来，原站快照里**从来就没有对应的 CSS**
+   —— 移植时照抄了 HTML，样式一直是缺的：
+     · 第 3 章「色系搭配」五张方案竖着摞成五条全宽色带；
+     · 「颜色模型」四个色块挤成一行文字；
+     · 第 5 章「时间属性」五张卡片变成五根彩色横条。
+   内联样式（背景色、边框色）本来就在，所以这里只补「排版那一半」：
+   网格、间距、尺寸、层级，颜色一律走令牌，深浅色不用各写一套。 */
+.color-grid,
+.cvd-row,
+.color-space-cards,
+.harmony-grid,
+.palette-matrix,
+.cvd-paper,
+.philosophy-row {
+  display: grid;
+  gap: var(--sp-3);
+  margin-block: var(--sp-3);
+}
+
+.color-grid        { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.cvd-row           { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+.color-space-cards { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.harmony-grid      { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.palette-matrix    { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.cvd-paper         { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.philosophy-row    { grid-template-columns: minmax(220px, 1fr) 2fr; align-items: start; }
+
+.color-cell,
+.cvd-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 76px;
+  padding: var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: #fff;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+  border-radius: var(--radius-sm);
+}
+
+.cvd-cell { min-height: 58px; }
+
+.color-cell small { font-family: var(--font-mono); font-size: 10px; opacity: .85; }
+
+.color-picker-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-block: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.color-picker-row label { display: flex; align-items: center; gap: var(--sp-2); }
+.color-picker-row input[type="range"] { width: 110px; }
+
+.color-space-card,
+.harmony-card,
+.palette-strip,
+.cvd-paper-card,
+.flow-detail,
+.demo-control {
+  padding: var(--sp-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-sm);
+}
+
+.color-space-card h5,
+.harmony-card h5,
+.philosophy-output h5 {
+  margin: 0 0 var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.color-space-card p,
+.harmony-card p { margin: 0; font-size: var(--fs-sm); color: var(--text-2); line-height: 1.6; }
+
+.harmony-swatch {
+  display: flex;
+  height: 24px;
+  margin-bottom: var(--sp-2);
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.harmony-swatch > div { flex: 1 1 0; }
+
+.harmony-preview {
+  display: inline-block;
+  margin-bottom: var(--sp-2);
+  padding: 2px var(--sp-3);
+  font-size: var(--fs-xs);
+  color: #fff;
+  border-radius: 999px;
+}
+
+.harmony-card svg,
+.color-space-card svg { display: block; width: 100%; height: auto; }
+
+.palette-strip { display: flex; gap: 4px; padding: var(--sp-2); }
+.palette-strip > * { flex: 1 1 0; min-height: 48px; }
+.palette-name   { font-size: var(--fs-xs); font-weight: var(--fw-medium); color: var(--text-1); }
+.palette-source { font-size: 11px; color: var(--text-3); }
+
+.legend-strip {
+  flex: 1 1 auto;
+  display: flex;
+  height: 14px;
+  overflow: hidden;
+  border-radius: 3px;
+}
+
+.legend-strip > * { flex: 1 1 0; }
+.legend-low, .legend-high { font-size: 11px; color: var(--text-3); }
+
+.cvd-paper-card { display: flex; flex-direction: column; gap: var(--sp-2); }
+
+.philosophy-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.philosophy-inputs label { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); }
+.philosophy-output { padding: var(--sp-3); background: var(--bg-inset); border-radius: var(--radius-sm); }
+.philosophy-paper { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: var(--sp-2); }
+.philosophy-paper-card { padding: var(--sp-3); font-size: var(--fs-xs); border-radius: var(--radius-sm); }
+
+.tree-list { display: flex; flex-direction: column; gap: 2px; margin-block: var(--sp-3); }
+.tree-list > * { padding: 4px var(--sp-3); font-size: var(--fs-sm); border-radius: 4px; }
+.tree-list > *:hover { background: var(--bg-inset); }
+
+.demo-control { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+
+.decision-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.decision-table th,
+.decision-table td {
+  padding: var(--sp-2) var(--sp-3);
+  text-align: left;
+  border-bottom: 1px solid var(--border-1);
+}
+
+.decision-table th {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.example,
+.visual-hint {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-2);
+}
+
+.ms-threshold-control,
+.slope-control {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-block: var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.slope-readout {
+  min-width: 3.5em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-1);
+}
+
+.ts-tip {
+  position: absolute;
+  z-index: 20;
+  padding: 4px var(--sp-2);
+  font-size: 11px;
+  color: var(--text-inverse);
+  background: var(--text-1);
+  border-radius: 4px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.demo-btn.secondary {
+  color: var(--text-1);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-1);
+}
+
+/* 第 5 章「时间的 5 个属性」：五张卡片 + 右侧详情 */
+.attr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--sp-3);
+  margin-block: var(--sp-3);
+}
+
+.attr-card {
+  padding: var(--sp-3);
+  text-align: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.attr-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm, 0 6px 18px rgb(15 23 42 / 0.08));
+}
+
+.attr-icon { font-size: 20px; line-height: 1.2; }
+.attr-name { margin-top: 2px; font-size: var(--fs-sm); font-weight: var(--fw-medium); color: var(--text-1); }
+.attr-key  { font-family: var(--font-mono); font-size: 10px; color: var(--text-3); }
+
+.attr-detail { min-height: 96px; }
+
+.attr-detail-card {
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-sm);
+}
+
+.attr-detail-card h4 { margin-top: 0; color: var(--text-1); }
+
+/* 第 5 章日历热图 / colormap 条：都是「一排色块 + 两端标注」。
+   注意只有色条本身该固定高度 —— 把整行压成 12px 会把两端的 -5°C / 30°C
+   裁成半个字（我第一版就这么写的，截图里只剩「¬°C」）。 */
+.cal-legend-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+.cal-legend-bar .legend-strip,
+.colormap-strip {
+  display: flex;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 3px;
+}
+
+.colormap-strip > * { flex: 1 1 0; }
+
+/* 演示里那些只当画布用的容器：SVG 默认是 inline，底部会多出几像素空白 */
+.cal-svg, .flow-svg, .heatmap-svg, .lab-gamut-svg, .ms-svg, .slope-svg,
+.spiral-svg, .storyline-svg, .tree-svg, .ts-svg, .tree-layout-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-block: var(--sp-2);
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;

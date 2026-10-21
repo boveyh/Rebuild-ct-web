@@ -83,7 +83,7 @@ DEMOS["d-3-1"] = async (mount) => {
 
 // ---------- 3.2 DIKW 金字塔 ----------
 DEMOS["d-3-2"] = (mount) => {
-  const W = 600, H = 360, cx = W / 2;
+  const W = 600, H = 400, cx = W / 2;
   const LAYERS = [
     { name: "Wisdom",   cn: "智慧", color: "#9333ea", h: 60, topW: 60,
       desc: "运用知识做出明智判断与战略决策。回答「为什么」与「应该怎么做」。",
@@ -206,7 +206,8 @@ DEMOS["d-3-3"] = (mount) => {
     svg.selectAll("circle").data(DATA).join("circle")
       .attr("cx", d => x(d.age)).attr("cy", d => y(d.name) + y.bandwidth() / 2).attr("r", 7)
       .attr("fill", "#2563eb");
-    svg.selectAll("text").data(DATA).join("text")
+    svg.selectAll("text.name-lbl").data(DATA).join("text")
+      .attr("class", "name-lbl")
       .attr("x", 55).attr("y", d => y(d.name) + y.bandwidth() / 2 + 4)
       .attr("text-anchor", "end").attr("font-size", 11).text(d => d.name);
   }
@@ -271,7 +272,7 @@ DEMOS["d-3-4"] = (mount) => {
     document.getElementById("d-3-4-out").innerHTML = `
       <p><strong>${name}</strong> —— ${s.hint}</p>
       <div class="console">输入：${JSON.stringify(s.in)}
-输出：${JSON.stringify([...out], null, 2)}</div>`;
+输出：${JSON.stringify(out && out[Symbol.iterator] ? [...out] : out, null, 2)}</div>`;
   };
   document.getElementById("d-3-4-sel").addEventListener("change", e => render(e.target.value));
   render("map");

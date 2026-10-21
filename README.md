@@ -44,7 +44,8 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
 
 ### 2. 阅读体验：让内容真的更好读
 
-- **双语**从「中英两段并排堆叠」改为「双 DOM + 一条 CSS 规则切换」——中文读者不再被迫读两遍
+- **双语**从「中英两段并排堆叠」改为「双 DOM + 一条 CSS 规则切换」——中文读者不再被迫读两遍；
+  27 个演示的解说文案也做了运行时双语层（词典 522 条，演示代码零改动），术语表英文释义与中文等深
 - **代码块**加上行号（`::before` 生成，不进复制文本）、语言标签、复制按钮，
   并用黄色左边条标出原作者用 ⭐ 标记的 **123 处**关键代码点
 - **配色采用 Wong 色板**（Nature Methods 2011，色觉缺陷友好）——
@@ -100,8 +101,9 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
 **知识图谱**把 26 个知识点和 5 个章节组织成一张可展开的网络：默认展开第 1 章，读者
 一进来就能看到「知识点长什么样」，而不是又一张章节目录。点章节展开它的知识点、点知识点
 在右侧看一句话总结与对应小节，跨章依赖边把五章连成一张网。力导向只负责「摆得开」——
-没展开时五章吸附在固定半径的环上，每次打开图长得一样。d3 用动态 `import()`，且等图谱
-滚进视口才加载，门户首屏不为第二屏的图付 280 KB。
+没展开时五章吸附在固定半径的环上，每次打开图长得一样。d3 用动态 `import()`，等图谱
+滚进视口才加载，且加载的是**按需裁剪的子集**（`vendor/d3-kg.esm.js`，63 KB / gzip 21 KB），
+不是 283 KB 的全量包；页面空闲时再预取一次，滚到图谱基本不用等。首屏不为第二屏的图付带宽。
 
 节点可以拖动、画布可以平移缩放；缩小到读不清字时概念标签自动让位、只留章节名，
 选中哪一章就把它的成员标签放回来。章节页顶部的「概念依赖图」是另一套渲染
@@ -147,7 +149,7 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
     ├── audit.py                全站静态审计
     ├── verify_render.mjs       真实浏览器渲染验证
     ├── package.py              交付打包：排除 .git / 会话数据 / 可再生成产物
-    ├── data/                   教学元数据：章节目标、概念图、导览脚本、术语表
+    ├── data/                   教学元数据：章节目标、概念图、导览脚本、术语表、演示双语词典
     └── origin/                 原站快照（管道的输入，勿删）
 ```
 
@@ -158,7 +160,7 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
 ```bash
 python tools/build.py          # 重建全站（可重复执行，结果确定）
 python tools/audit.py          # 静态审计：断链 / 绝对路径 / 残留 / a11y / 内容完整性 / 文档结构
-node  tools/verify_render.mjs  # 本地浏览器跑 35 个页面 + 28 项交互与布局断言
+node  tools/verify_render.mjs  # 本地浏览器跑 35 个页面 + 40 项交互与布局断言
 node  tools/verify_render.mjs --shots   # 同时输出截图到 tools/screenshots/
 node  tools/verify_live.mjs    # 部署后验证线上 404 页（子路径下样式是否正常）
 python tools/package.py        # 打交付压缩包到 deliverables/
@@ -177,7 +179,7 @@ NODE_PATH=C:/Users/<you>/.workbuddy/binaries/node/workspace/node_modules \
 ```
 
 **当前状态：静态审计 0 问题；35/35 页面在真实浏览器中零报错、零失败请求；
-交互与布局断言 28/28 通过；6 类页面 × 3 档窄屏共 18 个组合零横向溢出（含知识图谱与关卡图容器内不横滚）。**
+交互与布局断言 40/40 通过；6 类页面 × 3 档窄屏共 18 个组合零横向溢出（含知识图谱与关卡图容器内不横滚）。**
 
 ---
 
@@ -186,6 +188,18 @@ NODE_PATH=C:/Users/<you>/.workbuddy/binaries/node/workspace/node_modules \
 纯 HTML + CSS + ES Modules。**零构建、零依赖、零外部请求。**
 D3.js v7 内置在 `assets/js/vendor/`（ESM 与 UMD 各一份），断网也能把 27 个演示跑完；
 `python -m http.server` 即可运行。
+
+`vendor/d3-kg.esm.js` 是给知识图谱用的**裁剪版**：只包含 select / zoom / drag / force
+四组模块（+ transition 的副作用补丁），283 KB → 63 KB。它是产物不是源码，改 d3 版本时
+才需要重打：
+
+```bash
+npm i d3@7 esbuild          # 任意临时目录
+esbuild entry.mjs --bundle --format=esm --minify --target=es2020 --outfile=d3-kg.esm.js
+```
+
+`entry.mjs` 的内容就是那几行 re-export（见 `docs/改动说明.md` 4.31）。构建全站只需要
+Python —— 这个产物是入库的。
 
 设计系统有 128 个 CSS 变量，分三层：原始色阶 → 语义令牌 → 组件。
 换主题只动语义层。

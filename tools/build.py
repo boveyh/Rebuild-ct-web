@@ -28,6 +28,7 @@ build.py —— 课程网站内容管道
 """
 
 import json
+import hashlib
 import os
 import re
 import struct
@@ -38,6 +39,24 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ORIGIN = ROOT / "tools" / "origin"
 DATA = ROOT / "tools" / "data"
+
+
+_VER: dict[str, str] = {}
+
+
+def asset_q(rel: str) -> str:
+    """给样式/脚本引用挂一段内容指纹（?v=<md5 前 8 位>）。
+
+    静态站最烦的一种「改了但没生效」：URL 没变，浏览器直接拿本地缓存，
+    于是你以为样式没写对，其实是旧文件在跑。URL 里带上内容哈希之后，
+    文件一改指纹就变，缓存自动失效；文件没改则 URL 也不变，缓存照旧有效。
+    """
+    if rel not in _VER:
+        p = ROOT / rel
+        _VER[rel] = (
+            "?v=" + hashlib.md5(p.read_bytes()).hexdigest()[:8] if p.is_file() else ""
+        )
+    return _VER[rel]
 
 # 站点对外地址。canonical / og:url 要用绝对地址，而构建时并不联网，
 # 只能从配置里取。换部署位置时改这一处，或用环境变量覆盖。
@@ -374,16 +393,17 @@ def head(title, desc, depth, extra_css=(), extra_js=(), theme_color="#3d4bc0",
               f'\n  <meta property="og:locale" content="zh_CN" />'
               f'\n  <meta name="twitter:card" content="summary_large_image" />') if url else ""
     css = "\n".join(
-        f'  <link rel="stylesheet" href="{up}assets/css/{n}.css" />'
+        f'  <link rel="stylesheet" href="{up}assets/css/{n}.css{asset_q(f"assets/css/{n}.css")}" />'
         for n in ("tokens", "base", "shell", "content")
     )
     for n in extra_css:
-        css += f'\n  <link rel="stylesheet" href="{up}assets/css/{n}.css" />'
+        css += f'\n  <link rel="stylesheet" href="{up}assets/css/{n}.css{asset_q(f"assets/css/{n}.css")}" />'
     js = "\n".join(
-        f'  <script type="module" src="{up}assets/js/{n}.js"></script>' for n in ("shell", "enhance")
+        f'  <script type="module" src="{up}assets/js/{n}.js{asset_q(f"assets/js/{n}.js")}"></script>'
+        for n in ("shell", "enhance")
     )
     for n in extra_js:
-        js += f'\n  <script type="module" src="{up}assets/js/{n}.js"></script>'
+        js += f'\n  <script type="module" src="{up}assets/js/{n}.js{asset_q(f"assets/js/{n}.js")}"></script>'
     return f"""<!DOCTYPE html>
 <html lang="zh-CN" data-locale="zh" data-theme="light">
 <head>
@@ -1715,6 +1735,9 @@ def build_demos():
         src = re.sub(r'^import \* as d3 from ["\'][^"\']+["\'];',
                      'import * as d3 from "../vendor/d3.esm.js";', src, flags=re.M)
 
+        # 修掉原站演示里有、但一直没人点到的几个 bug（见 DEMO_PATCHES）
+        src = apply_demo_patches(cid, src)
+
         body = DEMO_HEADER.format(num=ch["num"], size=original_size, count=n_reg) + src
         body += "\n\nexport default DEMOS;\n"
 
@@ -1724,6 +1747,165 @@ def build_demos():
         print(f"  · 第 {ch['num']} 章：抽取 {n_reg} 个演示 → assets/js/demos/ch{cid}.js "
               f"({original_size} B → {len(body.encode('utf-8'))} B)")
     return counts
+
+
+def build_demo_i18n():
+    """演示区词典：tools/data/demo-i18n.json → assets/js/demos/i18n.js
+
+    演示模块每次构建都从原站快照重抽，译文没法写在演示代码里。
+    这里把中英对照表编译成一个 ES 模块，由 assets/js/demo-i18n.js 在
+    语言切到 EN 时按文本节点替换（见该文件顶部说明）。
+
+    顺带做两条体检，防止词典悄悄腐坏：
+      · 键里带中文、值里不能有中文（漏译会立刻显形，而不是线上才发现）；
+      · 值的数字数量不多于键 —— 多出来的数字没有对应占位，运行时填不回去。
+    """
+    raw = json.loads(read(DATA / "demo-i18n.json"))
+    strings = raw["strings"]
+    problems = []
+    for zh, en in strings.items():
+        if not re.search(r"[\u4e00-\u9fff]", zh):
+            problems.append(f"键里没有中文：{zh!r}")
+        if re.search(r"[\u4e00-\u9fff]", en):
+            problems.append(f"值里还有中文：{zh!r} → {en!r}")
+        if len(re.findall(r"\d+(?:[.,]\d+)?", en)) > len(re.findall(r"\d+(?:[.,]\d+)?", zh)):
+            problems.append(f"值的数字比原文多（占位对不上）：{zh!r} → {en!r}")
+    if problems:
+        raise SystemExit("演示词典有问题：\n  · " + "\n  · ".join(problems[:20]))
+
+    body = (
+        "/* 由 tools/build.py 从 tools/data/demo-i18n.json 生成，请勿手改 */\n"
+        "export const prefixes = "
+        + json.dumps(raw.get("prefixes", {}), ensure_ascii=False, sort_keys=True)
+        + ";\n"
+        "export default "
+        + json.dumps(strings, ensure_ascii=False, indent=0, sort_keys=True)
+        + ";\n"
+    )
+    write(ROOT / "assets" / "js" / "demos" / "i18n.js", body)
+    print(f"  · 演示区中英对照 {len(strings)} 条 → assets/js/demos/i18n.js "
+          f"({len(body.encode('utf-8'))} B)")
+
+
+# 演示代码是从原站快照重抽的，修 bug 不能改生成物 —— 改了下次构建就没了。
+# 这里登记「源码级补丁」：正则 + 替换 + 原因，每条必须**恰好命中一次**，
+# 原文一改就报错，避免补丁悄悄失效却没人发现（这类静默失效比 bug 本身更难查）。
+DEMO_PATCHES = [
+    (
+        "01",
+        "d3.reduce 返回标量，[...out] 抛 “out is not iterable”",
+        r"JSON\.stringify\(\[\.\.\.out\]",
+        "JSON.stringify(out && out[Symbol.iterator] ? [...out] : out",
+        "下拉框选到 reduce 时输出区整块空掉，控制台报 out is not iterable。"
+        "其余 9 个函数返回数组 / Map，只有 reduce 返回数字。",
+    ),
+    (
+        "03",
+        "投票卡给 classList.add 传了空字符串",
+        r'cc\.classList\.add\(c\.type === "correct" \? "wrong" : ""\);',
+        'if (c.type === "correct") cc.classList.add("wrong");',
+        "点任何一个错误选项都会抛 DOMTokenList 异常，循环中断，"
+        "结果区不出现 —— 也就是「投错票没有任何反应」。"
+        "顺带看懂了原意：投对时其余三张标错，投错时其余保持中立。",
+    ),
+    (
+        "05",
+        "按日期查温度时 Map 的键是 Date 对象、查询用的是字符串",
+        r"new Map\(dataRaw\.map\(d => \[d\.date, d\.temp_max\]\)\)",
+        "new Map(dataRaw.map(d => [d3.timeFormat('%Y-%m-%d')(d.date), d.temp_max]))",
+        "d3.autoType 已经把 date 列转成 Date 对象，byKey 就用 Date 做键；"
+        "查询侧却是 d3.timeFormat('%Y-%m-%d')(d) 出来的字符串 —— 字符串查不到 Date 键，"
+        "于是 5.3 日历热图每天取值都是兜底的 0，整张图一种颜色；"
+        "5.4 螺旋图每个分段都是 null，全部画成灰色占位。两个演示看着「正常」，其实一个数据都没画。",
+        2,
+    ),
+    (
+        "03",
+        "CIE Lab 色域图右侧的 a* 轴标签画到了 viewBox 外面",
+        r'\.attr\("x", W - 36\)',
+        '.attr("x", W - 8).attr("text-anchor", "end")',
+        "SVG 根元素默认裁剪 viewBox 以外的内容，标签用默认的 start 锚点从 W-36 起画，"
+        "超出右边界的部分被切掉，页面上只剩「a* = +」。改成 end 锚点、右移到 W-8。",
+    ),
+    (
+        "02",
+        "树布局的左右节点标签都落在 viewBox 外面被裁掉",
+        r'viewBox="0 0 800 360"',
+        'viewBox="-50 0 945 360"',
+        "布局宽度按 width-80=720 算，叶节点落在 760，标签再从 +8 往右排 ~90px，"
+        "右边超出 800 约 78 个单位；根节点标签用 end 锚点排在 -8，左边也出了界。"
+        "把它调成「左扩 50、总宽 945」，两侧标签都进框。",
+    ),
+    (
+        "05",
+        "日历热图 53 周 × 16px 撑破 800 宽度，12 月被裁掉",
+        r"const cellSize = 16;",
+        "const cellSize = 14;",
+        "一年 53 列，16px 一格要 848px，加上左边距 30 一共 878，比 SVG 的 800 宽 78 —— "
+        "右边整整五列（12 月）画到了框外，用户看到的是「一年只有 11 个月」。"
+        "缩到 14px 后 53×14+30=772，留出右边距。",
+    ),
+    (
+        "05",
+        "日历热图没有 viewBox，窄屏下只能被压扁",
+        r'<svg class="cal-svg" width="\$\{W\}" height="\$\{H\}" id="cal">',
+        '<svg class="cal-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" id="cal">',
+        "没有 viewBox 的 SVG 只能靠 width/height 定尺寸，配上 max-width:100% 后"
+        "宽度被压、高度不变，图形整个变形。补上 viewBox 才会等比缩放。",
+    ),
+    (
+        "01",
+        "「数值 → 位置」的姓名标签抢走了坐标轴的刻度文字",
+        r'svg\.selectAll\("text"\)\.data\(DATA\)\.join\("text"\)\n      \.attr\("x", 55\)',
+        'svg.selectAll("text.name-lbl").data(DATA).join("text")\n'
+        '      .attr("class", "name-lbl")\n      .attr("x", 55)',
+        "svg.selectAll(\"text\") 会把刚由 axisBottom 生成的刻度文字一起选进来（它们在轴的 <g> 里，"
+        "仍是 svg 的后代）。join 没有 key，于是 7 个姓名被绑到那几个刻度上："
+        "x 轴刻度变成「张三李四…」，想要的左侧姓名标签只剩最后一个。"
+        "给姓名标签带上类名，选择器就只看得见它们自己。",
+    ),
+    (
+        "01",
+        "DIKW 金字塔的底座画到了 viewBox 外面",
+        r"const W = 600, H = 360, cx = W / 2;",
+        "const W = 600, H = 400, cx = W / 2;",
+        "四层从 y=20 起、每层下移 80，最底层的下边缘落在 y=380，"
+        "而画布高度只有 360 —— 「数据」那一层被切掉 20 个单位，"
+        "看上去底边是齐平的，其实是截断的。",
+    ),
+    (
+        "03",
+        "对错案例缩略图的柱子比画布还高",
+        r"const bw = \(W - 16\) / 8;",
+        "const bw = (W - 16) / 8;\n    const maxV = Math.max(...data);",
+        "柱子高度直接写 v*14，而数据最大值约 8，于是最高的一根从 y=-16 起画，"
+        "整根被画布裁掉 —— 四张缩略图里最高的柱子都缺一截，看着像数据本身就这样。",
+    ),
+    (
+        "03",
+        "对错案例缩略图的柱子高度没有归一",
+        r'bars \+= `<rect x="\$\{8 \+ i \* bw\}" y="\$\{H - 8 - v \* 14\}" width="\$\{bw - 2\}" height="\$\{v \* 14\}" fill="\$\{color\}" />`;',
+        'bars += `<rect x="${8 + i * bw}" y="${H - 8 - (v / maxV) * (H - 16)}"'
+        ' width="${bw - 2}" height="${(v / maxV) * (H - 16)}" fill="${color}" />`;',
+        "按本组数据的最大值缩放到 H-16 的高度，最高的柱子正好贴着上边距。",
+    ),
+]
+
+
+def apply_demo_patches(cid, src):
+    for patch in DEMO_PATCHES:
+        ch_id, name, pattern, repl, why = patch[:5]
+        expect = patch[5] if len(patch) > 5 else 1
+        if ch_id != cid:
+            continue
+        src, n = re.subn(pattern, lambda _m: repl, src)
+        if n != expect:
+            raise SystemExit(
+                f"第 {ch_id} 章演示补丁「{name}」命中 {n} 次（应为 {expect} 次）。\n"
+                f"  原因：{why}\n"
+                f"  正则：{pattern}"
+            )
+    return src
 
 
 # ============================================================ 搜索索引
@@ -2245,11 +2427,16 @@ def build_portal(all_sections, demo_counts):
             f'<span data-lang="en">{s["title"]["en"]}</span></li>' for s in secs
         )
         cards.append(f"""        <a class="chapter-card" href="{ch['slug']}/" data-progress-scope="c{ch['id']}s" data-progress-total="{len(secs)}">
-          <span class="chapter-card__glow" aria-hidden="true"></span>
           {CHAPTER_MOTIFS[ch['id']]}
           <span class="chapter-card__top">
             <span class="chapter-card__num"><span data-lang="zh">第 {ch['num']} 章</span><span data-lang="en">Chapter {ch['num']}</span></span>
-            <span class="chapter-card__progress" data-progress-out>0%</span>
+            <span class="chapter-card__progress" data-progress-out>
+              <svg class="chapter-card__ring" viewBox="0 0 36 36" aria-hidden="true" focusable="false">
+                <circle class="chapter-card__ring-track" cx="18" cy="18" r="15.4"></circle>
+                <circle class="chapter-card__ring-fill" cx="18" cy="18" r="15.4" pathLength="100"></circle>
+              </svg>
+              <span class="chapter-card__ring-num" data-progress-num>0%</span>
+            </span>
           </span>
           <span class="chapter-card__title">
             <span data-lang="zh">{ch['title']['zh']}</span>
@@ -2537,6 +2724,7 @@ def main():
 
     print("\n[3/6] 抽取演示模块")
     demo_counts = build_demos()
+    build_demo_i18n()
 
     print("\n[4/6] 生成门户页")
     build_portal(all_sections, demo_counts)

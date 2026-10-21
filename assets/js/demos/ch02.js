@@ -236,7 +236,7 @@ DEMOS["d-4-3"] = async (mount) => {
         <span id="d-4-3-sep-out">0.6</span>
       </label>
     </div>
-    <svg class="tree-svg tree-layout-svg" id="d-4-3-svg" viewBox="0 0 800 360"></svg>
+    <svg class="tree-svg tree-layout-svg" id="d-4-3-svg" viewBox="-50 0 945 360"></svg>
     <p class="demo-legend">
       <strong>Reingold-Tilford 算法：</strong>1981 年提出，仍是 d3.tree() 的核心实现。每个父节点的子节点
       均匀分配左右两侧的空间，子节点的位置是递归计算父节点位置 ± 偏移。

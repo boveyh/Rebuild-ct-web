@@ -337,7 +337,13 @@
         }
         var pct = Math.min(100, Math.round((done / total) * 100));
         var out = $("[data-progress-out]", el);
-        if (out) out.textContent = pct + "%";
+        if (out) {
+          /* 章节卡把百分比包进了一个环形表盘里。整块写 textContent 会把
+             <svg> 一起铲掉，只留下一个数字 —— 所以优先写环心那个 span，
+             找不到（侧栏的纯文本进度）才退回整块替换。 */
+          var num = $("[data-progress-num]", out);
+          (num || out).textContent = pct + "%";
+        }
         var bar = $("[data-progress-bar]", el);
         if (bar) bar.style.width = pct + "%";
         el.setAttribute("data-progress-value", String(pct));

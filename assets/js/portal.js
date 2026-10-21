@@ -143,6 +143,132 @@
     });
   }
 
+  /* --------------------------------------------------- 章节卡：进度环 */
+  /* 卡右上角的百分比原来只是一行字。换成环形表盘之后，进度有了形状 ——
+     但形状得「长」出来才算数，静止画好只是换了个外观。所以填两次：
+
+       · 卡片第一次滚进视口，环从空扫到真实值；
+       · 鼠标移进卡片（或 Tab 聚焦）再快速重播一遍。触屏没有 hover，
+         手指抬起也不会配对 pointerleave，干脆不播。
+
+     环心数字不参与动画。它是这张卡唯一的文字读数，要同时喂给读屏、
+     打印和「在页面里搜 80%」，不能为了动效先把它变成 0%。环负责「长」，
+     数字负责「准」；一静一动，比两个一起数更清楚，也不会在环没长完时
+     出现「数字说 80%、环说 0%」的自相矛盾。 */
+  var Rings = {
+    items: [],
+
+    init: function () {
+      var self = this;
+
+      this.items = $$(".chapter-card__ring-fill").map(function (fill) {
+        var card = fill.parentNode;
+        while (card && !card.classList.contains("chapter-card")) card = card.parentNode;
+        if (!card) return null;
+        return {
+          card: card,
+          fill: fill,
+          num: card.querySelector("[data-progress-num]"),
+          pct: 0,
+          played: false,
+          lastBeat: 0,
+        };
+      }).filter(Boolean);
+
+      if (!this.items.length) return;
+
+      this.items.forEach(function (it) {
+        it.pct = self.read(it.card);
+        self.writeNum(it);
+        self.paint(it, 0, false);   // 环先空着，等它进视口再长出来
+
+        var replay = function (e) {
+          if (reduce) return;
+          if (e.type === "pointerenter" && e.pointerType && e.pointerType !== "mouse") return;
+          // 点进来会先 pointerenter 再 focus，挨得太近只播一次
+          var now = Date.now();
+          if (now - it.lastBeat < 500) return;
+          it.lastBeat = now;
+          self.paint(it, 0, false);
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () { self.paint(it, it.pct, true); });
+          });
+        };
+        it.card.addEventListener("pointerenter", replay);
+        it.card.addEventListener("focus", replay);
+      });
+
+      // 减少动态效果 / 没有 IntersectionObserver：直接给答案，不做入场动画
+      if (reduce || !("IntersectionObserver" in window)) {
+        this.items.forEach(function (it) { self.paint(it, it.pct, false); });
+        return;
+      }
+
+      var io = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          obs.unobserve(e.target);
+          var it = self.items.filter(function (x) { return x.card === e.target; })[0];
+          if (!it) return;
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () { self.paint(it, it.pct, true); });
+          });
+        });
+      }, { threshold: 0.2 });
+      this.items.forEach(function (it) { io.observe(it.card); });
+    },
+
+    /* 百分比优先取 shell.js 写在卡片上的 data-progress-value；
+       它还没跑过就自己按 scope 数一遍，两条路结果一致。 */
+    read: function (card) {
+      var v = card.getAttribute("data-progress-value");
+      if (v !== null && v !== "") {
+        var n = parseFloat(v);
+        if (!isNaN(n)) return Math.max(0, Math.min(100, n));
+      }
+      var scope = card.getAttribute("data-progress-scope");
+      var total = parseInt(card.getAttribute("data-progress-total") || "0", 10);
+      if (!scope || !total) return 0;
+      var map = readProgress();
+      var done = 0;
+      for (var k in map) if (map[k] && k.indexOf(scope) === 0) done++;
+      return Math.min(100, Math.round(done / total * 100));
+    },
+
+    writeNum: function (it) {
+      if (it.num) it.num.textContent = Math.round(it.pct) + "%";
+    },
+
+    paint: function (it, pct, animate) {
+      if (!animate) {
+        // 先把过渡关掉再写值，否则「归零」也会被 1000ms 拉成一段倒放
+        it.fill.style.transition = "none";
+        it.fill.style.strokeDashoffset = String(100 - pct);
+        void it.fill.getBoundingClientRect();
+        it.fill.style.transition = "";
+        return;
+      }
+      it.fill.style.transition = "";
+      it.fill.style.strokeDashoffset = String(100 - pct);
+      it.played = true;
+    },
+
+    /* 进度变了（读了一节回来）。数字立刻对齐；环只在播过入场的卡片上
+       平滑跟上 —— 没露过面的卡保持空环，等它进视口时一次画到新值。 */
+    refresh: function () {
+      var self = this;
+      this.items.forEach(function (it) {
+        var pct = self.read(it.card);
+        if (pct === it.pct) return;
+        it.pct = pct;
+        self.writeNum(it);
+        if (!it.played) return;
+        self.paint(it, pct, true);
+      });
+    },
+  };
+
+
   /* --------------------------------------------------- 学习路径：关卡图 */
   /* 连线不能写死坐标：每一站多宽是 flex 按容器算的，换语言（英文标签更长）、
      换字号、窄屏变竖排，坐标全变。所以量出站点圆心的实际位置，再连曲线。 */
@@ -377,6 +503,7 @@
   function init() {
     markResume();
     markRoutes();
+    Rings.init();
     PathMap.init();
     spySections();
     doc.addEventListener("wb:locale", function () {
@@ -390,6 +517,7 @@
        站点上的「已读完 / 读到 2 / 5」和实线段都要跟着变。 */
     doc.addEventListener("wb:progress", function () {
       markRoutes();
+      Rings.refresh();
       PathMap.render();
       PathMap.draw();
     });
