@@ -7,7 +7,7 @@
 排除项分三类：
   1. 版本控制与 Agent 会话数据（.git/、.workbuddy/）—— 体积大且与源码无关
   2. 可再生成的产物（tools/screenshots/、__pycache__/）—— 跑一次验证脚本就有
-  3. 打包输出目录自身（deliverables/）—— 否则会包进上一次的包
+  3. 打包输出与文档流水线目录（deliverables/、output/）—— 否则会包进上一次的包与中间稿
 
 用法：
     python tools/package.py
@@ -30,6 +30,7 @@ EXCLUDE_DIRS = {
     ".git",
     ".workbuddy",
     "deliverables",
+    "output",
     "__pycache__",
     ".tmp",
     "node_modules",
@@ -40,7 +41,15 @@ EXCLUDE_DIRS = {
 EXCLUDE_SUFFIXES = {".pyc", ".pyo", ".log", ".zip", ".DS_Store"}
 
 
-def should_skip(rel: Path) -> bool:
+# --slim 额外排除：这些是「内容素材」而非「站点实现」，体积占了整包一半以上
+SLIM_EXCLUDE_DIRS = {
+    "tools/origin",        # 原站快照，构建输入；不含它则 build.py 无法重跑
+    "docs",                # 改动说明与评分报告
+}
+SLIM_EXCLUDE_SUFFIXES = {".pdf"}
+
+
+def should_skip(rel: Path, slim: bool = False) -> bool:
     posix = rel.as_posix()
     for d in EXCLUDE_DIRS:
         if posix == d or posix.startswith(d + "/"):
@@ -49,10 +58,16 @@ def should_skip(rel: Path) -> bool:
         return True
     if rel.name in {".DS_Store", "Thumbs.db"}:
         return True
+    if slim:
+        for d in SLIM_EXCLUDE_DIRS:
+            if posix == d or posix.startswith(d + "/"):
+                return True
+        if rel.suffix in SLIM_EXCLUDE_SUFFIXES:
+            return True
     return False
 
 
-def collect() -> list[Path]:
+def collect(slim: bool = False) -> list[Path]:
     files: list[Path] = []
     for dirpath, dirnames, filenames in os.walk(ROOT):
         here = Path(dirpath)
@@ -61,12 +76,12 @@ def collect() -> list[Path]:
         # 原地裁剪 dirnames，os.walk 就不会往里走（比事后过滤省事也更准）
         dirnames[:] = [
             d for d in dirnames
-            if not should_skip((rel_here / d) if str(rel_here) != "." else Path(d))
+            if not should_skip((rel_here / d) if str(rel_here) != "." else Path(d), slim)
         ]
 
         for name in filenames:
             rel = (rel_here / name) if str(rel_here) != "." else Path(name)
-            if not should_skip(rel):
+            if not should_skip(rel, slim):
                 files.append(rel)
 
     return sorted(files, key=lambda p: p.as_posix())
@@ -74,13 +89,24 @@ def collect() -> list[Path]:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="打包可交付源码")
-    ap.add_argument("--out", default=str(DEFAULT_OUT), help="输出 zip 路径")
+    ap.add_argument("--out", default=None,
+                    help="输出 zip 路径（默认标准包 deliverables/Rebuild-ct-web-source.zip，"
+                         "--slim 时默认 deliverables/Rebuild-ct-web-source-slim.zip）")
+    ap.add_argument("--slim", action="store_true",
+                    help="精简包：额外排除原站快照、PDF 素材与 docs（体积约减半）")
     args = ap.parse_args()
 
-    out = Path(args.out).resolve()
+    # 两种模式的默认文件名必须不同：否则先跑标准包、再跑精简包，
+    # 后者会把前者覆盖掉（按体积看还以为「瘦身成功」了）。
+    if args.out:
+        out = Path(args.out).resolve()
+    elif args.slim:
+        out = DEFAULT_OUT.with_name("Rebuild-ct-web-source-slim.zip")
+    else:
+        out = DEFAULT_OUT
     out.parent.mkdir(parents=True, exist_ok=True)
 
-    files = collect()
+    files = collect(args.slim)
     if not files:
         print("没有可打包的文件，检查工作目录是否正确")
         return 1
@@ -122,7 +148,7 @@ def main() -> int:
         acc[1] += (ROOT / rel).stat().st_size
 
     print("=" * 62)
-    print("打包完成")
+    print(f"打包完成（{'精简包' if args.slim else '标准包'}）")
     print("=" * 62)
     print(f"输出       {out}")
     print(f"文件数     {len(files)}")
@@ -136,6 +162,8 @@ def main() -> int:
         print(f"  {name:<16} {n:>4} 个   {size / 1024:>9.1f} KB")
     print()
     print("已排除：" + "、".join(sorted(EXCLUDE_DIRS)))
+    if args.slim:
+        print("精简模式另排除：" + "、".join(sorted(SLIM_EXCLUDE_DIRS)) + "、*.pdf")
     print(f"生成时间：{time.strftime('%Y-%m-%d %H:%M:%S')}")
     return 0
 

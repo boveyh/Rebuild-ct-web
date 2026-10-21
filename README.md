@@ -148,7 +148,7 @@ GitHub Pages 可直接部署：把本目录作为站点根目录推送到 `main`
     ├── build_supp.py           补充 Demo 修复与统一
     ├── audit.py                全站静态审计
     ├── verify_render.mjs       真实浏览器渲染验证
-    ├── package.py              交付打包：排除 .git / 会话数据 / 可再生成产物
+    ├── package.py              交付打包：排除 .git / 会话数据 / 可再生成产物；--slim 出精简包
     ├── data/                   教学元数据：章节目标、概念图、导览脚本、术语表、演示双语词典
     └── origin/                 原站快照（管道的输入，勿删）
 ```
@@ -163,7 +163,8 @@ python tools/audit.py          # 静态审计：断链 / 绝对路径 / 残留 /
 node  tools/verify_render.mjs  # 本地浏览器跑 35 个页面 + 40 项交互与布局断言
 node  tools/verify_render.mjs --shots   # 同时输出截图到 tools/screenshots/
 node  tools/verify_live.mjs    # 部署后验证线上 404 页（子路径下样式是否正常）
-python tools/package.py        # 打交付压缩包到 deliverables/
+python tools/package.py        # 打交付压缩包到 deliverables/（2.18 MB，144 文件）
+python tools/package.py --slim # 精简包：去掉快照 / PDF / docs（1.22 MB，128 文件）
 ```
 
 > `verify_render.mjs` 与 `verify_live.mjs` 都依赖 `puppeteer-core` 和本机的 Chrome / Edge。

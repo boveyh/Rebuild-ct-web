@@ -14,3 +14,6 @@ tools/screenshots/
 
 # 交付压缩包输出目录：由 tools/package.py 生成
 deliverables/
+
+# 文档生成流水线的中间稿（stage1 markdown / stage2 html / stage3 docx）
+output/
